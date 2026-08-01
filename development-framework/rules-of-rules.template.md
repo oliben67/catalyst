@@ -1,0 +1,234 @@
+# Rules of Rules — template
+
+> Copy this file to `{{RULES_DIR}}/rules-of-rules.md` in the target
+> project and resolve every `{{PLACEHOLDER}}`. Delete this notice once
+> instantiated. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
+
+Meta-rules governing how any rule gets added to, changed in, or retired
+from one of this project's rule documents: {{RULE_DOCS_LIST}} (e.g. a
+project might have `UI-Rules.md` for user-facing behavior and
+`business-rules.md` for domain/backend behavior — could equally be a
+single document, or three+, depending on the project's natural seams).
+These apply to the *process* of maintaining those documents and the code
+they describe, not to the app's behavior itself. Binding on anyone
+(human or agent) adding to any of them, at any point after this file
+exists.
+
+---
+
+## 1. `rr-META-001` Check for conflicts before adding a new rule
+
+Before a new rule is implemented, check it against the rules already
+recorded in **every** rule document in {{RULE_DOCS_LIST}} — not just the
+document that seems most relevant, since the same underlying behavior is
+sometimes governed from more than one angle (e.g. a UI-visible
+enabled/disabled state and the backend constraint it's supposed to
+reflect), and a change to one side can silently break the other. Check,
+in order:
+
+1. The same functionality area in whichever document(s) are relevant.
+2. Each document's Cross-Cutting Notes section (or equivalent).
+3. Each document's Known Bugs / Quick Index section — a "new" rule is
+   sometimes actually a conflicting rewrite of an existing one.
+
+If the new rule **contradicts, narrows, silently overrides, or would
+break** an existing ✅ rule in any document, **stop and prompt for a
+decision** — do not silently override it, and do not silently implement
+both side by side and let whichever runs last win.
+
+## 2. `rr-META-002` A new rule is never done until it's gathered, implemented, tested, and documented
+
+All four, no exceptions:
+
+- **Gathered** — the rule's actual current/intended behavior is
+  understood and written down before code changes.
+- **Implemented** — the rule actually exists in the code, not just in a
+  comment, commit message, or this documentation.
+- **Tested** — it has **at least one test** exercising it. Name the
+  project's test locations here: {{TEST_LOCATIONS}}. A rule with zero
+  test coverage is not "done" — it's "implemented but untested," and
+  should be marked as such (see status markers below), not treated as an
+  acceptable end state.
+- **Documented** — added to the correct rule document, under the
+  functionality section it belongs to and the right rule category, with a
+  `file:line` citation and a status marker, in the same format every
+  existing entry already uses.
+
+**Status markers**: ✅ working · ⚠️ buggy/incomplete · ❌ not implemented
+/ regressed · 🗑 retired (see §4).
+
+## Which document does a rule belong in?
+
+Project-specific tiebreaker guidance goes here — e.g.:
+
+- **{{RULE_DOC_1}}**: {{tiebreaker description}}.
+- **{{RULE_DOC_2}}**: {{tiebreaker description}}.
+
+Not a hard wall — some rules legitimately have entries in more than one
+document (one for how it's surfaced, one for the constraint it enforces)
+and should cross-reference rather than pick just one.
+
+## 3. `rr-META-003` Every rule has a unique, stable ID
+
+Format: **`(DOC_PREFIX)-(SECTION)-(NNN)[-(parent-id)]`**
+
+- **`DOC_PREFIX`** — which rule document the rule lives in. Define one
+  short lowercase prefix per document in {{RULE_DOCS_LIST}} (e.g. `ui`,
+  `br`), plus the fixed `rr` prefix reserved for this file itself.
+- **`SECTION`** — a short, stable mnemonic code for the `##` functional
+  section the rule sits under. Fixed once assigned — renaming a section's
+  prose heading does not change its code, since existing IDs (in code
+  comments, tests, Known Bugs indexes, cross-references) must keep
+  resolving.
+- **`NNN`** — a zero-padded 3-digit sequence number, unique within that
+  `SECTION`, assigned in document order the first time IDs are
+  retrofitted (or in creation order thereafter). Never reused, never
+  renumbered, even if an earlier rule in the same section is later
+  deleted/retired.
+- **`[-parent-id]`** — optional. Used two ways: (a) a rule that is a
+  specialization/consequence of another rule references that rule's full
+  ID as its own suffix; (b) a numbered sub-item inside a single rule
+  bullet that enumerates several concretely distinct behaviors gets the
+  parent's ID plus its own position (e.g. `br-EVTO-015-1`). Prefer this
+  over inventing a new top-level rule when the sub-items are only
+  meaningful in the context of the parent bullet.
+
+Rules with no sub-items or parent never have the trailing segment — it's
+absent, not empty.
+
+### Section codes — {{RULE_DOC_1}}
+
+| Code | Section |
+|------|---------|
+| `{{CODE}}` | {{Section name}} |
+
+### Section codes — {{RULE_DOC_2}}
+
+| Code | Section |
+|------|---------|
+| `{{CODE}}` | {{Section name}} |
+
+### Section code — this file
+
+| Code | Section |
+|------|---------|
+| `META` | This file's own numbered rules (`rr-META-NNN`) |
+
+### Adding a new rule
+
+1. Pick (or confirm) the `SECTION` it belongs to.
+2. Take the next unused `NNN` in that section — check both the section's
+   existing bullets and the Known Bugs index.
+3. Only add `[-parent-id]` if the rule is a numbered sub-case of one
+   existing bullet, or an explicit specialization of another rule.
+
+## 4. `rr-META-004` Retiring a rule
+
+A rule ID, once assigned, is **never deleted and never reused** —
+deleting the bullet outright breaks every cross-reference to it with no
+trace of why. Instead, retire it in place:
+
+1. Change its status marker to **🗑 retired**.
+2. Leave the rule's text as-is (don't rewrite it to match new behavior —
+   that's a *new* rule with a *new* ID) and append a one-line reason plus
+   the date, e.g. `🗑 retired {{DATE}} — superseded by \`{{new-id}}\``.
+3. If something replaces it, the replacement is a normal new rule (next
+   `NNN` in its section) — retirement does not imply the new rule
+   inherits the old number, even via `[-parent-id]`.
+4. Never repurpose a retired rule's ID for an unrelated rule later, even
+   in the same section.
+5. A retired rule can still be a valid target for dev-artifact work (e.g.
+   a bug explaining why it had to be retired) — retirement is a status
+   change, not removal from the graph of things development work can
+   cite.
+
+## 5. `rr-META-005` Development artifacts have their own ID scheme
+
+Format: **`(BUG|FEAT|HK)-(NNNN)`** — see
+[`rules-of-development.template.md`](rules-of-development.template.md).
+`NNNN` is a zero-padded 4-digit sequence number, global within its own
+type, assigned in creation order, never reused.
+
+## 6. `rr-META-006` Defining a new `##` section
+
+A feature (or bug, or house-keeping item) is not required to fit an
+existing section — it may propose a new one, but only by following this
+standard, in every rule document.
+
+**Sections are defined in their own directory, not inline in the rule
+document.** Each section gets one file at
+`{{RULES_DIR}}/sections/{{DOC_PREFIX}}-{{CODE}}.md` (e.g.
+`sections/br-REDIS.md`). See
+[`templates/section.template.md`](templates/section.template.md) for the
+exact file structure (`Document`, `Defined`, `Parent`, `Sub-sections`,
+`Scope`, `Relationship to other sections`).
+
+### Sub-sections
+
+A section may be split into sub-sections when its scope is genuinely
+large enough that "which part of GATE does this rule belong to" stops
+being obvious from the flat list — not by default, and not just to make a
+section file shorter.
+
+- **Code**: `{{PARENT}}.{{SUB}}` — parent code, a literal `.`, then a
+  short sub-mnemonic (e.g. `GATE.DOCKER`). This is still one `SECTION`
+  value for ID purposes: a rule under it is
+  `{{DOC_PREFIX}}-{{PARENT}}.{{SUB}}-{{NNN}}` (e.g. `ui-GATE.DOCKER-004`),
+  with `NNN` scoped to the sub-section, not the parent.
+- **File**: `sections/{{DOC_PREFIX}}-{{PARENT}}.{{SUB}}.md`, alongside
+  (not nested under) the parent's own `sections/{{DOC_PREFIX}}-{{PARENT}}.md`
+  — the directory itself stays flat; the nesting is expressed by the code
+  and by the `Parent`/`Sub-sections` fields cross-linking the two files.
+- **Parent file** lists every child in its `Sub-sections` field. **Child
+  file** names its `Parent` and inherits the parent's Scope/Relationship
+  statements unless it explicitly narrows or overrides them.
+- A sub-section is subject to every other rule in this section (conflict
+  check, permanence, retirement) exactly like a top-level section — it is
+  not a lesser or informal category, just a narrower one.
+- Sub-sections do not nest further than one level. If a sub-section needs
+  its own sub-sections, that's a sign the parent section should be split
+  into multiple top-level sections instead.
+
+The `##` heading in the rule document itself carries only a one-line
+pointer back to this file, not the full metadata:
+
+```
+## {{Section name}}
+
+> **Section:** `CODE` — see [`sections/{{DOC_PREFIX}}-{{CODE}}.md`](sections/{{DOC_PREFIX}}-{{CODE}}.md).
+```
+
+This keeps the rule document itself readable (just rules) while the
+section's scope/conflict metadata lives in one findable, greppable place
+per section — `{{RULES_DIR}}/sections/` is the authoritative index of
+every section that exists across every rule document, independent of
+which document's prose you happen to be reading.
+
+### Creating a new section
+
+1. **Conflict check first**, at the section level: does an existing
+   section already cover this scope, even partially, under a different
+   name? Check `{{RULES_DIR}}/sections/` directly — it's the complete
+   list. Extend the existing section instead of duplicating it.
+2. **Pick a code** — uppercase mnemonic, 3–7 characters, not already used
+   as a `SECTION` code in the same document.
+3. **Add the code to the canonical table** in this file, and create its
+   `sections/{{DOC_PREFIX}}-{{CODE}}.md` file, in the same change that
+   adds the section.
+4. **Write the section file's Scope and Relationship-to-other-sections**,
+   declaring either no conflict or the specific supersede/amend/
+   contradict relationship to named existing rule IDs.
+5. Add the one-line pointer under the `##` heading in the rule document.
+6. Only then add the section's first rule bullet(s), `NNN` starting at
+   `001`.
+
+A section's code is permanent, same as a rule ID — never reused for an
+unrelated section even if the original is later emptied out or retired
+(its `sections/` file gets the same 🗑 retired treatment as a rule, §4).
+
+## 7. `rr-META-007` Scrum/agile work items have their own ID scheme
+
+Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNN)`** and **`SPRINT-(NNN)`** — see
+[`rules-of-work-items.template.md`](rules-of-work-items.template.md).
+Work items are the process layer sitting above `BUG-`/`FEAT-`/`HK-`
+artifacts, not a replacement for them.
