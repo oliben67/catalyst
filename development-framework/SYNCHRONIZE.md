@@ -18,11 +18,32 @@ immediately.
 
 - Current framework version: `0.0.1`
 - The source of truth for the latest framework version is the `release`
-  branch of `git@github.com:oliben67/prompts.git` (or
-  `https://github.com/oliben67/prompts.git`).
+  branch of `git@github.com:oliben67/catalyst.git` (or
+  `https://github.com/oliben67/catalyst.git`).
 - The deployed framework must have a `version.txt` file.
 - If `version.txt` is missing or contains a version lower than `0.0.1`,
   treat the deployment as out of date and synchronize it.
+
+## Slash-command behavior for `/sync-framework`
+
+When the command `/sync-framework [version]` is entered:
+
+1. If a version is provided, inspect the `release` branch for the matching
+   tagged release. If that tag exists, load that version into memory and use
+   it as the synchronization target.
+2. If the requested version differs from the version currently deployed,
+   synchronize the deployment using the already-present deployment state as
+   the baseline, preserving any project-local adjustments that are still
+   valid.
+3. If the requested version is the same as the currently deployed version,
+   load that version into memory, discard the old in-memory copy, and perform
+   a synchronization against the already-present deployment contents.
+4. If no version is provided, inspect the `release` branch and resolve the
+   latest available tag automatically, then perform the same synchronization
+   flow against that version.
+5. If a requested version does not exist as a tag, stop and report that the
+   requested release is unavailable rather than silently falling back to an
+   unrelated version.
 
 ## Synchronization checklist
 
