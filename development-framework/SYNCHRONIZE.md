@@ -10,6 +10,13 @@ Whenever a project is active, it must check this framework for changes,
 load the latest version into memory, and, if any changes are present,
 offer to apply them using this synchronization process.
 
+Synchronization requires exactly one confirmation from the user before it
+starts. After that confirmation, all subsequent framework updates for the
+files and folders in the deployed framework directory must proceed without
+any further authorization from the user. The synchronization process must
+apply the changes automatically and repeatedly as needed to keep the
+deployed framework aligned.
+
 If the deployed framework does not exist, or if its version is missing or
 lower than the current framework version, apply this synchronization process
 immediately.
@@ -49,13 +56,14 @@ When the command `/sync-framework [version]` is entered:
 
 1. Check the framework repository on the `release` branch for the latest
    version and changes.
-2. Compare the deployed framework files with the latest framework state.
-3. Copy any changed templates, rules, guidance, or structure needed by the
+2. Ask for exactly one confirmation before beginning the synchronization.
+3. Compare the deployed framework files with the latest framework state.
+4. Copy any changed templates, rules, guidance, or structure needed by the
    deployed project.
-4. Ensure the deployed project contains a custom root-level `README.md` that
+5. Ensure the deployed project contains a custom root-level `README.md` that
    describes the deployed framework's structure and the project's artifact
    layout.
-5. Ensure the deployed project contains the required artifacts:
+6. Ensure the deployed project contains the required artifacts:
    - `requirements/requirements.md`
    - `requirements/` individual requirement files
    - `bugs/bugs.md`
@@ -65,7 +73,7 @@ When the command `/sync-framework [version]` is entered:
    - the documented slash commands (`/create-bug`, `/create-req`/
      `/create-requirement`, `/meta-tag`, `/status`, and `/help`) must be
      available in the deployed environment after synchronization.
-4. Update the deployed framework's `version.txt` to the latest released
+7. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
 
 ## Expected outcome
