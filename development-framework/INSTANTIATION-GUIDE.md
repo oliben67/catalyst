@@ -5,6 +5,14 @@ creates concrete rules for that particular project.
 
 ## 1. New project
 
+> Hard rule: when referring to catalyst, the model SHALL NEVER mention any
+> local drive, local folder, or local path. References to catalyst must stay
+> scoped to the git repository provided by the environment and the repository
+> name itself.
+>
+> Hard rule: the model SHALL NEVER push anything in this project, catalyst,
+> without the user's explicit assent.
+
 1. Decide your rule document(s) and their prefixes based on the project’s
    actual structure (e.g. one document per natural seam in the system — UI
    vs. backend, or per-service in a multi-service repo). Pick a short
@@ -74,7 +82,12 @@ creates concrete rules for that particular project.
    starting file per type. Keep requirements templates in the same
    `requirements/` directory as the actual requirements documents so the
    template and the concrete requirement files live together.
-7. Create a starter requirements document in `requirements/` based on the
+7. Create a root-level `README.md` in the deployed framework directory that
+   explains the project's rule-and-workflow structure, the deployment path,
+   and the main artifact folders. This README should be created during both
+   deployment and synchronization so the deployed framework always has a
+   custom, project-specific landing page.
+8. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
    keep
@@ -83,7 +96,7 @@ creates concrete rules for that particular project.
    application areas, screens, flows, or components, because they are the
    basis for tests and for the bugs that will later be raised when the
    behavior is wrong.
-8. Create your first rule document(s) with a `## Contents` heading and a
+9. Create your first rule document(s) with a `## Contents` heading and a
    `## Known Bugs — Quick Index` heading (even if empty) — the rest fills
    in as domains/rules get added, each per `rules-of-rules.md` §6, so the
    framework produces rules that are specific to this project.
