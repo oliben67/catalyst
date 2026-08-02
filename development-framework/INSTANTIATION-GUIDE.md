@@ -71,8 +71,9 @@ creates concrete rules for that particular project.
    `requirements/` directory as the actual requirements documents so the
    template and the concrete requirement files live together.
 7. Create a starter requirements document in `requirements/` based on the
-   project's rule documents (for example, UI rules such as
-   `UI-Rules.md` or business rules such as `business-rules.md`) and keep
+   project's rule documents (for example, a description document such as
+   `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
+   keep
    it aligned with the rule IDs or source documents that define the
    expected behavior. Requirements must be concrete and tied to specific
    application areas, screens, flows, or components, because they are the

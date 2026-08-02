@@ -6,13 +6,13 @@
 
 Meta-rules governing how any rule gets added to, changed in, or retired
 from one of this project's rule documents: {{RULE_DOCS_LIST}} (e.g. a
-project might have `UI-Rules.md` for user-facing behavior and
-`business-rules.md` for domain/backend behavior — could equally be a
-single document, or three+, depending on the project's natural seams).
-These apply to the *process* of maintaining those documents and the code
-they describe, not to the app's behavior itself. Binding on anyone
-(human or agent) adding to any of them, at any point after this file
-exists.
+project might have `UI-Rules.md` as a description of the UI rules for
+user-facing behavior and `business-rules.md` as a description of the
+business/domain rules for backend behavior — could equally be a single
+document, or three+, depending on the project's natural seams). These
+apply to the *process* of maintaining those documents and the code they
+describe, not to the app's behavior itself. Binding on anyone (human or
+agent) adding to any of them, at any point after this file exists.
 
 ---
 

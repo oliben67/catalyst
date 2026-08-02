@@ -10,9 +10,10 @@ raised when behavior is incorrect.
 ## Source rules
 
 Capture the rule documents and rule IDs that informed this requirements
-set. Examples include UI rules such as `UI-Rules.md` and business rules
-such as `business-rules.md`. Each requirement should point to the specific
-screen, flow, component, or domain behavior it governs.
+set. Examples include a UI-rules description such as `UI-Rules.md` and a
+business-rules description such as `business-rules.md`. Each requirement
+should point to the specific screen, flow, component, or domain behavior it
+governs.
 
 - **UI rules**: list relevant rule IDs or source files
 - **Business rules**: list relevant rule IDs or source files
