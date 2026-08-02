@@ -87,6 +87,10 @@ the status is invalid and `force` is not supplied, respond that the status
 change is impossible and do not modify the artifact. If the artifact ID does
 not resolve to an existing artifact, state that the artifact cannot be found.
 
+When the user enters `/help` without any additional entry, list all supported
+custom slash commands and their purpose, then list every artifact type and its
+purpose in a compact reference format.
+
 ## 4. Domain field
 
 Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
