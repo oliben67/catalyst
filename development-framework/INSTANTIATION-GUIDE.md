@@ -25,6 +25,11 @@ creates concrete rules for that particular project.
    The `name` value is the configurable project name used for the
    instantiated project data. It must be a simple project identifier, not a
    full path or a nested object.
+
+   After the deployment completes successfully, remove the project-local
+   `.dev-instructions.json` file from the project root. It was only needed as
+   temporary bootstrap metadata for discovering the project name and is no
+   longer needed once the framework has been deployed.
 3. Pick a root layout, e.g.:
    ```
    <project-root>/.catalyst-proj/
