@@ -1,4 +1,4 @@
-# Requirements — <project or feature name>
+# Requirements — <project or requirement name>
 
 This document captures concrete, application-bound requirements derived
 from the project's rule documents, especially UI and business rules. Use
@@ -20,7 +20,7 @@ screen, flow, component, or domain behavior it governs.
 
 ## Summary
 
-Describe the user problem, feature scope, or change being requested.
+Describe the user problem, requirement scope, or change being requested.
 
 ## Functional requirements
 
@@ -31,7 +31,7 @@ acceptance criteria that can be tested directly.
 ### Requirement 1 — <short title>
 
 - **Source rule(s)**: `RULE-ID` or document name
-- **Application area**: screen, form, component, workflow, or feature area
+- **Application area**: screen, form, component, workflow, or domain area
 - **Description**: what must be true in that specific part of the app
 - **Acceptance criteria**:
   - ...

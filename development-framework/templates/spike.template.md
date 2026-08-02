@@ -21,10 +21,10 @@ alone.
 
 ## Outcome
 
-- New rule(s) needed → hand off to a `FEAT-NNNN`'s New rules proposed.
+- New rule(s) needed → hand off to a `REQ-NNNN`'s New rules proposed.
 - No new rule, just an approach → note in the parent story directly.
 - Unresolved within timebox → re-scope as a smaller follow-up spike.
 
 ## Related
 
-Parent `STORY-`/`EPIC-` ID, and any `FEAT-`/`BUG-` doc this produced.
+Parent `STORY-`/`EPIC-` ID, and any `REQ-`/`BUG-` doc this produced.

@@ -11,8 +11,8 @@
 ## Description
 
 Small enough to finish within a day or two. Inherits its rule target from
-the parent story's `FEAT-`/`BUG-` doc — if it needs a rule the story
-doesn't cover, fix the story/feature doc first rather than implementing
+the parent story's `REQ-`/`BUG-` doc — if it needs a rule the story
+doesn't cover, fix the story/requirement doc first rather than implementing
 the gap silently at task level.
 
 ## Definition of done

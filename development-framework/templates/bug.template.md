@@ -8,7 +8,7 @@
 | **Severity** | Critical / High / Medium / Low — see scale below. **Required.** |
 | **Opened** | YYYY-MM-DD |
 | **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `rules-of-development.md` §1) |
-| **Section** | the `SECTION` code(s) of the targeted rule(s), from `{{RULES_DIR}}/sections/` |
+| **Domain** | the `DOMAIN` code(s) of the targeted rule(s), from `{{RULES_DIR}}/domains/` |
 | **Area** | short free-text area label |
 
 ## Severity scale

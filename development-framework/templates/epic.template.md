@@ -5,7 +5,7 @@
 | **ID** | `EPIC-NNNN` |
 | **Status** | proposed / committed / in-progress / done / abandoned |
 | **Opened** | YYYY-MM-DD |
-| **Section(s)** | `SECTION` code(s) this epic spans |
+| **Domain(s)** | `DOMAIN` code(s) this epic spans |
 | **Sponsor / owner** | who's accountable |
 
 ## Goal
@@ -35,4 +35,4 @@ Checkable against child stories all being done, not a separate checklist.
 
 ## Related
 
-Other `EPIC-`/`FEAT-` IDs, or rule sections, this depends on or overlaps.
+Other `EPIC-`/`REQ-` IDs, or rule domains, this depends on or overlaps.

@@ -35,7 +35,7 @@ creates concrete rules for that particular project.
    <project-root>/.catalyst-proj/
      rules/
        rules-of-rules.md
-       sections/
+       domains/
        <rule-doc-1>.md
        <rule-doc-2>.md
      requirements/
@@ -45,18 +45,17 @@ creates concrete rules for that particular project.
      development/
        rules-of-development.md
        bugs/
-       features/
        house-keeping/
      work-items/
        rules-of-work-items.md
        epics/  stories/  tasks/  spikes/  sprints/
    ```
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
-   The framework only cares that the chain epic→story→task→FEAT/BUG/HK→rule
+   The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
    stays intact, not the folder names.)
 4. Copy `rules-of-rules.template.md` → `rules/rules-of-rules.md`, resolve
-   placeholders: `{{RULE_DOCS_LIST}}`, `{{TEST_LOCATIONS}}`, the section-
-   code tables (start empty — filled in as sections get created per §6).
+   placeholders: `{{RULE_DOCS_LIST}}`, `{{TEST_LOCATIONS}}`, the domain-
+   code tables (start empty — filled in as domains get created per §6).
    If the project already has relevant practices, policies, or working
    conventions, merge them into these rules rather than replacing them.
    If there is a conflict between the framework and an existing project
@@ -79,9 +78,8 @@ creates concrete rules for that particular project.
    behavior is wrong.
 8. Create your first rule document(s) with a `## Contents` section and a
    `## Known Bugs — Quick Index` section (even if empty) — the rest fills
-   in as sections/rules get added, each per `rules-of-rules.md` §6, so the
+   in as domains/rules get added, each per `rules-of-rules.md` §6, so the
    framework produces rules that are specific to this project.
-
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:

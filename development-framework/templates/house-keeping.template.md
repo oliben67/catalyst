@@ -12,7 +12,7 @@ verifiable/documented, even indirectly.
 | **Priority** | High / Medium / Low — how urgently this blocks or de-risks other work |
 | **Opened** | YYYY-MM-DD |
 | **Targets** | the rule ID(s) this work supports the enforcement/verification/documentation of. If genuinely none applies, state that explicitly rather than leaving the field blank |
-| **Section** | the `SECTION` code of the targeted rule(s), or `META` if this supports a `rr-META-*` process rule |
+| **Domain** | the `DOMAIN` code of the targeted rule(s), or `META` if this supports a `rr-META-*` process rule |
 | **Area** | free-text, e.g. "CI", "test harness", "release tooling" |
 
 ## Description

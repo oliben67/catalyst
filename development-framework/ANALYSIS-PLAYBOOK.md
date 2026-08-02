@@ -1,6 +1,6 @@
 # Analysis Playbook
 
-A recipe for bootstrapping this framework's rules/sections/bugs against an
+A recipe for bootstrapping this framework's rules/domains/bugs against an
 **existing** codebase that has no prior rules documentation — the process
 actually used to build this project's own
 `<resolved-proj-data-target>/rules/` directory (for example
@@ -140,24 +140,24 @@ functional area (§ per area, not per rule category) — do this merge
 yourself; it's editorial work (matching this project's format,
 resolving cross-category overlaps), not another audit pass.
 
-## Recipe 4 — Derive sections from a reconciled rule list
+## Recipe 4 — Derive domains from a reconciled rule list
 
 Once a document's rules are reconciled and grouped by functional area,
-turn each group into a formal section per
+turn each group into a formal domain per
 [`rules-of-rules.template.md` §6](rules-of-rules.template.md):
 
 ```
 For each functional-area group in this reconciled rule list, propose:
-  - A `##` section heading (the area name)
-  - A short SECTION code (3-7 uppercase chars, unique in this document)
+  - A `##` domain heading (the area name)
+  - A short DOMAIN code (3-7 uppercase chars, unique in this document)
   - A one-two sentence Scope statement
   - Whether it plausibly overlaps/conflicts with any other proposed
-    section in this same list — if so, say which and why, so a human
+    domain in this same list — if so, say which and why, so a human
     can decide whether to merge them before finalizing.
 ```
 
 Then mechanically assign IDs (`<prefix>-<CODE>-<NNN>`, in document
-order) and create each section's `sections/<prefix>-<CODE>.md` file per
+order) and create each domain's `domains/<prefix>-<CODE>.md` file per
 §6 — this step is deterministic, not another agent pass; a short script
 or careful manual edit is more reliable than delegating it.
 
@@ -199,7 +199,7 @@ against.
 - **Research agents only, never edit agents**: every agent in Recipes
   1/2/4/5 only reads code and returns a report; none of them write files
   directly. Direct file edits (creating the actual `.md` docs, inserting
-  IDs, writing section files) are done by the orchestrating
+  IDs, writing domain files) are done by the orchestrating
   session/agent after reconciliation, because letting research agents
   also own the merge step is how disagreements get silently
   auto-resolved in whichever agent happened to run last, defeating the

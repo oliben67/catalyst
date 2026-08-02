@@ -3,7 +3,7 @@
 > Copy to `{{DEV_DIR}}/rules-of-development.md` and resolve every
 > `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
 
-Standards for how development work — bugs, features, and house-keeping —
+Standards for how development work — bugs, requirements, and house-keeping —
 gets proposed, tracked, and closed. Subordinate to
 [`{{RULES_DIR}}/rules-of-rules.md`](../{{RULES_DIR}}/rules-of-rules.md):
 that file governs the rules themselves; this file governs the work items
@@ -13,15 +13,15 @@ that reference those rules.
 
 ## 1. No development without a targeted rule
 
-**No bug, feature, or house-keeping work may start without citing one or
+**No bug, requirement, or house-keeping work may start without citing one or
 more existing rule IDs in its `Targets` field.** If no rule currently
 covers the behavior in question:
 
 1. Define the rule(s) first, as a normal edit to the relevant rule
-   document.
+document.
 2. That definition must satisfy `rules-of-rules.md` §1 (conflict check)
-   and follow the ID scheme in §3.
-3. Only then open the `BUG-`/`FEAT-`/`HK-` item, citing the new ID(s).
+and follow the ID scheme in §3.
+3. Only then open the `BUG-`/`REQ-`/`HK-` item, citing the new ID(s).
 
 House-keeping is the one category where "no rule applies" is a legitimate
 answer (pure repo hygiene with no bearing on any documented behavior or
@@ -32,7 +32,7 @@ process) — but it must be stated explicitly, not left blank.
 | Type | Folder | Template | ID prefix |
 |---|---|---|---|
 | Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNN` |
-| Feature | `features/` | `templates/feature.template.md` | `FEAT-NNNN` |
+| Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNN` |
 | House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNN` |
 
 ### Hard rule: individual files and indexes
@@ -48,37 +48,46 @@ process) — but it must be stated explicitly, not left blank.
 - **Bug**: an existing ✅ rule doesn't actually hold in the running system,
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
   Never introduces a new rule by itself.
-- **Feature**: new or changed behavior. May target existing rules and/or
-  propose new ones (and, if needed, a new section — see
-  `rules-of-rules.md` §6) inline in the feature doc, so rule and feature
-  are reviewed together.
+- **Requirement**: an explicit, tracked requirement that captures
+  user/business behavior that must be implemented and tested. It may target
+  existing rules and/or propose new ones (and, if needed, a new domain — see
+  `rules-of-rules.md` §6) inline in the requirement doc so rule and
+  requirement are reviewed together.
 - **House-keeping**: dev-support tooling/process, not product behavior.
   Still targets a rule where one exists — most commonly a `rr-META-*`
   process rule.
 
-## 3. Section field
+## 3. Slash-command entry points
 
-Every item's `Section` field is the `SECTION` code of the rule(s) it
-targets, from `{{RULES_DIR}}/sections/` — not free text.
+When the user enters `/create-bug: ...`, create a new bug artifact immediately,
+register it in `bugs/bugs.md`, and track it in the same workflow as any other
+bug. If the domain cannot be inferred from context, prompt for the domain and
+rule before creating the artifact.
 
-## 4. Development-artifact IDs
+When the user enters `/create-req:` or `/create-requirement: ...`, create a
+new requirement artifact immediately, register it in
+`requirements/requirements.md`, and track it in the same workflow. If the
+domain or target rule cannot be inferred, prompt for both before creating the
+artifact.
 
-Per `rules-of-rules.md` §5: `(BUG|FEAT|HK)-(NNNN)`, global per type,
+## 4. Domain field
+
+Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
+from `{{RULES_DIR}}/domains/` — not free text.
+
+## 5. Development-artifact IDs
+
+Per `rules-of-rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
 sequential, zero-padded 4 digits, never reused.
 
-## 5. Closing an item
+## 6. Closing an item
 
 Before closing a bug or requirement, ensure the corresponding entry exists in
 its individual file and is reflected in the relevant index file.
 
 - **Bug**: not closeable as "fixed" without its test-plan item landing.
-- **Feature**: not closeable as "shipped" until every rule in its targets/
-  new-rules sections is itself ✅ and tested.
+- **Requirement**: not closeable as "done" until the acceptance criteria and
+  rule targets are reflected in the implementation and tests.
 - **House-keeping**: closeable once its stated verification passes.
 
-## 6. Retired rules and development work
-
-An item targeting a rule later retired is not retroactively invalidated —
-it stays as historical record. New items should not target an
-already-retired rule unless the item is specifically about the
-retirement itself.
+## 7. Retired rules and development work
