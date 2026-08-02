@@ -79,6 +79,14 @@ When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
 immediately, save it as `tag-<key>-<artefact-id>`, and link it to the
 specified artifact. If the key is not supplied explicitly, prompt for it.
 
+When the user enters `/status <artefact-id> <status> [force]`, update the
+artifact's `Status` field. If the supplied status is one of the valid statuses
+for that artifact type, change it normally. If the status is invalid and the
+command includes the word `force`, change it to that invalid value anyway. If
+the status is invalid and `force` is not supplied, respond that the status
+change is impossible and do not modify the artifact. If the artifact ID does
+not resolve to an existing artifact, state that the artifact cannot be found.
+
 ## 4. Domain field
 
 Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
