@@ -64,7 +64,11 @@ creates concrete rules for that particular project.
    stays intact, not the folder names. The `domains/` folder sits at the root
    of the deployed framework and holds the domain definition files
 5. Copy `rules-of-development.template.md` and
-   `rules-of-work-items.template.md` similarly.
+   `rules-of-work-items.template.md` similarly. Ensure the deployed
+   framework exposes the documented custom slash commands (`/create-bug`,
+   `/create-req`/`/create-requirement`, `/meta-tag`, `/status`, and
+   `/help`) in the same way the framework defines them, so they are
+   available in the deployed environment.
 6. Copy `templates/*.template.md` into the corresponding subfolders,
    dropping the `.template` from the name if you want a ready-to-copy
    starting file per type. Keep requirements templates in the same
