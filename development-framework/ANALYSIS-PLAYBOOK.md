@@ -37,59 +37,69 @@ not from varying the instructions.
 
 ---
 
-## Recipe 1 — Extract rules for one document (e.g. UI rules)
+## Recipe 1 — Extract a small set of requirement-shaping rules
 
-Run once per **rule category** you split the document by (this project
-used four: Validation, Presentation/Display, Calculation, State/Flow), ×2
-for four-eyes = 8 parallel agents for a 4-category document. For UI-focused
-rule documents, common categories to look for include:
+Run once per **rule document** you are bootstrapping, not per every
+implementation category. For this framework, keep the scope intentionally
+small: create only a limited number of high-level rules that help define
+requirements, especially for:
 
-- **Presentation Logic:** Controls how the interface looks and behaves based on user actions or screen states (for example, hiding a submit button until a box is checked).
-- **Validation Rules:** Checks whether typed data is correct before letting the user move forward (for example, making sure an email address contains an "@" sign).
-- **Interaction/Behavior Rules:** Dictates dynamic screen changes (for example, showing a credit card box only when "Credit Card" is selected as the payment type).
-- **Initialization Rules:** Sets default values on a form.
+- **Rules of Rules:** what counts as a valid rule, how it is named, how it
+  is structured, and how conflicts are resolved.
+- **Business Rules:** the domain constraints and workflow expectations that
+  should inform requirements.
+- **UI Rules:** the interaction, validation, presentation, and
+  initialization definitions that shape the user-facing requirements.
+
+These should be treated as definitions and scaffolding for requirements,
+not as a full catalog of implementation behavior. Keep each rule concise,
+high-level, and directly useful when drafting requirements.
 
 **Prompt template** (send identically to both agents of each pair):
 
 ```
-Audit this codebase for {{RULE_CATEGORY}} rules — {{one-line definition
-of the category, with 2-3 examples, explicitly marked as EXAMPLES not an
-exhaustive list}}.
+Audit this codebase for the {{RULE_DOCUMENT}} document and extract only a
+small set of requirement-shaping rules — high-level definitions that help
+create requirements, not detailed implementation policies.
 
 Do THREE separate passes over the code, in this order, then reconcile
 them into one list before reporting back:
   1. A keyword/pattern sweep (grep-style) across {{relevant source dirs}}
-     for the kind of code that implements this rule category.
-  2. A manual walkthrough of every {{dialog/flow/module}}, reading the
-     actual logic rather than trusting names/comments.
+     for the kinds of rules or definitions that support requirements.
+  2. A manual walkthrough of the relevant modules, reading the actual
+     logic rather than trusting names/comments.
   3. A cross-check against the test suite ({{test paths}}) — does a test
      exist for each rule you found? Note ones that don't.
 
 For every rule found, report:
   - A short bold name for the rule
-  - A one-line description of the actual behavior, citing file:line
+  - A one-line description of the rule as a requirement-shaping definition
   - Status: ✅ working as intended / ⚠️ buggy or incomplete / ❌ documented
     intent but not actually implemented
   - Which functional area of the app it belongs to (e.g. "Gateway
     Management", "Recording") — group your final report by this
 
-Only report what you can point to real code for. Do not report intended/
-aspirational behavior as if it were current. Flag anything you're unsure
-about explicitly rather than guessing.
+Only report concise, high-level rules that are useful when drafting
+requirements. Keep them tied to concrete application areas, user flows,
+components, or domain behaviors rather than abstract definitions. These
+rules should support testable requirements and the bugs that will later be
+raised when behavior is wrong. Flag anything you're unsure about explicitly
+rather than guessing.
 ```
 
 Launch A and B for each category in one message (background, parallel).
 When both return, run **Recipe 3 (reconciliation)** on the pair before
 moving to the next category.
 
-## Recipe 2 — Extract rules for a cross-cutting document (e.g. business rules)
+## Recipe 2 — Extract business-rule definitions for requirements
 
-Same shape as Recipe 1, but split by **domain area** instead of rule
-category (this project used: connectivity/security, data/persistence,
-orchestration/lifecycle) rather than Validation/Presentation/Calculation/
-Flow, since business rules tend to cluster by subsystem rather than by
-what kind of rule they are. Everything else — three passes, four-eyes
-pairing, per-rule reporting fields — is identical to Recipe 1.
+Use the same shape as Recipe 1, but focus only on the domain constraints
+and workflow expectations that help define requirements. Keep the output
+limited to a small set of high-level business-rule definitions, grouped by
+functional area rather than by implementation detail (for example:
+connectivity/security, data/persistence, orchestration/lifecycle). Everything
+else — three passes, four-eyes pairing, and per-rule reporting fields —
+is identical to Recipe 1.
 
 ## Recipe 3 — Reconciliation pass (four-eyes merge)
 
