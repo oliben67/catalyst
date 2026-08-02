@@ -46,13 +46,15 @@ creates concrete rules for that particular project.
        rules-of-development.md
        bugs/
        house-keeping/
+       domains/
      work-items/
        rules-of-work-items.md
        epics/  stories/  tasks/  spikes/  sprints/
    ```
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
-   stays intact, not the folder names.)
+   stays intact, not the folder names. In deployed instances, the old
+   `sections/` folder should now be represented as `development/domains/`.)
 4. Copy `rules-of-rules.template.md` → `rules/rules-of-rules.md`, resolve
    placeholders: `{{RULE_DOCS_LIST}}`, `{{TEST_LOCATIONS}}`, the domain-
    code tables (start empty — filled in as domains get created per §6).
@@ -69,8 +71,9 @@ creates concrete rules for that particular project.
    `requirements/` directory as the actual requirements documents so the
    template and the concrete requirement files live together.
 7. Create a starter requirements document in `requirements/` based on the
-   project's rule documents (for example, UI rules such as
-   `UI-Rules.md` or business rules such as `business-rules.md`) and keep
+   project's rule documents (for example, a description document such as
+   `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
+   keep
    it aligned with the rule IDs or source documents that define the
    expected behavior. Requirements must be concrete and tied to specific
    application areas, screens, flows, or components, because they are the
