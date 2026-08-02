@@ -42,6 +42,10 @@ creates concrete rules for that particular project.
        sections/
        <rule-doc-1>.md
        <rule-doc-2>.md
+     requirements/
+       requirements-template.md
+       <requirement-doc-1>.md
+       <requirement-doc-2>.md
      development/
        rules-of-development.md
        bugs/
@@ -65,8 +69,18 @@ creates concrete rules for that particular project.
    `rules-of-work-items.template.md` similarly.
 6. Copy `templates/*.template.md` into the corresponding subfolders,
    dropping the `.template` from the name if you want a ready-to-copy
-   starting file per type.
-7. Create your first rule document(s) with a `## Contents` section and a
+   starting file per type. Keep requirements templates in the same
+   `requirements/` directory as the actual requirements documents so the
+   template and the concrete requirement files live together.
+7. Create a starter requirements document in `requirements/` based on the
+   project's rule documents (for example, UI rules such as
+   `UI-Rules.md` or business rules such as `business-rules.md`) and keep
+   it aligned with the rule IDs or source documents that define the
+   expected behavior. Requirements must be concrete and tied to specific
+   application areas, screens, flows, or components, because they are the
+   basis for tests and for the bugs that will later be raised when the
+   behavior is wrong.
+8. Create your first rule document(s) with a `## Contents` section and a
    `## Known Bugs — Quick Index` section (even if empty) — the rest fills
    in as sections/rules get added, each per `rules-of-rules.md` §6, so the
    framework produces rules that are specific to this project.

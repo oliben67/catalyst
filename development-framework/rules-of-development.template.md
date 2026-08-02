@@ -35,6 +35,16 @@ process) — but it must be stated explicitly, not left blank.
 | Feature | `features/` | `templates/feature.template.md` | `FEAT-NNNN` |
 | House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNN` |
 
+### Hard rule: individual files and indexes
+
+- **Bugs** must be stored as individual files in `bugs/`, not only as free-form notes.
+- **Requirements** must be stored as individual files in `requirements/`, not only as abstract definitions.
+- Each item directory must also contain an index file named after the item type:
+  - `bugs/bugs.md` for the bug index.
+  - `requirements/requirements.md` for the requirements index.
+- These index files are the canonical indexes for their directory and must be kept up to date.
+- `BACKLOG.md` remains the go-to document for developers to review work to be done and current status.
+
 - **Bug**: an existing ✅ rule doesn't actually hold in the running system,
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
   Never introduces a new rule by itself.
@@ -57,6 +67,9 @@ Per `rules-of-rules.md` §5: `(BUG|FEAT|HK)-(NNNN)`, global per type,
 sequential, zero-padded 4 digits, never reused.
 
 ## 5. Closing an item
+
+Before closing a bug or requirement, ensure the corresponding entry exists in
+its individual file and is reflected in the relevant index file.
 
 - **Bug**: not closeable as "fixed" without its test-plan item landing.
 - **Feature**: not closeable as "shipped" until every rule in its targets/

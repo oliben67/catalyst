@@ -144,6 +144,11 @@ trace of why. Instead, retire it in place:
 
 ## 5. `rr-META-005` Development artifacts have their own ID scheme
 
+If the deployed framework is missing `version.txt`, or if its version is
+missing or lower than the current framework version (`0.0.1`), the deployed
+framework must be synchronized before further work proceeds. See
+[`SYNCHRONIZE.md`](SYNCHRONIZE.md).
+
 Format: **`(BUG|FEAT|HK)-(NNNN)`** — see
 [`rules-of-development.template.md`](rules-of-development.template.md).
 `NNNN` is a zero-padded 4-digit sequence number, global within its own
@@ -227,6 +232,11 @@ unrelated section even if the original is later emptied out or retired
 (its `sections/` file gets the same 🗑 retired treatment as a rule, §4).
 
 ## 7. `rr-META-007` Scrum/agile work items have their own ID scheme
+
+The framework version is tracked in `version.txt` at the framework root.
+If a deployed framework has no `version.txt`, or its version is lower than
+`0.0.1`, it is considered out of date and must be synchronized using
+[`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
 Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNN)`** and **`SPRINT-(NNN)`** — see
 [`rules-of-work-items.template.md`](rules-of-work-items.template.md).
