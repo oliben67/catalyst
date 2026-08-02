@@ -53,4 +53,4 @@ closeable as "fixed" without one.
 
 ## Related
 
-Other `BUG-`/`FEAT-`/`HK-` IDs, or rule IDs.
+Other `BUG-`/`REQ-`/`HK-` IDs, or rule IDs.
