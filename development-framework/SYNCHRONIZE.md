@@ -52,14 +52,17 @@ When the command `/sync-framework [version]` is entered:
 2. Compare the deployed framework files with the latest framework state.
 3. Copy any changed templates, rules, guidance, or structure needed by the
    deployed project.
-3. Ensure the deployed project contains the required artifacts:
+4. Ensure the deployed project contains a custom root-level `README.md` that
+   describes the deployed framework's structure and the project's artifact
+   layout.
+5. Ensure the deployed project contains the required artifacts:
    - `requirements/requirements.md`
    - `requirements/` individual requirement files
    - `bugs/bugs.md`
    - `bugs/` individual bug files
    - `BACKLOG.md`
    - `version.txt`
-4. Update the deployed framework's `version.txt` to the latest released
+6. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
 
 ## Expected outcome
