@@ -62,7 +62,10 @@ When the command `/sync-framework [version]` is entered:
    - `bugs/` individual bug files
    - `BACKLOG.md`
    - `version.txt`
-6. Update the deployed framework's `version.txt` to the latest released
+   - the documented slash commands (`/create-bug`, `/create-req`/
+     `/create-requirement`, `/meta-tag`, `/status`, and `/help`) must be
+     available in the deployed environment after synchronization.
+4. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
 
 ## Expected outcome
