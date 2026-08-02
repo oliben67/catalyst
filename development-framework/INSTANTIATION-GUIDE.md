@@ -5,6 +5,11 @@ creates concrete rules for that particular project.
 
 ## 1. New project
 
+> Hard rule: when referring to catalyst, the model SHALL NEVER mention any
+> local drive, local folder, or local path. References to catalyst must stay
+> scoped to the git repository provided by the environment and the repository
+> name itself.
+
 1. Decide your rule document(s) and their prefixes based on the project’s
    actual structure (e.g. one document per natural seam in the system — UI
    vs. backend, or per-service in a multi-service repo). Pick a short
