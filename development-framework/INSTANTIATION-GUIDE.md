@@ -10,8 +10,8 @@ creates concrete rules for that particular project.
 > scoped to the git repository provided by the environment and the repository
 > name itself.
 >
-> Hard rule: the model SHALL NEVER push anything in this project without the
-> user's explicit assent.
+> Hard rule: the model SHALL NEVER push anything in this project, catalyst,
+> without the user's explicit assent.
 
 1. Decide your rule document(s) and their prefixes based on the project’s
    actual structure (e.g. one document per natural seam in the system — UI
