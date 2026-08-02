@@ -11,32 +11,23 @@ creates concrete rules for that particular project.
    lowercase prefix per document.
 2. Before creating the project layout, locate configuration for the
    framework name. Look for a project-local `.dev-instructions.json` in the
-   project where this guide is being run. If it exists, read its `name`
-   and `proj-data.target` values. If it does not exist, fall back to the
-   default `.dev-instructions.json` provided by `development-framework`.
+   project where this guide is being run. If it exists, read only its `name`
+   value. If it does not exist, ask the user for the project name and use
+   the current project root directory name as the default.
 
-   The default template in that file is:
+   The required format for that file is now:
    ```json
    {
-     "name": "thingamabob",
-     "proj-data": {
-       "target": ".[name]-proj"
-     }
+     "name": "project-name"
    }
    ```
 
-   The `name` value is the configurable base name used for the instantiated
-   project data. The `proj-data.target` value is the resulting project-item
-   name template. Resolve the final project-item name by replacing every
-   literal `[name]` token in `proj-data.target` with the configured `name`.
-   Example:
-   - `name: dev-sys-instructions`
-   - `proj-data.target: [name]-project`
-   - resolved project-item name: `dev-sys-instructions-project`
-   If `proj-data.target` is missing, default to `.[name]-proj`.
+   The `name` value is the configurable project name used for the
+   instantiated project data. It must be a simple project identifier, not a
+   full path or a nested object.
 3. Pick a root layout, e.g.:
    ```
-   <project-root>/<resolved-proj-data-target>/
+   <project-root>/.catalyst-proj/
      rules/
        rules-of-rules.md
        sections/
@@ -55,8 +46,9 @@ creates concrete rules for that particular project.
        rules-of-work-items.md
        epics/  stories/  tasks/  spikes/  sprints/
    ```
-   (Any names/locations work — the framework only cares that the chain
-   epic→story→task→FEAT/BUG/HK→rule stays intact, not the folder names.)
+   (The deployment directory is fixed: `.catalyst-proj/`. No exception.
+   The framework only cares that the chain epic→story→task→FEAT/BUG/HK→rule
+   stays intact, not the folder names.)
 4. Copy `rules-of-rules.template.md` → `rules/rules-of-rules.md`, resolve
    placeholders: `{{RULE_DOCS_LIST}}`, `{{TEST_LOCATIONS}}`, the section-
    code tables (start empty — filled in as sections get created per §6).
@@ -148,16 +140,15 @@ before continuing.
 ## 5. Remember the deployment target across sessions
 
 After a successful instantiation, record the project root path and the
-project's resolved project-item path (from `proj-data.target`) in the
-persistent memory store so later
-sessions can recover which project this framework was deployed into without
-having to rediscover it.
+project deployment path (`.catalyst-proj/`) in the persistent memory store
+so later sessions can recover which project this framework was deployed
+into without having to rediscover it.
 
 Keep a compact note with at least:
 
 - the framework name (`development-framework`)
 - the deployed project path
-- the resolved project-item path for that project
+- the deployment directory path for that project (`.catalyst-proj/`)
 - the date or context of the instantiation
 - any short notes that help identify the project later
 
