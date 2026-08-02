@@ -45,7 +45,7 @@ production code has stopped being a spike.
 
 ## 4. Epics are decomposition, not a fourth rule namespace
 
-An epic names the `SECTION` code(s) it spans and groups child stories. It
+An epic names the `DOMAIN` code(s) it spans and groups child stories. It
 never targets a rule directly. "Done" means all child stories are done.
 
 ## 5. Iteration containers schedule work items; they don't reclassify them

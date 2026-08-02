@@ -46,13 +46,15 @@ creates concrete rules for that particular project.
        rules-of-development.md
        bugs/
        house-keeping/
+       domains/
      work-items/
        rules-of-work-items.md
        epics/  stories/  tasks/  spikes/  sprints/
    ```
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
-   stays intact, not the folder names.)
+   stays intact, not the folder names. In deployed instances, the old
+   `sections/` folder should now be represented as `development/domains/`.)
 4. Copy `rules-of-rules.template.md` → `rules/rules-of-rules.md`, resolve
    placeholders: `{{RULE_DOCS_LIST}}`, `{{TEST_LOCATIONS}}`, the domain-
    code tables (start empty — filled in as domains get created per §6).

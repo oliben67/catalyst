@@ -180,7 +180,7 @@ citing the matched rule ID in `Targets`.
 
 ## Recipe 6 — Meta-rule / process changes
 
-Changes to the process itself (new ID scheme, retirement policy, section
+Changes to the process itself (new ID scheme, retirement policy, domain
 standard — the kind of thing that becomes an `rr-META-NNN`) are
 **not** run through four-eyes agent audits — they're a direct design
 conversation with whoever owns the process, then written once. Four-eyes
