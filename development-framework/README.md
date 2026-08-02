@@ -16,7 +16,7 @@ A four-layer chain, each layer subordinate to the one below it:
 Work items    EPIC ─▶ STORY ─▶ TASK / SPIKE / SPRINT   (agile process layer)
                         │
                         ▼
-Dev artifacts        REQ- / BUG- / HK-                (rule-linked work)
+Dev artifacts        REQ- / BUG- / HK- / TAG-         (rule-linked work and lightweight annotations)
                         │
                         ▼
 Rules            (prefix)-(DOMAIN)-(NNN)               (documented behavior)
@@ -38,9 +38,9 @@ following IDs, in either direction, indefinitely.
 | File | Purpose |
 |---|---|
 | [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/<rules-dir>/rules-of-rules.md` and fill in placeholders. |
-| [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping artifacts. Copy to `<project>/<dev-dir>/rules-of-development.md`. |
+| [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/<dev-dir>/rules-of-development.md`. |
 | [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
-| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, house-keeping, epic, story, task, spike, sprint, domain). |
+| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, house-keeping, meta-tag, epic, story, task, spike, sprint, domain). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version (`0.0.1`). |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |

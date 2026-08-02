@@ -3,8 +3,8 @@
 > Copy to `{{DEV_DIR}}/rules-of-development.md` and resolve every
 > `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
 
-Standards for how development work — bugs, requirements, and house-keeping —
-gets proposed, tracked, and closed. Subordinate to
+Standards for how development work — bugs, requirements, house-keeping, and
+meta-tags — gets proposed, tracked, and closed. Subordinate to
 [`{{RULES_DIR}}/rules-of-rules.md`](../{{RULES_DIR}}/rules-of-rules.md):
 that file governs the rules themselves; this file governs the work items
 that reference those rules.
@@ -13,9 +13,10 @@ that reference those rules.
 
 ## 1. No development without a targeted rule
 
-**No bug, requirement, or house-keeping work may start without citing one or
-more existing rule IDs in its `Targets` field.** If no rule currently
-covers the behavior in question:
+**No bug, requirement, house-keeping work, or meta-tag may start without
+citing one or more existing rule IDs in its `Targets` field when the tag is
+used to annotate a rule-linked artifact.** If no rule currently covers the
+behavior in question:
 
 1. Define the rule(s) first, as a normal edit to the relevant rule
 document.
@@ -34,6 +35,7 @@ process) — but it must be stated explicitly, not left blank.
 | Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNN` |
 | Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNN` |
 | House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNN` |
+| Meta-tag | `meta-tags/` | `templates/meta-tag.template.md` | `TAG-<KEY>-<ARTEFACT-ID>` |
 
 ### Hard rule: individual files and indexes
 
@@ -56,6 +58,9 @@ process) — but it must be stated explicitly, not left blank.
 - **House-keeping**: dev-support tooling/process, not product behavior.
   Still targets a rule where one exists — most commonly a `rr-META-*`
   process rule.
+- **Meta-tag**: a lightweight annotation attached to an existing artifact.
+  It stores one key/value pair whose key is one of `comment`, `version`, or
+  `link-to`, and it is saved under the name `tag-<key>-<artefact-id>`.
 
 ## 3. Slash-command entry points
 
@@ -70,6 +75,10 @@ new requirement artifact immediately, register it in
 domain or target rule cannot be inferred, prompt for both before creating the
 artifact.
 
+When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
+immediately, save it as `tag-<key>-<artefact-id>`, and link it to the
+specified artifact. If the key is not supplied explicitly, prompt for it.
+
 ## 4. Domain field
 
 Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
@@ -78,7 +87,8 @@ from `{{RULES_DIR}}/domains/` — not free text.
 ## 5. Development-artifact IDs
 
 Per `rules-of-rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
-sequential, zero-padded 4 digits, never reused.
+sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
+pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
 
 ## 6. Closing an item
 
