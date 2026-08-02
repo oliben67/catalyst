@@ -76,8 +76,8 @@ creates concrete rules for that particular project.
    application areas, screens, flows, or components, because they are the
    basis for tests and for the bugs that will later be raised when the
    behavior is wrong.
-8. Create your first rule document(s) with a `## Contents` section and a
-   `## Known Bugs — Quick Index` section (even if empty) — the rest fills
+8. Create your first rule document(s) with a `## Contents` heading and a
+   `## Known Bugs — Quick Index` heading (even if empty) — the rest fills
    in as domains/rules get added, each per `rules-of-rules.md` §6, so the
    framework produces rules that are specific to this project.
 ## 2. Choosing your agile flavor
@@ -98,7 +98,7 @@ Nothing below the work-items layer changes. Above it:
 1. Do **not** try to write every rule up front. Start with
    `rules-of-rules.md`, `rules-of-development.md`,
    `rules-of-work-items.md` (or your project's equivalents) and an empty
-   `sections/` directory.
+   `domains/` directory.
 2. Gather rules incrementally — per functional area, as you touch it, or
    via a dedicated audit pass (parallel research agents/subagents
    covering one rule category each, cross-checked against the codebase
@@ -110,8 +110,8 @@ Nothing below the work-items layer changes. Above it:
    what is still valuable rather than discarding it. If conflicts arise,
    pause and ask the user questions so the final rule reflects the
    project’s intent rather than an arbitrary choice.
-3. As each functional section is identified, create its
-   `sections/<prefix>-<CODE>.md` file per §6 before adding rule bullets
+3. As each functional domain is identified, create its
+   `domains/<prefix>-<CODE>.md` file per §6 before adding rule bullets
    under it.
 4. Retrofit IDs onto existing prose bullets (if a rules doc already
    exists in some other form) in document order, per §3 — top-level

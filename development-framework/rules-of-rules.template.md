@@ -27,8 +27,8 @@ reflect), and a change to one side can silently break the other. Check,
 in order:
 
 1. The same functionality area in whichever document(s) are relevant.
-2. Each document's Cross-Cutting Notes section (or equivalent).
-3. Each document's Known Bugs / Quick Index section — a "new" rule is
+2. Each document's Cross-Cutting Notes heading (or equivalent).
+3. Each document's Known Bugs / Quick Index heading — a "new" rule is
    sometimes actually a conflicting rewrite of an existing one.
 
 If the new rule **contradicts, narrows, silently overrides, or would
