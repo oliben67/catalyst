@@ -1,6 +1,3 @@
 {
-  "name": "development-framework",
-  "proj-data": {
-    "target": ".[name]-proj"
-  }
+  "name": "development-framework"
 }
