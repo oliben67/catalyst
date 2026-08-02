@@ -44,6 +44,8 @@ process) — but it must be stated explicitly, not left blank.
 - Each item directory must also contain an index file named after the item type:
   - `bugs/bugs.md` for the bug index.
   - `requirements/requirements.md` for the requirements index.
+  - `house-keeping/house-keeping.md` for the house-keeping index.
+  - `meta-tags/meta-tags.md` for the meta-tag index.
 - These index files are the canonical indexes for their directory and must be kept up to date.
 - `BACKLOG.md` remains the go-to document for developers to review work to be done and current status.
 
@@ -76,8 +78,9 @@ domain or target rule cannot be inferred, prompt for both before creating the
 artifact.
 
 When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
-immediately, save it as `tag-<key>-<artefact-id>`, and link it to the
-specified artifact. If the key is not supplied explicitly, prompt for it.
+immediately, save it as `tag-<key>-<artefact-id>`, register it in
+`meta-tags/meta-tags.md`, and link it to the specified artifact. If the key
+is not supplied explicitly, prompt for it.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses

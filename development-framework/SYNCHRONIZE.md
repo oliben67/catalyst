@@ -68,6 +68,8 @@ When the command `/sync-framework [version]` is entered:
    - `requirements/` individual requirement files
    - `bugs/bugs.md`
    - `bugs/` individual bug files
+   - `house-keeping/house-keeping.md`
+   - `meta-tags/meta-tags.md`
    - `BACKLOG.md`
    - `version.txt`
    - the documented slash commands (`/create-bug`, `/create-req`/
