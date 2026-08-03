@@ -1,0 +1,42 @@
+name: "project-name"
+layout:
+  project-root:
+    - development:
+        - bugs:
+            - TEMPLATE-BUG.md
+            - bugs.md
+        - house-keeping:
+            - TEMPLATE-HOUSE-KEEPING.md
+            - house-keeping.md
+        - meta-tags:
+            - TEMPLATE-META-TAG.md
+            - meta-tags.md
+    - domains:
+        - TEMPLATE-DOMAIN.md
+        - domains.md
+    - requirements:
+        - TEMPLATE-REQUIREMENT.md
+        - requirements.md
+    - rules:
+        - rules-of-rules.md
+        - rules-of-development.md
+        - rules-of-work-items.md
+    - work-items:
+        - epics:
+            - TEMPLATE-EPIC.md
+            - epics.md
+        - stories:
+            - TEMPLATE-STORY.md
+            - stories.md
+        - tasks:
+            - TEMPLATE-TASK.md
+            - tasks.md
+        - spikes:
+            - TEMPLATE-SPIKE.md
+            - spikes.md
+        - sprints:
+            - TEMPLATE-SPRINT.md
+            - sprints.md
+        - rules-of-work-items.md
+    - README.md
+    - version.txt
