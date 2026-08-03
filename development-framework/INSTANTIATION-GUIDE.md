@@ -58,7 +58,6 @@ creates concrete rules for that particular project.
      rules/
        rules-of-rules.md
        rules-of-development.md
-       rules-of-work-items.md
      requirements/
        TEMPLATE-REQUIREMENT.md
        requirements.md
@@ -101,7 +100,9 @@ creates concrete rules for that particular project.
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
    stays intact, not the folder names. The `domains/` folder sits at the root
-   of the deployed framework and holds the domain definition files.)
+   of the deployed framework and holds the domain definition files. The
+   work-items rule document belongs in the `work-items/` layer and should not
+   be duplicated under `rules/`.)
 5. Copy `rules-of-development.template.md` and
    `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
