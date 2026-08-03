@@ -18,70 +18,98 @@ creates concrete rules for that particular project.
    vs. backend, or per-service in a multi-service repo). Pick a short
    lowercase prefix per document.
 2. Before creating the project layout, locate configuration for the
-   framework name. Look for a project-local `.dev-instructions.json` in the
-   project where this guide is being run. If it exists, read only its `name`
-   value. If it does not exist, ask the user for the project name and use
-   the current project root directory name as the default.
+   framework name. Look for a project-local `dev-instructions.yaml` in the
+   project where this guide is being run. If it exists, read its `name` value
+   and, if present, its optional `layout` tree. If it does not exist, ask
+   the user for the project name and use the current project root directory
+   name as the default.
 
    The required format for that file is now:
-   ```json
-   {
-     "name": "project-name"
-   }
+   ```yaml
+   name: "project-name"
+   layout:
+     project-root:
+       - rules:
+           - rules-of-rules.md
    ```
 
    The `name` value is the configurable project name used for the
    instantiated project data. It must be a simple project identifier, not a
-   full path or a nested object.
+   full path or a nested object. The optional `layout` value lets the
+   deployment override the default directory structure. If no `layout` is
+   provided, the deployment must use the default structure described below.
 
    After the deployment completes successfully, remove the project-local
-   `.dev-instructions.json` file from the project root. It was only needed as
-   temporary bootstrap metadata for discovering the project name and is no
-   longer needed once the framework has been deployed.
+   `dev-instructions.yaml` file from the project root. It was only needed as
+   temporary bootstrap metadata for discovering the project name and any
+   custom layout override, and is no longer needed once the framework has
+   been deployed.
 3. Pick a root layout, e.g.:
    ```
    <project-root>/.catalyst-proj/
      rules/
        rules-of-rules.md
-       domains/
-       <rule-doc-1>.md
-       <rule-doc-2>.md
+       rules-of-development.md
+       rules-of-work-items.md
      requirements/
-       requirements-template.md
-       <requirement-doc-1>.md
-       <requirement-doc-2>.md
-     development/
-       <rule-doc-1>.md
-       <rule-doc-2>.md
-     requirements/
-       requirements-template.md
+       TEMPLATE-REQUIREMENT.md
+       requirements.md
        <requirement-doc-1>.md
        <requirement-doc-2>.md
      domains/
+       TEMPLATE-DOMAIN.md
+       domains.md
        <prefix>-<CODE>.md
      development/
-       rules-of-development.md
+       TEMPLATE-BUG.md
+       bugs.md
        bugs/
+       TEMPLATE-HOUSE-KEEPING.md
+       house-keeping.md
        house-keeping/
+       TEMPLATE-META-TAG.md
+       meta-tags.md
+       meta-tags/
      work-items/
        rules-of-work-items.md
-       epics/  stories/  tasks/  spikes/  sprints/
+       TEMPLATE-EPIC.md
+       epics.md
+       epics/
+       TEMPLATE-STORY.md
+       stories.md
+       stories/
+       TEMPLATE-TASK.md
+       tasks.md
+       tasks/
+       TEMPLATE-SPIKE.md
+       spikes.md
+       spikes/
+       TEMPLATE-SPRINT.md
+       sprints.md
+       sprints/
+     README.md
+     version.txt
    ```
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
    stays intact, not the folder names. The `domains/` folder sits at the root
-   of the deployed framework and holds the domain definition files
+   of the deployed framework and holds the domain definition files.)
 5. Copy `rules-of-development.template.md` and
    `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
    `/create-req`/`/create-requirement`, `/meta-tag`, `/status`, and
    `/help`) in the same way the framework defines them, so they are
    available in the deployed environment.
-6. Copy `templates/*.template.md` into the corresponding subfolders,
-   dropping the `.template` from the name if you want a ready-to-copy
-   starting file per type. Keep requirements templates in the same
-   `requirements/` directory as the actual requirements documents so the
-   template and the concrete requirement files live together.
+6. Copy `templates/*.template.md` into the corresponding subfolders, and
+   rename each template file to an uppercase name such as
+   `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, or
+   `TEMPLATE-META-TAG.md`. For each artifact type, also create an index file
+   next to the template using the pluralized artifact-name form, such as
+   `bugs.md`, `requirements.md`, `house-keeping.md`, `meta-tags.md`,
+   `epics.md`, `stories.md`, `tasks.md`, `spikes.md`, or `sprints.md`.
+   Keep requirements templates in the same `requirements/` directory as the
+   actual requirements documents so the template and the concrete
+   requirement files live together.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
