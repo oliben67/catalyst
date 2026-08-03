@@ -55,9 +55,16 @@ creates concrete rules for that particular project.
 3. Pick a root layout, e.g.:
    ```
    <project-root>/.catalyst-proj/
+     CODE-OF-CONDUCT.md
      rules/
-       rules-of-rules.md
-       rules-of-development.md
+       Rules-of-Rules.md
+       rules.md
+       business/
+         business-rules.md
+         <rule-doc-1>.md
+       ui/
+         ui-rules.md
+         <rule-doc-2>.md
      requirements/
        TEMPLATE-REQUIREMENT.md
        requirements.md
@@ -103,13 +110,11 @@ creates concrete rules for that particular project.
    of the deployed framework and holds the domain definition files. The
    work-items rule document belongs in the `work-items/` layer and should not
    be duplicated under `rules/`.)
-5. Copy `rules-of-development.template.md` and
-   `rules-of-work-items.template.md` similarly. Ensure the deployed
+5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
    `/create-req`/`/create-requirement`, `/meta-tag`, `/status`,
    `/run-analysis`, and `/help`) in the same way the framework defines them,
-   so they are
-   available in the deployed environment.
+   so they are available in the deployed environment.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
    `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, or
@@ -124,20 +129,26 @@ creates concrete rules for that particular project.
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
    deployment and synchronization so the deployed framework always has a
-   custom, project-specific landing page.
+   custom, project-specific landing page. In addition, create a `README.md`
+   in each major deployed folder (for example `rules/`, `requirements/`,
+   `development/`, `work-items/`, and `templates/` when present) that briefly
+   explains that folder's purpose and link to it from the root README so the
+   structure is discoverable and self-documenting.
 8. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
-   keep
-   it aligned with the rule IDs or source documents that define the
+   keep it aligned with the rule IDs or source documents that define the
    expected behavior. Requirements must be concrete and tied to specific
    application areas, screens, flows, or components, because they are the
    basis for tests and for the bugs that will later be raised when the
    behavior is wrong.
 9. Create your first rule document(s) with a `## Contents` heading and a
    `## Known Bugs — Quick Index` heading (even if empty) — the rest fills
-   in as domains/rules get added, each per `rules-of-rules.md` §6, so the
-   framework produces rules that are specific to this project.
+   in as domains/rules get added, each per `Rules-of-Rules.md` §6, so the
+   framework produces rules that are specific to this project. Every rule
+   must be assigned to a rule type directory, appear in the corresponding
+   type index, and be listed in the global `rules.md` index. No rule may be
+   orphaned by missing a type, a local index entry, or a global index entry.
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:
@@ -154,7 +165,7 @@ Nothing below the work-items layer changes. Above it:
 ## 3. Retrofitting an existing project
 
 1. Do **not** try to write every rule up front. Start with
-   `rules-of-rules.md`, `rules-of-development.md`,
+   `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`,
    `rules-of-work-items.md` (or your project's equivalents) and an empty
    `domains/` directory.
 2. Gather rules incrementally — per functional area, as you touch it, or
@@ -178,7 +189,7 @@ Nothing below the work-items layer changes. Above it:
 5. Once rules exist, retrofit `BUG-`/`FEAT-`/`HK-` docs for any
    already-known issues (a "Known Bugs" index is a good source), citing
    the rule IDs from step 4.
-6. Add a one-line header to each of your project's `rules-of-*.md` files
+6. Add a one-line header to each of your project's rule and process files
    noting which template in this framework they instantiate, e.g.:
    ```
    > Instantiates [the catalyst framework rules template](../../development-framework/rules-of-rules.template.md).
