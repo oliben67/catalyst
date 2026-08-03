@@ -37,13 +37,17 @@ following IDs, in either direction, indefinitely.
 
 | File | Purpose |
 |---|---|
-| [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/<rules-dir>/rules-of-rules.md` and fill in placeholders. |
-| [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/<dev-dir>/rules-of-development.md`. |
+| [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/rules/Rules-of-Rules.md` and fill in placeholders. |
+| [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
 | [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
 | [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, house-keeping, meta-tag, epic, story, task, spike, sprint, domain). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version (`0.1.10`). |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
+
+## Folder guides
+
+- [`templates/README.md`](templates/README.md) — explains the purpose of the reusable template library and how the templates map to the framework's artifact and workflow layers.
 
 ## Agile-methodology agnostic
 
@@ -67,7 +71,7 @@ invariant regardless of how work is scheduled above it.
 
 See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §3. This repo's own
 `.thingamabob/` folder was retrofitted this way — its
-`rules-of-rules.md`, `rules-of-development.md`, and
+`Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and
 `rules-of-work-items.md` each carry a header noting they are this
 project's instantiation of the corresponding template here, so the two
 stay traceable to each other as this framework evolves.
