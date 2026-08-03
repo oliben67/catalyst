@@ -145,7 +145,7 @@ the date, e.g. `🗑 retired {{DATE}} — superseded by \`{{new-id}}\``.
 ## 5. `rr-META-005` Development artifacts have their own ID scheme
 
 If the deployed framework is missing `version.txt`, or if its version is
-missing or lower than the current framework version (`0.0.1`), the deployed
+missing or lower than the current framework version (`0.1.10`), the deployed
 framework must be synchronized before further work proceeds. See
 [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
@@ -235,7 +235,7 @@ unrelated domain even if the original is later emptied out or retired
 
 The framework version is tracked in `version.txt` at the framework root.
 If a deployed framework has no `version.txt`, or its version is lower than
-`0.0.1`, it is considered out of date and must be synchronized using
+`0.1.10`, it is considered out of date and must be synchronized using
 [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
 Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNN)`** and **`SPRINT-(NNN)`** — see

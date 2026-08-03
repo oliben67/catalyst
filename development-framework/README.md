@@ -1,4 +1,4 @@
-# Development Framework
+# Catalyst Framework
 
 A project-agnostic, portable specification for how any codebase organizes
 its rules, its development work, and its agile process — extrapolated
@@ -42,7 +42,7 @@ following IDs, in either direction, indefinitely.
 | [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
 | [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, house-keeping, meta-tag, epic, story, task, spike, sprint, domain). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
-| [`version.txt`](version.txt) | Current framework version (`0.0.1`). |
+| [`version.txt`](version.txt) | Current framework version (`0.1.10`). |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
 
 ## Agile-methodology agnostic
