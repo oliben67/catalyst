@@ -106,8 +106,9 @@ creates concrete rules for that particular project.
 5. Copy `rules-of-development.template.md` and
    `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
-   `/create-req`/`/create-requirement`, `/meta-tag`, `/status`, and
-   `/help`) in the same way the framework defines them, so they are
+   `/create-req`/`/create-requirement`, `/meta-tag`, `/status`,
+   `/run-analysis`, and `/help`) in the same way the framework defines them,
+   so they are
    available in the deployed environment.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
