@@ -66,6 +66,38 @@ process) — but it must be stated explicitly, not left blank.
 
 ## 3. Slash-command entry points
 
+The framework exposes the following custom slash commands:
+
+- `/create-bug` — create a new bug artifact immediately, register it in
+  `bugs/bugs.md`, and track it in the same workflow as any other bug.
+- `/create-req` or `/create-requirement` — create a new requirement artifact
+  immediately, register it in `requirements/requirements.md`, and track it in
+  the same workflow.
+- `/create-epic` — create a new epic work item and register it in
+  `epics/epics.md`.
+- `/create-story` — create a new story work item and register it in
+  `stories/stories.md`.
+- `/create-task` — create a new task work item and register it in
+  `tasks/tasks.md`.
+- `/create-spike` — create a new spike work item and register it in
+  `spikes/spikes.md`.
+- `/create-sprint` — create a new sprint container and register it in
+  `sprints/sprints.md`.
+- `/meta-tag` — create a new meta-tag artifact, save it as
+  `tag-<key>-<artefact-id>`, register it in `meta-tags/meta-tags.md`, and
+  link it to the specified artifact.
+- `/status` — update an artifact or work item's `Status` field.
+- `/run-analysis` — open and execute the analysis playbook from
+  `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
+  returning the resulting analysis summary.
+- `/sync-framework` — synchronize the deployed framework with the newest
+  framework version available from the framework source.
+- `/check-rules` — verify that rules, domains, and artifact links remain
+  consistent and do not conflict.
+- `/show-backlog` — summarize open work, blockers, and missing links.
+- `/help` — return help documentation for the framework or for a specific
+  command when provided.
+
 When the user enters `/create-bug: ...`, create a new bug artifact immediately,
 register it in `bugs/bugs.md`, and track it in the same workflow as any other
 bug. If the domain cannot be inferred from context, prompt for the domain and
@@ -76,6 +108,12 @@ new requirement artifact immediately, register it in
 `requirements/requirements.md`, and track it in the same workflow. If the
 domain or target rule cannot be inferred, prompt for both before creating the
 artifact.
+
+When the user enters `/create-epic`, `/create-story`, `/create-task`,
+`/create-spike`, or `/create-sprint`, create the corresponding work-item
+artifact immediately, register it in the matching index file under the
+appropriate work-items folder, and preserve the required linkage to its parent
+or target artifact.
 
 When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
 immediately, save it as `tag-<key>-<artefact-id>`, register it in
@@ -95,9 +133,23 @@ from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
 returning the resulting analysis summary. If the playbook is missing, report
 that it is unavailable and do not invent missing content.
 
+When the user enters `/sync-framework`, inspect the framework source, compare
+it with the deployed framework, and synchronize any missing or outdated files
+and version information.
+
+When the user enters `/check-rules`, inspect the deployed framework for
+missing rule targets, conflicting domains, missing indexes, and broken links,
+then report the result.
+
+When the user enters `/show-backlog`, inspect the current backlog documents and
+artifact indexes, then summarize the relevant open work and blockers.
+
 When the user enters `/help` without any additional entry, list all supported
 custom slash commands and their purpose, then list every artifact type and its
-purpose in a compact reference format.
+purpose in a compact reference format. When the user enters `/help <command>`,
+return the detailed help documentation for that command only, including its
+syntax, behavior, and prerequisites. If the command is unknown, respond that
+it is unsupported and suggest the available commands.
 
 ## 4. Domain field
 
