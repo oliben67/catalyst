@@ -20,7 +20,6 @@ layout:
     - rules:
         - rules-of-rules.md
         - rules-of-development.md
-        - rules-of-work-items.md
     - work-items:
         - epics:
             - TEMPLATE-EPIC.md

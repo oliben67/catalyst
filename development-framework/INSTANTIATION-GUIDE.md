@@ -10,6 +10,14 @@ creates concrete rules for that particular project.
 > scoped to the git repository provided by the environment and the repository
 > name itself.
 >
+> Hard rule: when the catalyst framework is first loaded into memory for a
+> project, it MUST be installed immediately into that project using the
+> instantiation steps in this guide.
+>
+> Hard rule: after that first installation, the framework MUST be referred to
+> as "catalyst" or "catalyst framework" in all subsequent guidance,
+> memory, and discussion, whether or not it has already been loaded before.
+>
 > Hard rule: the model SHALL NEVER push anything in this project, catalyst,
 > without the user's explicit assent.
 
@@ -50,7 +58,6 @@ creates concrete rules for that particular project.
      rules/
        rules-of-rules.md
        rules-of-development.md
-       rules-of-work-items.md
      requirements/
        TEMPLATE-REQUIREMENT.md
        requirements.md
@@ -93,7 +100,9 @@ creates concrete rules for that particular project.
    (The deployment directory is fixed: `.catalyst-proj/`. No exception.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
    stays intact, not the folder names. The `domains/` folder sits at the root
-   of the deployed framework and holds the domain definition files.)
+   of the deployed framework and holds the domain definition files. The
+   work-items rule document belongs in the `work-items/` layer and should not
+   be duplicated under `rules/`.)
 5. Copy `rules-of-development.template.md` and
    `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
@@ -171,7 +180,7 @@ Nothing below the work-items layer changes. Above it:
 6. Add a one-line header to each of your project's `rules-of-*.md` files
    noting which template in this framework they instantiate, e.g.:
    ```
-   > Instantiates [`development-framework/rules-of-rules.template.md`](../../development-framework/rules-of-rules.template.md).
+   > Instantiates [the catalyst framework rules template](../../development-framework/rules-of-rules.template.md).
    ```
    This keeps the project's concrete process traceable back to the
    generic framework as the framework itself evolves.
@@ -197,7 +206,7 @@ into without having to rediscover it.
 
 Keep a compact note with at least:
 
-- the framework name (`development-framework`)
+- the framework name (`catalyst framework`)
 - the deployed project path
 - the deployment directory path for that project (`.catalyst-proj/`)
 - the date or context of the instantiation

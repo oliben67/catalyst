@@ -6,9 +6,9 @@ this framework, synchronize it before continuing with project work.
 
 ## Rule
 
-Whenever a project is active, it must check this framework for changes,
-load the latest version into memory, and, if any changes are present,
-offer to apply them using this synchronization process.
+Whenever a project is active, it must check the catalyst framework for
+changes, load the latest version into memory, and, if any changes are
+present, offer to apply them using this synchronization process.
 
 Synchronization requires exactly one confirmation from the user before it
 starts. After that confirmation, all subsequent framework updates for the
@@ -23,12 +23,12 @@ immediately.
 
 ## Version rule
 
-- Current framework version: `0.0.1`
+- Current framework version: `0.1.10`
 - The source of truth for the latest framework version is the `release`
   branch of `git@github.com:oliben67/catalyst.git` (or
   `https://github.com/oliben67/catalyst.git`).
 - The deployed framework must have a `version.txt` file.
-- If `version.txt` is missing or contains a version lower than `0.0.1`,
+- If `version.txt` is missing or contains a version lower than `0.1.10`,
   treat the deployment as out of date and synchronize it.
 
 ## Slash-command behavior for `/sync-framework`
@@ -82,4 +82,4 @@ When the command `/sync-framework [version]` is entered:
 
 After synchronization, the deployed framework should reflect the current
 framework's rules, templates, and file structure, and its version should be
-at least `0.0.1`.
+at least `0.1.10`.
