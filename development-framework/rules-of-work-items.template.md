@@ -6,8 +6,8 @@
 Standards for the agile process layer — epics, stories, tasks, spikes,
 sprints (or your methodology's equivalents; see the "Agile-methodology
 agnostic" note in the framework [`README.md`](README.md)). Sits above
-`{{DEV_DIR}}/rules-of-development.md`, which sits above
-`{{RULES_DIR}}/rules-of-rules.md`. Work items never bypass that chain.
+`CODE-OF-CONDUCT.md`, which sits above
+`{{RULES_DIR}}/Rules-of-Rules.md`. Work items never bypass that chain.
 
 ```
 EPIC ─▶ STORY ─▶ TASK           (agile layer — this document)
@@ -57,7 +57,7 @@ a process change get filed as `HK-NNNN`, not left as an untracked note.
 
 ## 6. IDs
 
-Per `rules-of-rules.md` §7: `(EPIC|STORY|TASK|SPIKE)-NNNN` (4 digits),
+Per `Rules-of-Rules.md` §8: `(EPIC|STORY|TASK|SPIKE)-NNNN` (4 digits),
 `SPRINT-NNN` (3 digits), each sequence global within its own type, never
 reused.
 

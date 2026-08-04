@@ -1,4 +1,4 @@
-# Meta-tag — {{key}} for {{artefact-id}}
+main, then PR to merge # Meta-tag — {{key}} for {{artefact-id}}
 
 **Stored as:** `tag-{{key}}-{{artefact-id}}`
 **Target artifact:** `{{artefact-id}}`

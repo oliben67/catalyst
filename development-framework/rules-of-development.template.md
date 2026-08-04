@@ -1,11 +1,11 @@
 # Rules of Development — template
 
-> Copy to `{{DEV_DIR}}/rules-of-development.md` and resolve every
+> Copy to `CODE-OF-CONDUCT.md` in the project root and resolve every
 > `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
 
 Standards for how development work — bugs, requirements, house-keeping, and
 meta-tags — gets proposed, tracked, and closed. Subordinate to
-[`{{RULES_DIR}}/rules-of-rules.md`](../{{RULES_DIR}}/rules-of-rules.md):
+[`{{RULES_DIR}}/Rules-of-Rules.md`](../{{RULES_DIR}}/Rules-of-Rules.md):
 that file governs the rules themselves; this file governs the work items
 that reference those rules.
 
@@ -20,7 +20,7 @@ behavior in question:
 
 1. Define the rule(s) first, as a normal edit to the relevant rule
 document.
-2. That definition must satisfy `rules-of-rules.md` §1 (conflict check)
+2. That definition must satisfy `Rules-of-Rules.md` §1 (conflict check)
 and follow the ID scheme in §3.
 3. Only then open the `BUG-`/`REQ-`/`HK-` item, citing the new ID(s).
 
@@ -55,7 +55,7 @@ process) — but it must be stated explicitly, not left blank.
 - **Requirement**: an explicit, tracked requirement that captures
   user/business behavior that must be implemented and tested. It may target
   existing rules and/or propose new ones (and, if needed, a new domain — see
-  `rules-of-rules.md` §6) inline in the requirement doc so rule and
+  `Rules-of-Rules.md` §6) inline in the requirement doc so rule and
   requirement are reviewed together.
 - **House-keeping**: dev-support tooling/process, not product behavior.
   Still targets a rule where one exists — most commonly a `rr-META-*`
@@ -86,6 +86,17 @@ The framework exposes the following custom slash commands:
 - `/meta-tag` — create a new meta-tag artifact, save it as
   `tag-<key>-<artefact-id>`, register it in `meta-tags/meta-tags.md`, and
   link it to the specified artifact.
+- `/list <type> [--filter ...]` — list artifacts, work items, rules, or
+  templates of the requested type. Use `all` to list everything. Each
+  `--filter` is a property filter expressed as `key=value` or
+  `key="value*"`; filters apply across the selected collection. If the
+  requested type is `template`, the command requires an additional
+  `--type <template-type>` argument to identify which template family to
+  inspect.
+- `/freeze <item-id|item-path|type|template-name>` — protect the resolved
+  item from `/sync-framework` by recording its file path in a root-level
+  `.frozen` file. The command accepts one of four argument forms: an item
+  ID, an item path, a type, or a template name.
 - `/status` — update an artifact or work item's `Status` field.
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
@@ -120,6 +131,19 @@ immediately, save it as `tag-<key>-<artefact-id>`, register it in
 `meta-tags/meta-tags.md`, and link it to the specified artifact. If the key
 is not supplied explicitly, prompt for it.
 
+When the user enters `/list <type> [--filter ...]`, inspect the relevant
+catalogs and return the matching items. If `type` is `all`, inspect every
+supported collection and apply the same filters there. If `type` is
+`template`, require `--type <template-type>` and list the matching templates
+for that family. If no items match, return an empty result rather than
+inventing matches.
+
+When the user enters `/freeze <item-id|item-path|type|template-name>`, resolve
+the item to its backing file path, append that path to the root-level
+`.frozen` file if it is not already present, and report success. The item is
+then protected from automatic framework synchronization until it is
+explicitly removed from `.frozen` or re-synchronized with an override.
+
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
 for that artifact type, change it normally. If the status is invalid and the
@@ -133,9 +157,14 @@ from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
 returning the resulting analysis summary. If the playbook is missing, report
 that it is unavailable and do not invent missing content.
 
-When the user enters `/sync-framework`, inspect the framework source, compare
-it with the deployed framework, and synchronize any missing or outdated files
-and version information.
+When the user enters `/sync-framework [--force <scope>]`, inspect the framework
+source, compare it with the deployed framework, and synchronize any missing
+or outdated files and version information. Before synchronizing an item, check
+the root-level `.frozen` file. If the item's path is listed there, skip it
+unless the command includes one of the valid overrides: `--force <type>`,
+`--force <item-id>`, or `--force all`. When an item is refreshed during the
+synchronization process, it must not remain in `.frozen`; remove it from the
+list so the refreshed version no longer carries the frozen protection.
 
 When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
@@ -158,7 +187,7 @@ from `{{RULES_DIR}}/domains/` — not free text.
 
 ## 5. Development-artifact IDs
 
-Per `rules-of-rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
+Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
 sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
 pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
 
