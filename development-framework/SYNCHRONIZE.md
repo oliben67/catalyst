@@ -66,7 +66,13 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    **`<id>-<short-summary>`** and their corresponding files to
    **`<id>-<short-summary>.md`** using their existing title/description
    content, then update every index entry, link, and reference that points to
-   the old name or old filename.
+   the old name or old filename. The same normalization is a hard requirement
+   for domain files under `domains/`: any file still named only
+   `<prefix>-<CODE>.md` (or `<prefix>-<PARENT>.<SUB>.md` for a sub-domain)
+   must be renamed to `<prefix>-<CODE>-<short-summary>.md` (or
+   `<prefix>-<PARENT>.<SUB>-<short-summary>.md`), using the domain's own
+   `Scope` field as the source for the summary, then every reference to the
+   old filename updated accordingly.
 10. At the end of the synchronization run, perform a four-eyes verification
    pass: one sub-agent verifies the deployment against the checklist in
    [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second

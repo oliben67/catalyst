@@ -8,4 +8,4 @@ release.
 
 | Plugin | Repository | Release | Tag |
 | --- | --- | --- | --- |
-| [catalyst-git](catalyst-git) | git@github.com:oliben67/catalyst-git.git | v0.1.0 | 0.1.0 |
+| [catalyst-git](catalyst-git) | git@github.com:oliben67/catalyst-git.git | v0.1.1 | 0.1.1 |

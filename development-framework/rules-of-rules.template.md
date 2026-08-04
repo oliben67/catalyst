@@ -187,9 +187,14 @@ document.
 
 **Domains are defined in their own directory, not inline in the rule
 document.** Each domain gets one file at
-`{{RULES_DIR}}/domains/{{DOC_PREFIX}}-{{CODE}}.md` (e.g.
-`domains/br-REDIS.md`). See
-[`templates/domain.template.md`](templates/domain.template.md) for the
+`{{RULES_DIR}}/domains/{{DOC_PREFIX}}-{{CODE}}-{{short-description}}.md` (e.g.
+`domains/br-REDIS-caching-layer.md`). This is a hard requirement, the same as
+for artifact and work-item filenames (see `INSTANTIATION-GUIDE.md` §1): the
+bare `{{DOC_PREFIX}}-{{CODE}}.md` is not a valid filename, the file must carry
+a short description of what the domain covers as part of its name. The
+`{{CODE}}` used inside rule IDs (`{{DOC_PREFIX}}-{{CODE}}-{{NNN}}`) is
+unaffected by this — only the on-disk filename gains the description suffix.
+See [`templates/domain.template.md`](templates/domain.template.md) for the
 exact file structure (`Document`, `Defined`, `Parent`, `Sub-domains`,
 `Scope`, `Relationship to other domains`).
 
@@ -205,10 +210,11 @@ domain file shorter.
   value for ID purposes: a rule under it is
   `{{DOC_PREFIX}}-{{PARENT}}.{{SUB}}-{{NNN}}` (e.g. `ui-GATE.DOCKER-004`),
   with `NNN` scoped to the sub-domain, not the parent.
-- **File**: `domains/{{DOC_PREFIX}}-{{PARENT}}.{{SUB}}.md`, alongside
-  (not nested under) the parent's own `domains/{{DOC_PREFIX}}-{{PARENT}}.md`
-  — the directory itself stays flat; the nesting is expressed by the code
-  and by the `Parent`/`Sub-domains` fields cross-linking the two files.
+- **File**: `domains/{{DOC_PREFIX}}-{{PARENT}}.{{SUB}}-{{short-description}}.md`,
+  alongside (not nested under) the parent's own
+  `domains/{{DOC_PREFIX}}-{{PARENT}}-{{short-description}}.md` — the
+  directory itself stays flat; the nesting is expressed by the code and by
+  the `Parent`/`Sub-domains` fields cross-linking the two files.
 - **Parent file** lists every child in its `Sub-domains` field. **Child
   file** names its `Parent` and inherits the parent's Scope/Relationship
   statements unless it explicitly narrows or overrides them.
@@ -225,7 +231,7 @@ pointer back to this file, not the full metadata:
 ```
 ## {{Domain name}}
 
-> **Domain:** `CODE` — see [`domains/{{DOC_PREFIX}}-{{CODE}}.md`](domains/{{DOC_PREFIX}}-{{CODE}}.md).
+> **Domain:** `CODE` — see [`domains/{{DOC_PREFIX}}-{{CODE}}-{{short-description}}.md`](domains/{{DOC_PREFIX}}-{{CODE}}-{{short-description}}.md).
 ```
 
 This keeps the rule document itself readable (just rules) while the
@@ -243,8 +249,8 @@ list. Extend the existing domain instead of duplicating it.
 2. **Pick a code** — uppercase mnemonic, 3–7 characters, not already used
    as a `DOMAIN` code in the same document.
 3. **Add the code to the canonical table** in this file, and create its
-   `domains/{{DOC_PREFIX}}-{{CODE}}.md` file, in the same change that
-   adds the domain.
+   `domains/{{DOC_PREFIX}}-{{CODE}}-{{short-description}}.md` file, in the
+   same change that adds the domain.
 4. **Write the domain file's Scope and Relationship-to-other-domains**,
 declaring either no conflict or the specific supersede/amend/
 contradict relationship to named existing rule IDs.
