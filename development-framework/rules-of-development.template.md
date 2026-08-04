@@ -275,7 +275,19 @@ version via the `Compatibility` field — a bare `*`, or an absent field, is
 never grounds for deactivation. Only when that field names a version or
 range that excludes the target version may the synchronization process
 deactivate the plugin, and it must then report which plugin was deactivated
-and why. After the refresh completes, perform a four-eyes
+and why. Synchronization must also never treat a deployed project's
+`plugins/<type>/catalog.md` or any installed plugin directory under
+`plugins/<type>/<name>/` as framework template content to overwrite
+wholesale: once a project has registered or activated any plugin, that
+catalog and those directories are project-owned state, so synchronization
+may only merge into `catalog.md` — adding rows for newly available plugins
+not yet present, and refreshing the pinned `Release`/`Tag`/`Compatibility`
+columns of a row that already exists — and must never delete an existing
+row, blank the file, or delete or replace an installed plugin's directory
+contents. A missing row or directory is something the user resolves
+afterward via `/catalyzer activate` or `/catalyzer download`, never
+something `/sync-framework` performs or silently corrects on its own. After
+the refresh completes, perform a four-eyes
 verification pass: one sub-agent verifies the newly deployed framework against
 `INSTANTIATION-GUIDE.md` and the framework rules, and a second independent
 sub-agent repeats the verification from a separate pass. The sync is not

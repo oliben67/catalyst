@@ -80,7 +80,20 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
     or an absent field, is never grounds for deactivation. Only deactivate a
     plugin when that field names a version or range that excludes the
     target version, and report which plugin was deactivated and why.
-11. At the end of the synchronization run, perform a four-eyes verification
+11. Never treat a deployed project's `plugins/<type>/catalog.md` or any
+    installed plugin directory under `plugins/<type>/<name>/` as framework
+    template content to overwrite wholesale. Once a project has registered
+    or activated any plugin, that catalog and those directories are
+    project-owned state, not framework state: synchronization may only
+    merge into a `catalog.md` — adding rows for newly available plugins
+    not yet present there, and refreshing the pinned `Release`/`Tag`/
+    `Compatibility` columns of a row that already exists — and must never
+    delete an existing row, blank the file, or delete or replace an
+    installed plugin's directory contents as a side effect of the sync.
+    If a plugin's row or directory would otherwise be missing, that is a
+    `/catalyzer activate`/`download` action for the user to take
+    afterward; `/sync-framework` must never perform or silently correct it.
+12. At the end of the synchronization run, perform a four-eyes verification
    pass: one sub-agent verifies the deployment against the checklist in
    [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second
    independent sub-agent repeats the verification from a fresh perspective.
@@ -98,6 +111,10 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    deployed project, including plugin content pulled directly from each
    plugin's own repository when plugin updates are required. No plugin may be
    sourced from this repository; every plugin must have its own repository.
+   A deployed project's own `plugins/<type>/catalog.md` and installed plugin
+   directories are project-owned state, not framework template content —
+   merge into them (see item 11 of the slash-command behavior below), never
+   overwrite or delete them wholesale.
 5. Ensure the deployed project contains a custom root-level `README.md` that
    describes the deployed framework's structure and the project's artifact
    layout.
