@@ -74,7 +74,7 @@ creates concrete rules for that particular project.
      domains/
        TEMPLATE-DOMAIN.md
        domains.md
-       <prefix>-<CODE>.md
+       <prefix>-<CODE>-<short-description>.md
      development/
        TEMPLATE-BUG.md
        bugs.md
@@ -162,7 +162,11 @@ creates concrete rules for that particular project.
    or synchronization to meet this rule. There must be exactly one
    `TEMPLATE-RULE.md` file in the `rules/` root and none inside the
    rule-type directories. No rule may be orphaned by missing a type, a local
-   index entry, or a global index entry.
+   index entry, or a global index entry. This same descriptive-naming
+   requirement is a hard requirement for domain files: every file under
+   `domains/` must be named `<prefix>-<CODE>-<short-summary>.md` (or
+   `<prefix>-<PARENT>.<SUB>-<short-summary>.md` for a sub-domain), never the
+   bare `<prefix>-<CODE>.md` — see `Rules-of-Rules.md` §7.
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:
@@ -194,7 +198,7 @@ Nothing below the work-items layer changes. Above it:
    pause and ask the user questions so the final rule reflects the
    project’s intent rather than an arbitrary choice.
 3. As each functional domain is identified, create its
-   `domains/<prefix>-<CODE>.md` file per §6 before adding rule bullets
+   `domains/<prefix>-<CODE>-<short-description>.md` file per §6 before adding rule bullets
    under it.
 4. Retrofit IDs onto existing prose bullets (if a rules doc already
    exists in some other form) in document order, per §3 — top-level

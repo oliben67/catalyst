@@ -157,9 +157,9 @@ For each functional-area group in this reconciled rule list, propose:
 ```
 
 Then mechanically assign IDs (`<prefix>-<CODE>-<NNN>`, in document
-order) and create each domain's `domains/<prefix>-<CODE>.md` file per
-§6 — this step is deterministic, not another agent pass; a short script
-or careful manual edit is more reliable than delegating it.
+order) and create each domain's `domains/<prefix>-<CODE>-<short-description>.md`
+file per §6 — this step is deterministic, not another agent pass; a short
+script or careful manual edit is more reliable than delegating it.
 
 ## Recipe 5 — Cross-reference known bugs to rule IDs
 
