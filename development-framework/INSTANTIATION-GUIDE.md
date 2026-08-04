@@ -59,6 +59,7 @@ creates concrete rules for that particular project.
      rules/
        Rules-of-Rules.md
        rules.md
+       TEMPLATE-RULE.md
        business/
          business-rules.md
          <rule-doc-1>.md
@@ -124,7 +125,9 @@ creates concrete rules for that particular project.
    `epics.md`, `stories.md`, `tasks.md`, `spikes.md`, or `sprints.md`.
    Keep requirements templates in the same `requirements/` directory as the
    actual requirements documents so the template and the concrete
-   requirement files live together.
+   requirement files live together. For rules, create exactly one
+   `TEMPLATE-RULE.md` file in the `rules/` root and use it to create each
+   concrete rule file in the relevant rule-type directory under `rules/`.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
@@ -146,9 +149,12 @@ creates concrete rules for that particular project.
    `## Known Bugs — Quick Index` heading (even if empty) — the rest fills
    in as domains/rules get added, each per `Rules-of-Rules.md` §6, so the
    framework produces rules that are specific to this project. Every rule
-   must be assigned to a rule type directory, appear in the corresponding
-   type index, and be listed in the global `rules.md` index. No rule may be
-   orphaned by missing a type, a local index entry, or a global index entry.
+   must be stored as its own markdown file under the rule type directory it
+   belongs to, appear in the corresponding type index, and be listed in the
+   global `rules.md` index. There must be exactly one `TEMPLATE-RULE.md`
+   file in the `rules/` root and none inside the rule-type directories. No
+   rule may be orphaned by missing a type, a local index entry, or a global
+   index entry.
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:

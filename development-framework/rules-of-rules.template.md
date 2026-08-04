@@ -11,9 +11,12 @@ describe, not to the app's behavior itself. Binding on anyone (human or
 agent) adding to any of them, at any point after this file exists.
 
 Each rule must belong to a rule type directory under `{{RULES_DIR}}/`, be
-listed in the corresponding type index, and be referenced from the global
-index `{{RULES_DIR}}/rules.md`. No rule may be orphaned by missing a type,
-a local index entry, or a global index entry.
+stored as its own markdown file in that directory, be listed in the
+corresponding type index, and be referenced from the global index
+`{{RULES_DIR}}/rules.md`. There must be exactly one template file at
+`{{RULES_DIR}}/TEMPLATE-RULE.md` and no `TEMPLATE-RULE.md` files inside the
+rule-type directories. No rule may be orphaned by missing a type, a local
+index entry, or a global index entry.
 
 ---
 
@@ -152,7 +155,9 @@ local index file named after the type, such as `business-rules.md` or
 `{{RULES_DIR}}/rules.md` file is the global rules index and must include a
 link to every type index and every rule file. A rule that is not present in
 its type index or the global index is considered invalid until it is added to
-both.
+both. The only rule-template file allowed at the rules root is
+`{{RULES_DIR}}/TEMPLATE-RULE.md`; concrete rule files belong under the type
+folders, not under the rules root.
 
 ## 6. `rr-META-006` Development artifacts have their own ID scheme
 
