@@ -101,7 +101,7 @@ The framework exposes the following custom slash commands:
   item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
-- `/plugins <subcommand>` — manage plugin installation and activation through
+- `/catalyzer <subcommand>` — manage plugin installation and activation through
   the framework interface. Supported subcommands:
   - `list` — list all available plugins by type.
   - `activate <name> <version|latest>` — download or update the plugin to the
@@ -177,24 +177,24 @@ the item to its backing file path, append that path to the root-level
 then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
 
-When the user enters `/plugins list`, inspect the plugin catalog and return the
+When the user enters `/catalyzer list`, inspect the plugin catalog and return the
 available plugins grouped by type. When the user enters
-`/plugins activate <name> <version|latest>`, download or update the plugin into
+`/catalyzer activate <name> <version|latest>`, download or update the plugin into
 the framework at `plugins/<type>/` if it is not already present, then load it
 into memory. The command requires a version argument; if the user supplies
 `latest`, resolve the newest available version for that plugin. If a plugin
 with the same name is already loaded, replace it in memory with the new
-instance. When the user enters `/plugins download <name> <version|latest>`,
+instance. When the user enters `/catalyzer download <name> <version|latest>`,
 download the plugin into the framework without activating it; the installed
 plugin remains inactive until it is explicitly activated later. A plugin is
 considered invalid for activation unless its root directory contains both a
 `README.md` file and a `working-contract.md` file; if either file is missing,
 refuse activation and report the missing requirement. When the user enters
-`/plugins deactivate <name>`, leave the plugin installed in the framework but
+`/catalyzer deactivate <name>`, leave the plugin installed in the framework but
 mark it inactive and flush it from memory. When the user enters
-`/plugins upgrade <name|latest>`, update the plugin to the requested version
+`/catalyzer upgrade <name|latest>`, update the plugin to the requested version
 or to the latest available version. When the user enters
-`/plugins downgrade <name> <version>`, downgrade the plugin to the specified
+`/catalyzer downgrade <name> <version>`, downgrade the plugin to the specified
 version. Plugins must remain inactive until they are explicitly activated, and
 only the repository plugin type exists at this time. On framework startup, the
 framework must scan the installed plugins and activate only those whose
