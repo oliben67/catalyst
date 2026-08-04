@@ -274,10 +274,14 @@ sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
 pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
 This is a hard requirement for all new artifacts and work items: every item
 name must be more than the bare ID and must follow the format
-**`<artifact-id>-<short-summary>`**. Example:
-`BUG-0001-login-form-validation` or `REQ-0002-password-reset-flow`. The same
-rule must be applied retroactively during framework deployment or
-synchronization to existing deployed items whose names are still only the ID.
+**`<artifact-id>-<short-summary>`**. The corresponding markdown filename must
+also follow the same descriptive pattern as
+**`<artifact-id>-<short-summary>.md`**, not simply `<artifact-id>.md`.
+Example: `BUG-0001-login-form-validation` or
+`BUG-0001-login-form-validation.md`, and `REQ-0002-password-reset-flow` or
+`REQ-0002-password-reset-flow.md`. The same rule must be applied
+retroactively during framework deployment or synchronization to existing
+deployed items whose names or filenames are still only the ID.
 
 ## 6. Closing an item
 
