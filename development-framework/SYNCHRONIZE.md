@@ -33,24 +33,25 @@ immediately.
 
 ## Slash-command behavior for `/sync-framework`
 
-When the command `/sync-framework [version] [--force <scope>]` is entered:
+When the command `/sync-framework [latest|<version>] [--force <scope>]` is entered:
 
-1. If a version is provided, inspect the `release` branch for the matching
-   tagged release. If that tag exists, load that version into memory and use
-   it as the synchronization target.
-2. Build a diff between the currently installed deployment and the target
+1. If the first argument is `latest`, inspect the `release` branch and resolve
+   the newest available tagged release. If a specific version is supplied,
+   inspect the `release` branch for the matching tagged release. If that tag
+   exists, load that version into memory and use it as the synchronization
+   target.
+2. If no version argument is provided, synchronize against the currently
+   installed local version rather than looking up a remote release.
+3. Build a diff between the currently installed deployment and the target
    framework version before applying changes, and use that diff as the basis
    for the synchronization plan.
-3. If the requested version differs from the version currently deployed,
+4. If the requested version differs from the version currently deployed,
    synchronize the deployment using the already-present deployment state as
    the baseline, preserving any project-local adjustments that are still
    valid.
-4. If the requested version is the same as the currently deployed version,
+5. If the requested version is the same as the currently deployed version,
    load that version into memory, discard the old in-memory copy, and perform
    a synchronization against the already-present deployment contents.
-5. If no version is provided, inspect the `release` branch and resolve the
-   latest available tag automatically, then perform the same synchronization
-   flow against that version.
 6. If a requested version does not exist as a tag, stop and report that the
    requested release is unavailable rather than silently falling back to an
    unrelated version.
