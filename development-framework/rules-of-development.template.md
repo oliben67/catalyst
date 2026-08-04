@@ -121,9 +121,9 @@ The framework exposes the following custom slash commands:
   plugin list and activate only those marked active. This is a hard rule.
   The framework defines the interface and lifecycle contract; the plugin itself
   owns its implementation details, operational guidance, and domain-specific
-  behavior. During framework deployment or synchronization, plugins must be
-  pulled directly from `https://github.com/oliben67/catalyst-git` rather than
-  from this repository.
+  behavior. Each plugin must live in its own repository, with no exceptions,
+  and during framework deployment or synchronization plugins must be pulled
+  directly from that plugin repository rather than from this repository.
 - `/status` — update an artifact or work item's `Status` field.
 - `/audit <file-name>` — analyze the change-impact of the specified file by
   checking the current repository state, the file's role in the framework,

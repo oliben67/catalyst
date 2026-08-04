@@ -116,8 +116,9 @@ creates concrete rules for that particular project.
    `/create-req`/`/create-requirement`, `/meta-tag`, `/status`,
    `/run-analysis`, and `/help`) in the same way the framework defines them,
    so they are available in the deployed environment. When plugins are needed,
-   pull their content directly from `https://github.com/oliben67/catalyst-git`
-   rather than from this framework repository.
+   pull their content directly from each plugin's own repository; no plugin may
+   be sourced from this framework repository, and every plugin must have its
+   own repository with no exceptions.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
    `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, or
