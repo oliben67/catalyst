@@ -156,11 +156,13 @@ creates concrete rules for that particular project.
    rule type directory it belongs to, appear in the corresponding type index,
    and be listed in the global `rules.md` index. In addition, every rule and
    development artifact name must follow the descriptive format
-   **`<id>-<short-summary>`**; bare IDs are no longer acceptable. Existing
-   deployed items must be renamed during deployment or synchronization to meet
-   this rule. There must be exactly one `TEMPLATE-RULE.md` file in the
-   `rules/` root and none inside the rule-type directories. No rule may be
-   orphaned by missing a type, a local index entry, or a global index entry.
+   **`<id>-<short-summary>`**, and the corresponding markdown filename must
+   follow **`<id>-<short-summary>.md`**; bare IDs or bare-ID filenames are no
+   longer acceptable. Existing deployed items must be renamed during deployment
+   or synchronization to meet this rule. There must be exactly one
+   `TEMPLATE-RULE.md` file in the `rules/` root and none inside the
+   rule-type directories. No rule may be orphaned by missing a type, a local
+   index entry, or a global index entry.
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:
