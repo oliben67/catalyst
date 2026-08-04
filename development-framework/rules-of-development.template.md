@@ -101,8 +101,8 @@ The framework exposes the following custom slash commands:
   item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
-- `/plugins <subcommand>` — manage plugin installation and activation.
-  Supported subcommands:
+- `/plugins <subcommand>` — manage plugin installation and activation through
+  the framework interface. Supported subcommands:
   - `list` — list all available plugins by type.
   - `activate <name> <version|latest>` — download or update the plugin to the
     specified version (or `latest`) and activate it. This command requires a
@@ -119,6 +119,9 @@ The framework exposes the following custom slash commands:
   Plugins are not loaded into memory unless they are explicitly activated via
   this command, and on framework startup the framework must scan the installed
   plugin list and activate only those marked active. This is a hard rule.
+  The framework defines the interface and lifecycle contract; the plugin itself
+  owns its implementation details, operational guidance, and domain-specific
+  behavior.
 - `/status` — update an artifact or work item's `Status` field.
 - `/audit <file-name>` — analyze the change-impact of the specified file by
   checking the current repository state, the file's role in the framework,
@@ -208,7 +211,9 @@ Each plugin must be defined by the following minimum metadata fields: `name`,
 template must be updated to include these fields and to record the plugin's
 current state in the framework. The framework must read the plugin's
 `active` flag at startup and activate only the plugins marked active; this is
-mandatory and must not be bypassed.
+mandatory and must not be bypassed. All plugin-specific functionality,
+operational guidance, and implementation details must live inside the plugin
+package itself; the framework only defines the interface and lifecycle contract.
 
 When the user enters `/audit <file-name>`, inspect the repository and the
 current framework state to determine the impact of changes against the named
