@@ -60,10 +60,19 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    includes `--force <type>`, `--force <item-id>`, or `--force all`.
 8. When an item is refreshed successfully, remove its path from `.frozen` so
    the refreshed version is no longer considered frozen.
-9. At the end of the synchronization run, perform a verification pass that
-   confirms the deployment still satisfies every requirement listed in
-   [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) before considering the
-   sync complete.
+9. Before the sync is considered complete, normalize the names of any deployed
+   items whose current names are only the bare ID or otherwise lack a summary
+   suffix. Rename them to the required format
+   **`<id>-<short-summary>`** using their existing title/description content,
+   then update every index entry, link, and reference that points to the old
+   name.
+10. At the end of the synchronization run, perform a four-eyes verification
+   pass: one sub-agent verifies the deployment against the checklist in
+   [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second
+   independent sub-agent repeats the verification from a fresh perspective.
+   The sync is not complete until both verifiers approve the deployment. If
+   their findings conflict or either verifier reports a violation, stop and
+   report the issue rather than treating the sync as complete.
 
 ## Synchronization checklist
 
