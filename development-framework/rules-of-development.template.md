@@ -102,8 +102,15 @@ The framework exposes the following custom slash commands:
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
 - `/catalyzer <subcommand>` — manage plugin installation and activation through
-  the framework interface. Supported subcommands:
-  - `list` — list all available plugins by type.
+  the framework interface. Every subcommand resolves plugins against the
+  registry file `plugins/<type>/repositories.md` (currently only
+  `plugins/repository/repositories.md`, since the repository type is the only
+  plugin type defined at this time), which is the sole source of truth for
+  which plugins are registered, their git repository URL, and the release/tag
+  that ships with the current catalyst release. Supported subcommands:
+  - `list` — list all available plugins by type, read from each type's
+    `repositories.md`, including each plugin's repository URL and pinned
+    release/tag.
   - `activate <name> <version|latest>` — download or update the plugin to the
     specified version (or `latest`) and activate it. This command requires a
     version argument.
@@ -177,28 +184,39 @@ the item to its backing file path, append that path to the root-level
 then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
 
-When the user enters `/catalyzer list`, inspect the plugin catalog and return the
-available plugins grouped by type. When the user enters
-`/catalyzer activate <name> <version|latest>`, download or update the plugin into
-the framework at `plugins/<type>/` if it is not already present, then load it
-into memory. The command requires a version argument; if the user supplies
-`latest`, resolve the newest available version for that plugin. If a plugin
-with the same name is already loaded, replace it in memory with the new
-instance. When the user enters `/catalyzer download <name> <version|latest>`,
-download the plugin into the framework without activating it; the installed
-plugin remains inactive until it is explicitly activated later. A plugin is
-considered invalid for activation unless its root directory contains both a
-`README.md` file and a `working-contract.md` file; if either file is missing,
-refuse activation and report the missing requirement. When the user enters
-`/catalyzer deactivate <name>`, leave the plugin installed in the framework but
-mark it inactive and flush it from memory. When the user enters
-`/catalyzer upgrade <name|latest>`, update the plugin to the requested version
-or to the latest available version. When the user enters
-`/catalyzer downgrade <name> <version>`, downgrade the plugin to the specified
-version. Plugins must remain inactive until they are explicitly activated, and
-only the repository plugin type exists at this time. On framework startup, the
-framework must scan the installed plugins and activate only those whose
-`active` metadata flag is true. This is a hard rule.
+Every `/catalyzer` subcommand resolves plugin identity, repository URL, and
+version information exclusively from the `repositories.md` registry of the
+relevant plugin type (e.g. `plugins/repository/repositories.md`); a plugin
+name with no matching entry in the registry is unregistered, and any
+subcommand invoked against it must be refused with a message that the plugin
+is not registered. When the user enters `/catalyzer list`, read every plugin
+type's `repositories.md` and return the available plugins grouped by type,
+each with its registered repository URL and pinned release/tag. When the user
+enters `/catalyzer activate <name> <version|latest>`, look up `<name>` in the
+registry to resolve its repository URL, then download or update the plugin
+into the framework at `plugins/<type>/` from that repository if it is not
+already present, then load it into memory. The command requires a version
+argument; if the user supplies `latest`, resolve the newest available version
+for that plugin from its repository rather than from the pinned tag in the
+registry. If a plugin with the same name is already loaded, replace it in
+memory with the new instance. When the user enters
+`/catalyzer download <name> <version|latest>`, resolve `<name>` against the
+registry the same way, then download the plugin into the framework without
+activating it; the installed plugin remains inactive until it is explicitly
+activated later. A plugin is considered invalid for activation unless its root
+directory contains both a `README.md` file and a `working-contract.md` file;
+if either file is missing, refuse activation and report the missing
+requirement. When the user enters `/catalyzer deactivate <name>`, leave the
+plugin installed in the framework but mark it inactive and flush it from
+memory. When the user enters `/catalyzer upgrade <name|latest>`, resolve the
+plugin's repository URL from the registry, then update the plugin to the
+requested version or to the latest available version from that repository.
+When the user enters `/catalyzer downgrade <name> <version>`, resolve the
+plugin's repository URL from the registry, then downgrade the plugin to the
+specified version. Plugins must remain inactive until they are explicitly
+activated, and only the repository plugin type exists at this time. On
+framework startup, the framework must scan the installed plugins and activate
+only those whose `active` metadata flag is true. This is a hard rule.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
