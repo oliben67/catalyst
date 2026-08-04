@@ -8,4 +8,4 @@ This folder contains plugins designed to tie repository-related functionality in
 
 ## Index
 
-See [repositories.md](repositories.md) for the catalog of repository plugins.
+See [catalog.md](catalog.md) for the catalog of repository plugins.
