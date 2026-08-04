@@ -103,7 +103,14 @@ The framework exposes the following custom slash commands:
   ID, an item path, a type, or a template name.
 - `/plugins <subcommand>` — manage plugin activation. Supported subcommands:
   - `list` — list all available plugins by type.
-  - `activate <name>` — activate a plugin by its registered name.
+  - `activate <name>` — activate a plugin by its registered name, loading it
+    into memory.
+  - `deactivate <name>` — deactivate a plugin by its registered name, purging
+    it from memory.
+  - `upgrade <name|latest>` — upgrade a plugin to a specified version or to
+    the latest available version.
+  - `downgrade <name> <version>` — downgrade a plugin to the specified
+    version.
   Plugins are not loaded into memory unless they are explicitly activated via
   this command.
 - `/status` — update an artifact or work item's `Status` field.
@@ -158,8 +165,13 @@ explicitly removed from `.frozen` or re-synchronized with an override.
 When the user enters `/plugins list`, inspect the plugin catalog and return the
 available plugins grouped by type. When the user enters
 `/plugins activate <name>`, activate the matching plugin if it exists and is
-recognized by name. Plugins must remain inactive until this command is used,
-and only the repository plugin type exists at this time.
+recognized by name. When the user enters `/plugins deactivate <name>`, remove
+the matching plugin from memory and mark it inactive. When the user enters
+`/plugins upgrade <name|latest>`, update the plugin to the requested version
+or to the latest available version. When the user enters
+`/plugins downgrade <name> <version>`, downgrade the plugin to the specified
+version. Plugins must remain inactive until they are explicitly activated, and
+only the repository plugin type exists at this time.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
