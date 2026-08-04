@@ -203,7 +203,12 @@ compatibility. When the user
 enters `/catalyzer activate <name> <version|latest>`, look up `<name>` in the
 registry to resolve its repository URL, then download or update the plugin
 into the framework at `plugins/<type>/` from that repository if it is not
-already present, then load it into memory. The command requires a version
+already present, then load it into memory: read that plugin's own
+`working-contract.md` and fulfill its Operational-loop section — starting
+whatever persistent sub-agent or process it describes — always targeting
+the deployed project's own repository root (the project this activation is
+happening within), never the catalyst framework's own repository or the
+plugin's installation directory. The command requires a version
 argument; if the user supplies `latest`, resolve the newest available version
 for that plugin from its repository rather than from the pinned tag in the
 registry. If a plugin with the same name is already loaded, replace it in
@@ -224,7 +229,8 @@ plugin's repository URL from the registry, then downgrade the plugin to the
 specified version. Plugins must remain inactive until they are explicitly
 activated, and only the repository plugin type exists at this time. On
 framework startup, the framework must scan the installed plugins and activate
-only those whose `active` metadata flag is true. This is a hard rule.
+each one whose `active` metadata flag is true the same way `/catalyzer
+activate` loads a plugin into memory (see above). This is a hard rule.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
