@@ -7,7 +7,7 @@
 | **Status** | open / in-progress / fixed / wontfix / duplicate-of `BUG-xxxx` |
 | **Severity** | Critical / High / Medium / Low — see scale below. **Required.** |
 | **Opened** | YYYY-MM-DD |
-| **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `rules-of-development.md` §1) |
+| **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `CODE-OF-CONDUCT.md` §1) |
 | **Domain** | the `DOMAIN` code(s) of the targeted rule(s), from `{{RULES_DIR}}/domains/` |
 | **Area** | short free-text area label |
 
@@ -44,7 +44,7 @@ one exists.
 ## Fix plan
 
 Whether the fix changes the implementation (rule stays as-is) or the rule
-itself (subject to `rules-of-rules.md` §1 conflict check first).
+itself (subject to `Rules-of-Rules.md` §1 conflict check first).
 
 ## Test plan
 

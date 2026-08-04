@@ -33,7 +33,7 @@ immediately.
 
 ## Slash-command behavior for `/sync-framework`
 
-When the command `/sync-framework [version]` is entered:
+When the command `/sync-framework [version] [--force <scope>]` is entered:
 
 1. If a version is provided, inspect the `release` branch for the matching
    tagged release. If that tag exists, load that version into memory and use
@@ -51,6 +51,11 @@ When the command `/sync-framework [version]` is entered:
 5. If a requested version does not exist as a tag, stop and report that the
    requested release is unavailable rather than silently falling back to an
    unrelated version.
+6. Before applying any per-item refresh, inspect the project root `.frozen`
+   file. If the target item path is listed there, skip it unless the command
+   includes `--force <type>`, `--force <item-id>`, or `--force all`.
+7. When an item is refreshed successfully, remove its path from `.frozen` so
+   the refreshed version is no longer considered frozen.
 
 ## Synchronization checklist
 
