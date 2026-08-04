@@ -101,7 +101,34 @@ The framework exposes the following custom slash commands:
   item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
+- `/plugins <subcommand>` — manage plugin installation and activation through
+  the framework interface. Supported subcommands:
+  - `list` — list all available plugins by type.
+  - `activate <name> <version|latest>` — download or update the plugin to the
+    specified version (or `latest`) and activate it. This command requires a
+    version argument.
+  - `download <name> <version|latest>` — download the plugin into the
+    framework without activating it. The plugin remains installed and inactive
+    until it is explicitly activated.
+  - `deactivate <name>` — deactivate a plugin by its registered name, remove
+    it from memory, and mark it inactive.
+  - `upgrade <name|latest>` — upgrade an already installed plugin to a
+    specified version or to the latest available version.
+  - `downgrade <name> <version>` — downgrade an already installed plugin to
+    the specified version.
+  Plugins are not loaded into memory unless they are explicitly activated via
+  this command, and on framework startup the framework must scan the installed
+  plugin list and activate only those marked active. This is a hard rule.
+  The framework defines the interface and lifecycle contract; the plugin itself
+  owns its implementation details, operational guidance, and domain-specific
+  behavior. Each plugin must live in its own repository, with no exceptions,
+  and during framework deployment or synchronization plugins must be pulled
+  directly from that plugin repository rather than from this repository.
 - `/status` — update an artifact or work item's `Status` field.
+- `/audit <file-name>` — analyze the change-impact of the specified file by
+  checking the current repository state, the file's role in the framework,
+  and the rules or artifacts that depend on it, then return a concise impact
+  summary.
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
   returning the resulting analysis summary.
@@ -150,6 +177,29 @@ the item to its backing file path, append that path to the root-level
 then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
 
+When the user enters `/plugins list`, inspect the plugin catalog and return the
+available plugins grouped by type. When the user enters
+`/plugins activate <name> <version|latest>`, download or update the plugin into
+the framework at `plugins/<type>/` if it is not already present, then load it
+into memory. The command requires a version argument; if the user supplies
+`latest`, resolve the newest available version for that plugin. If a plugin
+with the same name is already loaded, replace it in memory with the new
+instance. When the user enters `/plugins download <name> <version|latest>`,
+download the plugin into the framework without activating it; the installed
+plugin remains inactive until it is explicitly activated later. A plugin is
+considered invalid for activation unless its root directory contains both a
+`README.md` file and a `working-contract.md` file; if either file is missing,
+refuse activation and report the missing requirement. When the user enters
+`/plugins deactivate <name>`, leave the plugin installed in the framework but
+mark it inactive and flush it from memory. When the user enters
+`/plugins upgrade <name|latest>`, update the plugin to the requested version
+or to the latest available version. When the user enters
+`/plugins downgrade <name> <version>`, downgrade the plugin to the specified
+version. Plugins must remain inactive until they are explicitly activated, and
+only the repository plugin type exists at this time. On framework startup, the
+framework must scan the installed plugins and activate only those whose
+`active` metadata flag is true. This is a hard rule.
+
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
 for that artifact type, change it normally. If the status is invalid and the
@@ -157,6 +207,23 @@ command includes the word `force`, change it to that invalid value anyway. If
 the status is invalid and `force` is not supplied, respond that the status
 change is impossible and do not modify the artifact. If the artifact ID does
 not resolve to an existing artifact, state that the artifact cannot be found.
+
+Each plugin must be defined by the following minimum metadata fields: `name`,
+`description`, `uuid`, `version`, `active`, and `type`. The plugin definition
+template must be updated to include these fields and to record the plugin's
+current state in the framework. The framework must read the plugin's
+`active` flag at startup and activate only the plugins marked active; this is
+mandatory and must not be bypassed. All plugin-specific functionality,
+operational guidance, and implementation details must live inside the plugin
+package itself; the framework only defines the interface and lifecycle contract.
+
+When the user enters `/audit <file-name>`, inspect the repository and the
+current framework state to determine the impact of changes against the named
+file. The command must identify whether the file is a rule, template,
+artifact, plugin contract, or other framework asset; inspect related indexes,
+references, and dependent artifacts; and return a concise summary of likely
+impact, affected areas, and any blocking concerns. If the file cannot be
+resolved, report that it was not found and do not invent a result.
 
 When the user enters `/run-analysis`, open and execute the analysis playbook
 from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
