@@ -1,6 +1,7 @@
 name: "project-name"
 layout:
   project-root:
+    - CODE-OF-CONDUCT.md
     - development:
         - bugs:
             - TEMPLATE-BUG.md
@@ -18,8 +19,14 @@ layout:
         - TEMPLATE-REQUIREMENT.md
         - requirements.md
     - rules:
-        - rules-of-rules.md
-        - rules-of-development.md
+        - Rules-of-Rules.md
+        - rules.md
+        - business:
+            - business-rules.md
+            - TEMPLATE-RULE.md
+        - ui:
+            - ui-rules.md
+            - TEMPLATE-RULE.md
     - work-items:
         - epics:
             - TEMPLATE-EPIC.md

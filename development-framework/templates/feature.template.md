@@ -22,7 +22,7 @@ this case, or does the feature sit entirely outside existing coverage?
 
 *(omit if the feature fits an existing domain.)*
 
-Per `rules-of-rules.md` §6: domain-level conflict check performed;
+Per `Rules-of-Rules.md` §7: domain-level conflict check performed;
 proposed code; the domain file content (`domains/<prefix>-<CODE>.md`)
 :this will create, including Scope and Relationship to other domains.
 
@@ -31,7 +31,7 @@ proposed code; the domain file content (`domains/<prefix>-<CODE>.md`)
 *(omit if none.)* List each new rule here **before** implementation
 starts, in the exact form it will take once added to the rule document:
 proposed ID, rule text, starting status marker (almost always ❌). Run the
-`rules-of-rules.md` §1 conflict check first.
+`Rules-of-Rules.md` §1 conflict check first.
 
 ## Design / implementation plan
 

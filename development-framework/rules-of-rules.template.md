@@ -1,18 +1,19 @@
 # Rules of Rules — template
 
-> Copy this file to `{{RULES_DIR}}/rules-of-rules.md` in the target
+> Copy this file to `{{RULES_DIR}}/Rules-of-Rules.md` in the target
 > project and resolve every `{{PLACEHOLDER}}`. Delete this notice once
 > instantiated. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
 
 Meta-rules governing how any rule gets added to, changed in, or retired
-from one of this project's rule documents: {{RULE_DOCS_LIST}} (e.g. a
-project might have `UI-Rules.md` as a description of the UI rules for
-user-facing behavior and `business-rules.md` as a description of the
-business/domain rules for backend behavior — could equally be a single
-document, or three+, depending on the project's natural seams). These
+from one of this project's rule documents: {{RULE_DOCS_LIST}}. These
 apply to the *process* of maintaining those documents and the code they
 describe, not to the app's behavior itself. Binding on anyone (human or
 agent) adding to any of them, at any point after this file exists.
+
+Each rule must belong to a rule type directory under `{{RULES_DIR}}/`, be
+listed in the corresponding type index, and be referenced from the global
+index `{{RULES_DIR}}/rules.md`. No rule may be orphaned by missing a type,
+a local index entry, or a global index entry.
 
 ---
 
@@ -142,7 +143,18 @@ the date, e.g. `🗑 retired {{DATE}} — superseded by \`{{new-id}}\``.
    change, not removal from the graph of things development work can
    cite.
 
-## 5. `rr-META-005` Development artifacts have their own ID scheme
+## 5. `rr-META-005` Rules use typed directories and indexes
+
+Every rule must live in a type-specific directory under `{{RULES_DIR}}/`, for
+example `business/`, `ui/`, or `infra/`. Each type directory must contain a
+local index file named after the type, such as `business-rules.md` or
+`ui-rules.md`, and each rule file must be listed there. The top-level
+`{{RULES_DIR}}/rules.md` file is the global rules index and must include a
+link to every type index and every rule file. A rule that is not present in
+its type index or the global index is considered invalid until it is added to
+both.
+
+## 6. `rr-META-006` Development artifacts have their own ID scheme
 
 If the deployed framework is missing `version.txt`, or if its version is
 missing or lower than the current framework version (`0.1.10`), the deployed
@@ -154,7 +166,7 @@ Format: **`(BUG|REQ|HK)-(NNNN)`** — see
 `NNNN` is a zero-padded 4-digit sequence number, global within its own
 type, assigned in creation order, never reused.
 
-## 6. `rr-META-006` Defining a new `##` domain
+## 7. `rr-META-007` Defining a new `##` domain
 
 A bug or requirement is not required to fit an existing domain — it may
 propose a new one, but only by following this standard, in every rule
@@ -231,7 +243,7 @@ A domain's code is permanent, same as a rule ID — never reused for an
 unrelated domain even if the original is later emptied out or retired
 (its `domains/` file gets the same 🗑 retired treatment as a rule, §4).
 
-## 7. `rr-META-007` Scrum/agile work items have their own ID scheme
+## 8. `rr-META-008` Scrum/agile work items have their own ID scheme
 
 The framework version is tracked in `version.txt` at the framework root.
 If a deployed framework has no `version.txt`, or its version is lower than
