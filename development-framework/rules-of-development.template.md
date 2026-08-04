@@ -164,14 +164,19 @@ explicitly removed from `.frozen` or re-synchronized with an override.
 
 When the user enters `/plugins list`, inspect the plugin catalog and return the
 available plugins grouped by type. When the user enters
-`/plugins activate <name>`, activate the matching plugin if it exists and is
-recognized by name. When the user enters `/plugins deactivate <name>`, remove
-the matching plugin from memory and mark it inactive. When the user enters
-`/plugins upgrade <name|latest>`, update the plugin to the requested version
-or to the latest available version. When the user enters
-`/plugins downgrade <name> <version>`, downgrade the plugin to the specified
-version. Plugins must remain inactive until they are explicitly activated, and
-only the repository plugin type exists at this time.
+`/plugins activate <name>`, download the plugin into the framework at
+`plugins/<type>/` if it is not already present, then load it into memory. If a
+plugin with the same name is already loaded, replace it in memory with the new
+instance. A plugin is considered invalid for activation unless its root
+directory contains both a `README.md` file and a `working-contract.md` file;
+if either file is missing, refuse activation and report the missing
+requirement. When the user enters `/plugins deactivate <name>`, leave the
+plugin installed in the framework but mark it inactive and flush it from
+memory. When the user enters `/plugins upgrade <name|latest>`, update the
+plugin to the requested version or to the latest available version. When the
+user enters `/plugins downgrade <name> <version>`, downgrade the plugin to the
+specified version. Plugins must remain inactive until they are explicitly
+activated, and only the repository plugin type exists at this time.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
@@ -180,6 +185,11 @@ command includes the word `force`, change it to that invalid value anyway. If
 the status is invalid and `force` is not supplied, respond that the status
 change is impossible and do not modify the artifact. If the artifact ID does
 not resolve to an existing artifact, state that the artifact cannot be found.
+
+Each plugin must be defined by the following minimum metadata fields: `name`,
+`description`, `uuid`, `active`, and `type`. The plugin definition template
+must be updated to include these fields and to record the plugin's current
+state in the framework.
 
 When the user enters `/run-analysis`, open and execute the analysis playbook
 from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
