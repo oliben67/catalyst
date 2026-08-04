@@ -16,4 +16,4 @@ mark the plugin as excluded from named framework versions.
 
 | Plugin | Repository | Release | Tag | Compatibility |
 | --- | --- | --- | --- | --- |
-| [catalyst-git](catalyst-git) | git@github.com:oliben67/catalyst-git.git | v0.1.1 | 0.1.1 | * |
+| [catalyst-git](catalyst-git) | git@github.com:oliben67/catalyst-git.git | v0.2.0 | 0.2.0 | * |
