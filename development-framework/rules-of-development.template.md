@@ -120,6 +120,10 @@ The framework exposes the following custom slash commands:
   this command, and on framework startup the framework must scan the installed
   plugin list and activate only those marked active. This is a hard rule.
 - `/status` — update an artifact or work item's `Status` field.
+- `/audit <file-name>` — analyze the change-impact of the specified file by
+  checking the current repository state, the file's role in the framework,
+  and the rules or artifacts that depend on it, then return a concise impact
+  summary.
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
   returning the resulting analysis summary.
@@ -205,6 +209,14 @@ template must be updated to include these fields and to record the plugin's
 current state in the framework. The framework must read the plugin's
 `active` flag at startup and activate only the plugins marked active; this is
 mandatory and must not be bypassed.
+
+When the user enters `/audit <file-name>`, inspect the repository and the
+current framework state to determine the impact of changes against the named
+file. The command must identify whether the file is a rule, template,
+artifact, plugin contract, or other framework asset; inspect related indexes,
+references, and dependent artifacts; and return a concise summary of likely
+impact, affected areas, and any blocking concerns. If the file cannot be
+resolved, report that it was not found and do not invent a result.
 
 When the user enters `/run-analysis`, open and execute the analysis playbook
 from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
