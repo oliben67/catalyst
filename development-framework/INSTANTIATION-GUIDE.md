@@ -115,7 +115,9 @@ creates concrete rules for that particular project.
    framework exposes the documented custom slash commands (`/create-bug`,
    `/create-req`/`/create-requirement`, `/meta-tag`, `/status`,
    `/run-analysis`, and `/help`) in the same way the framework defines them,
-   so they are available in the deployed environment.
+   so they are available in the deployed environment. When plugins are needed,
+   pull their content directly from `https://github.com/oliben67/catalyst-git`
+   rather than from this framework repository.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
    `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, or

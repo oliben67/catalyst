@@ -81,7 +81,9 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
 2. Ask for exactly one confirmation before beginning the synchronization.
 3. Compare the deployed framework files with the latest framework state.
 4. Copy any changed templates, rules, guidance, or structure needed by the
-   deployed project.
+   deployed project, including plugin content pulled directly from
+   `https://github.com/oliben67/catalyst-git` when plugin updates are
+   required.
 5. Ensure the deployed project contains a custom root-level `README.md` that
    describes the deployed framework's structure and the project's artifact
    layout.
