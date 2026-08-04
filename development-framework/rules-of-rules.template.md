@@ -79,6 +79,14 @@ Format: **`(DOC_PREFIX)-(DOMAIN)-(NNN)[-(parent-id)]`**
 - **`DOC_PREFIX`** — which rule document the rule lives in. Define one
   short lowercase prefix per document in {{RULE_DOCS_LIST}} (e.g. `ui`,
   `br`), plus the fixed `rr` prefix reserved for this file itself.
+- **Name format** — every rule name must be more than the bare ID. The
+  canonical name format is **`<rule-id>-<short-summary>`**, where the suffix
+  is a lowercase slug that briefly describes what the rule is about. Example:
+  `br-AUTH-003-login-flow`. This is a hard requirement for all new rules and
+  must also be applied retroactively to existing deployed rules during
+  framework deployment or synchronization. Existing names that are only the ID
+  must be renamed to include a summary suffix, and every index entry and link
+  that references the old name must be updated.
 - **`DOMAIN`** — a short, stable mnemonic code for the `##` functional
 domain the rule sits under. Fixed once assigned — renaming a domain's
 prose heading does not change its code, since existing IDs (in code

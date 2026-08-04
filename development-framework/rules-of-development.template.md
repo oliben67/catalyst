@@ -205,6 +205,12 @@ from `{{RULES_DIR}}/domains/` — not free text.
 Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
 sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
 pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
+This is a hard requirement for all new artifacts and work items: every item
+name must be more than the bare ID and must follow the format
+**`<artifact-id>-<short-summary>`**. Example:
+`BUG-0001-login-form-validation` or `REQ-0002-password-reset-flow`. The same
+rule must be applied retroactively during framework deployment or
+synchronization to existing deployed items whose names are still only the ID.
 
 ## 6. Closing an item
 
