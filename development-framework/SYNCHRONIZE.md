@@ -38,24 +38,31 @@ When the command `/sync-framework [version] [--force <scope>]` is entered:
 1. If a version is provided, inspect the `release` branch for the matching
    tagged release. If that tag exists, load that version into memory and use
    it as the synchronization target.
-2. If the requested version differs from the version currently deployed,
+2. Build a diff between the currently installed deployment and the target
+   framework version before applying changes, and use that diff as the basis
+   for the synchronization plan.
+3. If the requested version differs from the version currently deployed,
    synchronize the deployment using the already-present deployment state as
    the baseline, preserving any project-local adjustments that are still
    valid.
-3. If the requested version is the same as the currently deployed version,
+4. If the requested version is the same as the currently deployed version,
    load that version into memory, discard the old in-memory copy, and perform
    a synchronization against the already-present deployment contents.
-4. If no version is provided, inspect the `release` branch and resolve the
+5. If no version is provided, inspect the `release` branch and resolve the
    latest available tag automatically, then perform the same synchronization
    flow against that version.
-5. If a requested version does not exist as a tag, stop and report that the
+6. If a requested version does not exist as a tag, stop and report that the
    requested release is unavailable rather than silently falling back to an
    unrelated version.
-6. Before applying any per-item refresh, inspect the project root `.frozen`
+7. Before applying any per-item refresh, inspect the project root `.frozen`
    file. If the target item path is listed there, skip it unless the command
    includes `--force <type>`, `--force <item-id>`, or `--force all`.
-7. When an item is refreshed successfully, remove its path from `.frozen` so
+8. When an item is refreshed successfully, remove its path from `.frozen` so
    the refreshed version is no longer considered frozen.
+9. At the end of the synchronization run, perform a verification pass that
+   confirms the deployment still satisfies every requirement listed in
+   [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) before considering the
+   sync complete.
 
 ## Synchronization checklist
 

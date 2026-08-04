@@ -21,12 +21,13 @@ layout:
     - rules:
         - Rules-of-Rules.md
         - rules.md
+        - TEMPLATE-RULE.md
         - business:
             - business-rules.md
-            - TEMPLATE-RULE.md
+            - rule-001.md
         - ui:
             - ui-rules.md
-            - TEMPLATE-RULE.md
+            - rule-001.md
     - work-items:
         - epics:
             - TEMPLATE-EPIC.md
