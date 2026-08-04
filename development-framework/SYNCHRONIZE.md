@@ -73,7 +73,14 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    `<prefix>-<PARENT>.<SUB>-<short-summary>.md`), using the domain's own
    `Scope` field as the source for the summary, then every reference to the
    old filename updated accordingly.
-10. At the end of the synchronization run, perform a four-eyes verification
+10. Never deactivate an already-active plugin as a side effect of applying a
+    new framework version. A plugin stays active across the sync unless its
+    entry in the relevant `plugins/<type>/catalog.md` explicitly excludes
+    the target framework version via the `Compatibility` field — a bare `*`,
+    or an absent field, is never grounds for deactivation. Only deactivate a
+    plugin when that field names a version or range that excludes the
+    target version, and report which plugin was deactivated and why.
+11. At the end of the synchronization run, perform a four-eyes verification
    pass: one sub-agent verifies the deployment against the checklist in
    [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second
    independent sub-agent repeats the verification from a fresh perspective.
