@@ -101,8 +101,10 @@ The framework exposes the following custom slash commands:
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
   returning the resulting analysis summary.
-- `/sync-framework` — synchronize the deployed framework with the newest
-  framework version available from the framework source.
+- `/sync-framework [latest|<version>]` — synchronize the deployed framework
+  with the requested framework version. If the argument is `latest`, use the
+  newest framework version available from the framework source. If no argument
+  is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
   consistent and do not conflict.
 - `/show-backlog` — summarize open work, blockers, and missing links.
@@ -157,14 +159,18 @@ from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
 returning the resulting analysis summary. If the playbook is missing, report
 that it is unavailable and do not invent missing content.
 
-When the user enters `/sync-framework [--force <scope>]`, inspect the framework
-source, compare it with the deployed framework, and synchronize any missing
-or outdated files and version information. Before synchronizing an item, check
-the root-level `.frozen` file. If the item's path is listed there, skip it
-unless the command includes one of the valid overrides: `--force <type>`,
-`--force <item-id>`, or `--force all`. When an item is refreshed during the
-synchronization process, it must not remain in `.frozen`; remove it from the
-list so the refreshed version no longer carries the frozen protection.
+When the user enters `/sync-framework [latest|<version>] [--force <scope>]`,
+inspect the requested framework version, compare it with the deployed
+framework, and synchronize any missing or outdated files and version
+information. If the first argument is `latest`, resolve the newest available
+framework version from the framework source. If no version argument is
+provided, synchronize against the currently installed local version. Before
+synchronizing an item, check the root-level `.frozen` file. If the item's
+path is listed there, skip it unless the command includes one of the valid
+overrides: `--force <type>`, `--force <item-id>`, or `--force all`. When an
+item is refreshed during the synchronization process, it must not remain in
+`.frozen`; remove it from the list so the refreshed version no longer carries
+the frozen protection.
 
 When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
