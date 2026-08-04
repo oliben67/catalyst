@@ -106,11 +106,18 @@ The framework exposes the following custom slash commands:
   registry file `plugins/<type>/catalog.md` (currently only
   `plugins/repository/catalog.md`, since the repository type is the only
   plugin type defined at this time), which is the sole source of truth for
-  which plugins are registered, their git repository URL, and the release/tag
-  that ships with the current catalyst release. Supported subcommands:
+  which plugins are registered, their git repository URL, the release/tag
+  that ships with the current catalyst release, and their framework-version
+  compatibility. Each catalog entry has a `Compatibility` field: a bare `*`
+  means the plugin is compatible with every framework version — the default
+  for a registered plugin, and never grounds for `/sync-framework` to
+  deactivate it. A future convention allows specific version constraints in
+  that field instead, expressed with the same range syntax used in a
+  dependency lock file, to mark a plugin as excluded from named framework
+  versions. Supported subcommands:
   - `list` — list all available plugins by type, read from each type's
-    `catalog.md`, including each plugin's repository URL and pinned
-    release/tag.
+    `catalog.md`, including each plugin's repository URL, pinned
+    release/tag, and compatibility.
   - `activate <name> <version|latest>` — download or update the plugin to the
     specified version (or `latest`) and activate it. This command requires a
     version argument.
@@ -191,7 +198,8 @@ name with no matching entry in the registry is unregistered, and any
 subcommand invoked against it must be refused with a message that the plugin
 is not registered. When the user enters `/catalyzer list`, read every plugin
 type's `catalog.md` and return the available plugins grouped by type,
-each with its registered repository URL and pinned release/tag. When the user
+each with its registered repository URL, pinned release/tag, and
+compatibility. When the user
 enters `/catalyzer activate <name> <version|latest>`, look up `<name>` in the
 registry to resolve its repository URL, then download or update the plugin
 into the framework at `plugins/<type>/` from that repository if it is not
@@ -259,7 +267,15 @@ path is listed there, skip it unless the command includes one of the valid
 overrides: `--force <type>`, `--force <item-id>`, or `--force all`. When an
 item is refreshed during the synchronization process, it must not remain in
 `.frozen`; remove it from the list so the refreshed version no longer carries
-the frozen protection. After the refresh completes, perform a four-eyes
+the frozen protection. Synchronization must never deactivate an
+already-active plugin as a side effect of a framework version change: a
+plugin stays active across the sync unless its entry in the relevant
+`plugins/<type>/catalog.md` explicitly excludes the target framework
+version via the `Compatibility` field — a bare `*`, or an absent field, is
+never grounds for deactivation. Only when that field names a version or
+range that excludes the target version may the synchronization process
+deactivate the plugin, and it must then report which plugin was deactivated
+and why. After the refresh completes, perform a four-eyes
 verification pass: one sub-agent verifies the newly deployed framework against
 `INSTANTIATION-GUIDE.md` and the framework rules, and a second independent
 sub-agent repeats the verification from a separate pass. The sync is not
