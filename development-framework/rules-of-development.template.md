@@ -103,13 +103,13 @@ The framework exposes the following custom slash commands:
   ID, an item path, a type, or a template name.
 - `/catalyzer <subcommand>` — manage plugin installation and activation through
   the framework interface. Every subcommand resolves plugins against the
-  registry file `plugins/<type>/repositories.md` (currently only
-  `plugins/repository/repositories.md`, since the repository type is the only
+  registry file `plugins/<type>/catalog.md` (currently only
+  `plugins/repository/catalog.md`, since the repository type is the only
   plugin type defined at this time), which is the sole source of truth for
   which plugins are registered, their git repository URL, and the release/tag
   that ships with the current catalyst release. Supported subcommands:
   - `list` — list all available plugins by type, read from each type's
-    `repositories.md`, including each plugin's repository URL and pinned
+    `catalog.md`, including each plugin's repository URL and pinned
     release/tag.
   - `activate <name> <version|latest>` — download or update the plugin to the
     specified version (or `latest`) and activate it. This command requires a
@@ -185,12 +185,12 @@ then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
 
 Every `/catalyzer` subcommand resolves plugin identity, repository URL, and
-version information exclusively from the `repositories.md` registry of the
-relevant plugin type (e.g. `plugins/repository/repositories.md`); a plugin
+version information exclusively from the `catalog.md` registry of the
+relevant plugin type (e.g. `plugins/repository/catalog.md`); a plugin
 name with no matching entry in the registry is unregistered, and any
 subcommand invoked against it must be refused with a message that the plugin
 is not registered. When the user enters `/catalyzer list`, read every plugin
-type's `repositories.md` and return the available plugins grouped by type,
+type's `catalog.md` and return the available plugins grouped by type,
 each with its registered repository URL and pinned release/tag. When the user
 enters `/catalyzer activate <name> <version|latest>`, look up `<name>` in the
 registry to resolve its repository URL, then download or update the plugin
