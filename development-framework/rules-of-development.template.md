@@ -39,8 +39,12 @@ process) — but it must be stated explicitly, not left blank.
 
 ### Hard rule: individual files and indexes
 
-- **Bugs** must be stored as individual files in `bugs/`, not only as free-form notes.
-- **Requirements** must be stored as individual files in `requirements/`, not only as abstract definitions.
+- **This is a hard requirement.** Bugs, requirements, house-keeping items, and
+  meta-tags must each be stored as their own individual markdown file in the
+  corresponding folder, not only as free-form notes or grouped content.
+- **This is also a hard requirement.** Every item must be listed in the
+  corresponding type index file so the repository has an authoritative catalog
+  of the concrete documents that exist.
 - Each item directory must also contain an index file named after the item type:
   - `bugs/bugs.md` for the bug index.
   - `requirements/requirements.md` for the requirements index.
@@ -170,7 +174,12 @@ path is listed there, skip it unless the command includes one of the valid
 overrides: `--force <type>`, `--force <item-id>`, or `--force all`. When an
 item is refreshed during the synchronization process, it must not remain in
 `.frozen`; remove it from the list so the refreshed version no longer carries
-the frozen protection.
+the frozen protection. After the refresh completes, perform a four-eyes
+verification pass: one sub-agent verifies the newly deployed framework against
+`INSTANTIATION-GUIDE.md` and the framework rules, and a second independent
+sub-agent repeats the verification from a separate pass. The sync is not
+complete until both sub-agents approve the deployment; any disagreement or
+failed validation becomes a blocking issue.
 
 When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
