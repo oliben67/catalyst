@@ -61,13 +61,20 @@ def validate_submodule_policy() -> list[str]:
 
 def validate_plugin_sources() -> list[str]:
     errors: list[str] = []
+    entries = load_submodule_entries()
+    plugin_paths = {path for _, path in entries if path.startswith('plugins/')}
     try:
-        status = run_git(['status', '--short'])
+        status = run_git(['submodule', 'status'])
     except subprocess.CalledProcessError as exc:
-        return [f'git status failed: {exc}']
+        return [f'git submodule status failed: {exc}']
 
-    if 'plugins/repository/catalyst-git' in status:
-        errors.append('plugin submodule is not initialized or checked out')
+    for line in status.splitlines():
+        if not line.strip():
+            continue
+        prefix = line[0]
+        path = line[1:].split()[1]
+        if path in plugin_paths and prefix == '-':
+            errors.append(f'{path} is not initialized or checked out')
     return errors
 
 
