@@ -101,6 +101,11 @@ The framework exposes the following custom slash commands:
   item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
+- `/plugins <subcommand>` — manage plugin activation. Supported subcommands:
+  - `list` — list all available plugins by type.
+  - `activate <name>` — activate a plugin by its registered name.
+  Plugins are not loaded into memory unless they are explicitly activated via
+  this command.
 - `/status` — update an artifact or work item's `Status` field.
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
@@ -149,6 +154,12 @@ the item to its backing file path, append that path to the root-level
 `.frozen` file if it is not already present, and report success. The item is
 then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
+
+When the user enters `/plugins list`, inspect the plugin catalog and return the
+available plugins grouped by type. When the user enters
+`/plugins activate <name>`, activate the matching plugin if it exists and is
+recognized by name. Plugins must remain inactive until this command is used,
+and only the repository plugin type exists at this time.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
