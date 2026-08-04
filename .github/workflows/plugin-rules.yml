@@ -1,0 +1,20 @@
+name: Plugin Rules
+
+on:
+  pull_request:
+  push:
+    branches:
+      - development
+
+jobs:
+  validate-plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate plugin rules
+        run: python3 scripts/check_plugins.py
