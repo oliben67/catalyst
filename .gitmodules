@@ -1,3 +1,4 @@
 [submodule "plugins/repository/catalyst-git"]
 	path = plugins/repository/catalyst-git
 	url = https://github.com/oliben67/catalyst-git
+	branch = development
