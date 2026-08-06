@@ -30,4 +30,4 @@ known-good fixture, etc.
 
 ## Related
 
-Other `BUG-`/`FEAT-`/`HK-` IDs, or rule IDs.
+Other `BUG-`/`REQ-`/`HK-`/`FEAT-` IDs, or rule IDs.

@@ -177,7 +177,9 @@ framework must be synchronized before further work proceeds. See
 Format: **`(BUG|REQ|HK)-(NNNN)`** — see
 [`rules-of-development.template.md`](rules-of-development.template.md).
 `NNNN` is a zero-padded 4-digit sequence number, global within its own
-type, assigned in creation order, never reused.
+type, assigned in creation order, never reused. See §9 for the separate,
+non-rule-linked `FEAT-` scheme used for feature entries — it is not a
+fourth member of this format.
 
 ## 7. `rr-META-007` Defining a new `##` domain
 
@@ -271,4 +273,32 @@ If a deployed framework has no `version.txt`, or its version is lower than
 
 Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNN)`** and **`SPRINT-(NNN)`** — see
 [`rules-of-work-items.template.md`](rules-of-work-items.template.md).
-Work items are the process layer sitting above `BUG-`/`REQ-`/`HK-`
+Work items are the process layer sitting above `BUG-`/`REQ-`/`HK-` docs.
+
+## 9. `rr-META-009` Feature entries have their own, non-rule-linked scheme
+
+Format: **`FEAT-(NNNN)`** — zero-padded 4-digit sequence number, global,
+assigned in creation order, never reused. Same descriptive-naming
+requirement as every other artifact and work-item ID (`INSTANTIATION-GUIDE.md`
+§1): the name and filename are `FEAT-NNNN-<short-summary>` /
+`FEAT-NNNN-<short-summary>.md`, never the bare ID. Stored one file per
+entry under `features/`, indexed in `features/features.md`, using
+[`templates/features.template.md`](templates/features.template.md) →
+`features/TEMPLATE-FEATURE.md`.
+
+A feature entry documents a possible future capability — an idea or
+roadmap item, not a claim about current or required behavior. It is
+**not** one of the development artifacts in §6 and is exempt from:
+
+- §1 (`rr-META-001`)'s conflict check,
+- `rules-of-development.md` §1 ("no development without a targeted
+  rule"), and
+- ever carrying a `Targets` or `Domain` field.
+
+It is never "done" against a rule and is never itself implemented. Once
+work on a feature actually starts, open a `REQ-NNNN` requirement (§6)
+that targets or proposes the rule(s) the feature requires — that
+requirement, not the feature entry, is what gets vetted against existing
+rules, assigned a domain, and measured for completion. The feature entry
+records which requirement(s) resulted from it, for traceability back to
+the original idea, but that link is informational, not a rule target.

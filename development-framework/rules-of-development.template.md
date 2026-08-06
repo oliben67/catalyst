@@ -37,6 +37,15 @@ process) — but it must be stated explicitly, not left blank.
 | House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNN` |
 | Meta-tag | `meta-tags/` | `templates/meta-tag.template.md` | `TAG-<KEY>-<ARTEFACT-ID>` |
 
+Feature entries (`FEAT-NNNN`, folder `features/`, template
+`templates/features.template.md` → `TEMPLATE-FEATURE.md`) are a related
+but **separate, non-rule-linked** scheme — see `Rules-of-Rules.md` §9.
+They document possible future work, are not one of the four
+development-artifact types above, and are exempt from this document's
+rules (no `Targets`, no `Domain`, never "done" against a rule). When a
+new feature actually needs to be developed, open a `REQ-NNNN`
+requirement — never a `BUG-NNNN` — to track it.
+
 ### Hard rule: individual files and indexes
 
 - **This is a hard requirement.** Bugs, requirements, house-keeping items, and
@@ -57,10 +66,14 @@ process) — but it must be stated explicitly, not left blank.
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
   Never introduces a new rule by itself.
 - **Requirement**: an explicit, tracked requirement that captures
-  user/business behavior that must be implemented and tested. It may target
-  existing rules and/or propose new ones (and, if needed, a new domain — see
-  `Rules-of-Rules.md` §6) inline in the requirement doc so rule and
-  requirement are reviewed together.
+  user/business behavior that must be implemented and tested — this is the
+  artifact to open when a new feature needs to be developed, never a bug.
+  It must be vetted against every existing rule document (`Rules-of-Rules.md`
+  §1 conflict check) before it's opened, it always carries a `Domain`, and it
+  always answers — targets and/or proposes — one or more rules (and, if
+  needed, a new domain — see `Rules-of-Rules.md` §6/§7) inline in the
+  requirement doc so rule and requirement are reviewed together. None of
+  those three are optional.
 - **House-keeping**: dev-support tooling/process, not product behavior.
   Still targets a rule where one exists — most commonly a `rr-META-*`
   process rule.
@@ -77,6 +90,10 @@ The framework exposes the following custom slash commands:
 - `/create-req` or `/create-requirement` — create a new requirement artifact
   immediately, register it in `requirements/requirements.md`, and track it in
   the same workflow.
+- `/create-feature` — create a new feature entry immediately and register it
+  in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
+  prompts for a rule target or domain — features are not rule-linked (see
+  `Rules-of-Rules.md` §9).
 - `/create-epic` — create a new epic work item and register it in
   `epics/epics.md`.
 - `/create-story` — create a new story work item and register it in
@@ -166,6 +183,15 @@ new requirement artifact immediately, register it in
 `requirements/requirements.md`, and track it in the same workflow. If the
 domain or target rule cannot be inferred, prompt for both before creating the
 artifact.
+
+When the user enters `/create-feature: ...`, create a new feature entry
+immediately using `templates/features.template.md`, register it in
+`features/features.md`, and track it as idea/roadmap content, not
+rule-linked development work. Do not prompt for a domain or rule target —
+neither field exists on this artifact type. If the user later asks to start
+building a registered feature, create a `REQ-NNNN` requirement instead
+(prompting for domain/target rule as usual), and link it back to the
+`FEAT-NNNN` entry's `Requirement(s)` field.
 
 When the user enters `/create-epic`, `/create-story`, `/create-task`,
 `/create-spike`, or `/create-sprint`, create the corresponding work-item
@@ -317,7 +343,9 @@ it is unsupported and suggest the available commands.
 ## 4. Domain field
 
 Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
-from `{{RULES_DIR}}/domains/` — not free text.
+from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
+`features/` are not development artifacts under this document and carry no
+`Domain` field — see `Rules-of-Rules.md` §9.)
 
 ## 5. Development-artifact IDs
 

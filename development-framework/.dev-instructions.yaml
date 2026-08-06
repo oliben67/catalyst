@@ -18,6 +18,9 @@ layout:
     - requirements:
         - TEMPLATE-REQUIREMENT.md
         - requirements.md
+    - features:
+        - TEMPLATE-FEATURE.md
+        - features.md
     - rules:
         - Rules-of-Rules.md
         - rules.md
