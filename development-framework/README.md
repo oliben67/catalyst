@@ -33,6 +33,15 @@ stable, permanent, never-reused ID. This is what makes "why does this code
 do X" and "what rule does this ticket satisfy" both answerable by
 following IDs, in either direction, indefinitely.
 
+Sitting above all of this, `FEAT-NNNN` feature entries (`features/`) are a
+separate, optional, **non-rule-linked** layer — a place to write down new or
+future app functionality as an idea or roadmap item, before it's ready to be
+measured. A feature is never itself implemented and never breaks the chain's
+invariant: when work on one actually starts, that work is tracked as a
+`REQ-NNNN` requirement (never a `BUG-NNNN`), which is what gets vetted
+against every existing rule document, assigned a domain, and measured for
+completion. See `Rules-of-Rules.md` §9.
+
 ## Files in this folder
 
 | File | Purpose |
@@ -40,7 +49,7 @@ following IDs, in either direction, indefinitely.
 | [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/rules/Rules-of-Rules.md` and fill in placeholders. |
 | [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
 | [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
-| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, house-keeping, meta-tag, epic, story, task, spike, sprint, domain). |
+| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, feature, house-keeping, meta-tag, epic, story, task, spike, sprint, domain). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version (`0.1.10`). |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |

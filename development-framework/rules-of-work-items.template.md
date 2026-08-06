@@ -13,7 +13,7 @@ agnostic" note in the framework [`README.md`](README.md)). Sits above
 EPIC ─▶ STORY ─▶ TASK           (agile layer — this document)
           │
           ▼
-       FEAT- / BUG- / HK-       (rule-linked work)
+       REQ- / BUG- / HK-        (rule-linked work)
           │
           ▼
        rule IDs                 (documented behavior)
@@ -21,14 +21,16 @@ EPIC ─▶ STORY ─▶ TASK           (agile layer — this document)
 
 ---
 
-## 1. A story is not a substitute for a `FEAT-`/`BUG-` doc
+## 1. A story is not a substitute for a `REQ-`/`BUG-` doc
 
-Every `STORY-NNNN` links to exactly one `FEAT-NNNN` (or `BUG-NNNN`). The
-`FEAT-`/`BUG-` doc owns rule targets, conflict checks, and new-rule
+Every `STORY-NNNN` links to exactly one `REQ-NNNN` (or `BUG-NNNN`). The
+`REQ-`/`BUG-` doc owns rule targets, conflict checks, and new-rule
 proposals. The story is the sized, scheduled slice of that same work.
 
-If a story has no `FEAT-`/`BUG-` doc yet, create one before pulling the
-story into a sprint/iteration.
+If a story has no `REQ-`/`BUG-` doc yet, create one before pulling the
+story into a sprint/iteration. (A `FEAT-NNNN` entry may motivate a story
+too, but it never substitutes for the `REQ-`/`BUG-` doc — features aren't
+rule-linked; see `Rules-of-Rules.md` §9.)
 
 ## 2. Tasks inherit their parent story's rule target
 
@@ -39,7 +41,7 @@ story/feature doc first rather than letting scope creep in unreviewed.
 ## 3. Spikes exist to produce rules or estimates, not code
 
 A `SPIKE-NNNN` is time-boxed and never itself "implements" anything. Its
-outcome is a new rule proposal (handed to a `FEAT-NNNN`), an
+outcome is a new rule proposal (handed to a `REQ-NNNN`), an
 implementation approach, or a go/no-go decision. A spike that ships
 production code has stopped being a spike.
 

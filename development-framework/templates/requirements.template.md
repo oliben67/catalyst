@@ -1,4 +1,6 @@
-# Requirements — <project or requirement name>
+# `REQ-NNNN` — <project or requirement name>
+
+> Copy this file to `{{REQUIREMENTS_DIR}}/TEMPLATE-REQUIREMENT.md` and resolve every `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
 
 This document captures concrete, application-bound requirements derived
 from the project's rule documents, especially UI and business rules. Use
@@ -6,6 +8,48 @@ it to translate documented expectations into testable behavior that is
 directly tied to specific parts of the application. These requirements are
 the main input for tests, acceptance criteria, and the bugs that will be
 raised when behavior is incorrect.
+
+This is also the artifact to open when a **new feature** needs to be
+developed — never a `BUG-NNNN` for that (a bug asserts an existing rule
+doesn't hold; a requirement introduces or extends behavior). A `FEAT-NNNN`
+entry (see [`features.template.md`](features.template.md)) may have
+motivated it, but a requirement stands on its own: it must be vetted
+against every existing rule document before it's opened, it always
+carries a `Domain`, and it always answers — targets or proposes — one or
+more rules. None of those three are optional.
+
+| Field | Value |
+|---|---|
+| **ID** | `REQ-NNNN` |
+| **Filename** | descriptive kebab-case filename, e.g. `REQ-0002-password-reset-flow.md` — prefer specific problem/context over generic labels like `requirement.md` or `auth.md` |
+| **Status** | proposed / approved / in-progress / done / rejected |
+| **Opened** | YYYY-MM-DD |
+| **Targets** | one or more rule IDs this requirement implements or extends — **required, never empty** (see `CODE-OF-CONDUCT.md` §1). If none exist yet, define them first (see New rules proposed below) |
+| **Domain** | the `DOMAIN` code(s) of the targeted/new rule(s), from `{{RULES_DIR}}/domains/` — **required, never free text** |
+| **Feature** | `FEAT-NNNN`, if this requirement was motivated by a documented feature — omit if none |
+
+## Vetted against existing rules
+
+Per `Rules-of-Rules.md` §1: confirm this requirement was checked against
+every rule document in `{{RULE_DOCS_LIST}}`, not only the one that seems
+most relevant, and record the outcome — no conflict found, or the
+specific existing rule ID(s) this requirement narrows/amends (and the
+decision that authorized that).
+
+## New domain proposed
+
+*(omit if this requirement fits an existing domain.)* Per
+`Rules-of-Rules.md` §7: domain-level conflict check performed; proposed
+code; the domain file content (`domains/<prefix>-<CODE>-<short-description>.md`)
+this will create, including Scope and Relationship to other domains.
+
+## New rules proposed
+
+*(omit if none — only valid when the `Targets` field above already cites
+existing rule IDs instead.)* List each new rule here **before**
+implementation starts, in the exact form it will take once added to the
+rule document: proposed ID, rule text, starting status marker (almost
+always ❌). Run the `Rules-of-Rules.md` §1 conflict check first.
 
 ## Source rules
 
@@ -65,6 +109,19 @@ Capture the domain or workflow constraints that govern the feature.
 - **Performance**: ...
 - **Observability**: ...
 
+## Design / implementation plan
+
+Brief — files touched, approach.
+
+## Test plan
+
+Per rule targeted or introduced, the specific test that will cover it. A
+rule with no test is not "done" regardless of whether the code exists.
+
 ## Open questions
 
 - ...
+
+## Related
+
+Other `BUG-`/`REQ-`/`HK-`/`FEAT-` IDs, or rule IDs.

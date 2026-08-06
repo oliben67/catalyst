@@ -17,7 +17,7 @@ As a **\<role\>**, I want **\<capability\>**, so that **\<benefit\>**.
 ## Acceptance criteria
 
 Given/When/Then, one block per criterion — should mirror the acceptance
-criteria already in the linked `FEAT-NNNN` doc, not diverge from them.
+criteria already in the linked `REQ-NNNN` doc, not diverge from them.
 
 - **Given** … **When** … **Then** …
 

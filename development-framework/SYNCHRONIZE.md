@@ -73,14 +73,21 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    `<prefix>-<PARENT>.<SUB>-<short-summary>.md`), using the domain's own
    `Scope` field as the source for the summary, then every reference to the
    old filename updated accordingly.
-10. Never deactivate an already-active plugin as a side effect of applying a
+10. Check `## Version-specific one-time migrations` below for any entry
+    whose "From" version is at or above the project's own `version.txt`
+    value *before* this synchronization run started. Run each such entry
+    exactly once, as part of this same run, reporting flagged items to the
+    user per that entry's own steps rather than applying them silently. Do
+    not re-run an entry on a project whose pre-sync `version.txt` already
+    reflected a version past that entry's "From" version.
+11. Never deactivate an already-active plugin as a side effect of applying a
     new framework version. A plugin stays active across the sync unless its
     entry in the relevant `plugins/<type>/catalog.md` explicitly excludes
     the target framework version via the `Compatibility` field — a bare `*`,
     or an absent field, is never grounds for deactivation. Only deactivate a
     plugin when that field names a version or range that excludes the
     target version, and report which plugin was deactivated and why.
-11. Never treat a deployed project's `plugins/<type>/catalog.md` or any
+12. Never treat a deployed project's `plugins/<type>/catalog.md` or any
     installed plugin directory under `plugins/<type>/<name>/` as framework
     template content to overwrite wholesale. Once a project has registered
     or activated any plugin, that catalog and those directories are
@@ -93,7 +100,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
     If a plugin's row or directory would otherwise be missing, that is a
     `/catalyzer activate`/`download` action for the user to take
     afterward; `/sync-framework` must never perform or silently correct it.
-12. At the end of the synchronization run, perform a four-eyes verification
+13. At the end of the synchronization run, perform a four-eyes verification
    pass: one sub-agent verifies the deployment against the checklist in
    [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second
    independent sub-agent repeats the verification from a fresh perspective.
@@ -113,7 +120,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    sourced from this repository; every plugin must have its own repository.
    A deployed project's own `plugins/<type>/catalog.md` and installed plugin
    directories are project-owned state, not framework template content —
-   merge into them (see item 11 of the slash-command behavior below), never
+   merge into them (see item 12 of the slash-command behavior below), never
    overwrite or delete them wholesale.
 5. Ensure the deployed project contains a custom root-level `README.md` that
    describes the deployed framework's structure and the project's artifact
@@ -121,6 +128,11 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
 6. Ensure the deployed project contains the required artifacts:
    - `requirements/requirements.md`
    - `requirements/` individual requirement files
+   - `features/features.md`
+   - `features/` individual feature files, if any (create the folder and
+     index even when empty — see the "Version-specific one-time
+     migrations" section below for the one-time `BUG-`→`REQ-`
+     reclassification audit that runs alongside this on eligible projects)
    - `bugs/bugs.md`
    - `bugs/` individual bug files
    - `house-keeping/house-keeping.md`
@@ -128,10 +140,46 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    - `BACKLOG.md`
    - `version.txt`
    - the documented slash commands (`/create-bug`, `/create-req`/
-     `/create-requirement`, `/meta-tag`, `/status`, and `/help`) must be
-     available in the deployed environment after synchronization.
+     `/create-requirement`, `/create-feature`, `/meta-tag`, `/status`, and
+     `/help`) must be available in the deployed environment after
+     synchronization.
 7. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
+
+## Version-specific one-time migrations
+
+Some framework versions introduce a one-time reclassification or cleanup
+step for content a project deployed *before* that version, distinct from
+the ordinary template/rule copying above. Each entry below runs **exactly
+once** — the first time a deployed project's `version.txt` is advanced past
+the entry's "From" version — never again on later syncs, even if the
+project re-syncs to a still-later version afterward.
+
+### From `0.3.1`: audit `BUG-` items that were actually feature requests
+
+This framework version introduces `features/` (`Rules-of-Rules.md` §9) and
+makes explicit that new feature work belongs in a `REQ-NNNN` requirement,
+never a `BUG-NNNN` bug (`rules-of-development.md` §2). A project synchronized
+from a framework version at or below `0.3.1` may already contain `BUG-`
+items that were filed for what was actually new/desired behavior rather
+than an existing rule failing to hold.
+
+When synchronizing such a project up to a version that includes this
+section, perform this audit once, as part of that same synchronization run:
+
+1. Read every file in `bugs/` (or the project's equivalent bugs directory).
+2. For each one, judge whether its `Description`/`Root cause` describes
+   behavior that used to work and regressed (a real bug) versus behavior
+   that was never specified or built at all (a feature gap misfiled as a
+   bug). A strong signal: a `Targets` rule whose status marker is ❌ "not
+   implemented" rather than a regression from a previously ✅ rule.
+3. Report every flagged item to the user rather than silently
+   reclassifying it. For each one the user confirms, convert it to a
+   `REQ-NNNN` using `templates/requirements.template.md`, preserving its
+   original content and `Opened` date, then retire the `BUG-NNNN` in place
+   per `Rules-of-Rules.md` §4 with a note pointing at the new `REQ-NNNN`.
+4. Do not repeat this audit on later syncs once the deployed project's
+   `version.txt` already reflects a version that includes this section.
 
 ## Expected outcome
 

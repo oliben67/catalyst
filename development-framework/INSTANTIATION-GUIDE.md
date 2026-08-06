@@ -71,6 +71,10 @@ creates concrete rules for that particular project.
        requirements.md
        <requirement-doc-1>.md
        <requirement-doc-2>.md
+     features/
+       TEMPLATE-FEATURE.md
+       features.md
+       <FEAT-NNNN-short-summary>.md
      domains/
        TEMPLATE-DOMAIN.md
        domains.md
@@ -109,37 +113,43 @@ creates concrete rules for that particular project.
    The framework only cares that the chain epic→story→task→REQ/BUG/HK→rule
    stays intact, not the folder names. The `domains/` folder sits at the root
    of the deployed framework and holds the domain definition files. The
+   `features/` folder also sits at the root, alongside `requirements/`; it
+   holds descriptive, non-rule-linked feature entries (see
+   `Rules-of-Rules.md` §9) and is never a substitute for `requirements/`. The
    work-items rule document belongs in the `work-items/` layer and should not
    be duplicated under `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes the documented custom slash commands (`/create-bug`,
-   `/create-req`/`/create-requirement`, `/meta-tag`, `/status`,
-   `/run-analysis`, and `/help`) in the same way the framework defines them,
-   so they are available in the deployed environment. When plugins are needed,
-   pull their content directly from each plugin's own repository; no plugin may
-   be sourced from this framework repository, and every plugin must have its
-   own repository with no exceptions.
+   `/create-req`/`/create-requirement`, `/create-feature`, `/meta-tag`,
+   `/status`, `/run-analysis`, and `/help`) in the same way the framework
+   defines them, so they are available in the deployed environment. When
+   plugins are needed, pull their content directly from each plugin's own
+   repository; no plugin may be sourced from this framework repository, and
+   every plugin must have its own repository with no exceptions.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
-   `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, or
+   `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, `TEMPLATE-FEATURE.md`, or
    `TEMPLATE-META-TAG.md`. For each artifact type, also create an index file
    next to the template using the pluralized artifact-name form, such as
-   `bugs.md`, `requirements.md`, `house-keeping.md`, `meta-tags.md`,
-   `epics.md`, `stories.md`, `tasks.md`, `spikes.md`, or `sprints.md`.
+   `bugs.md`, `requirements.md`, `features.md`, `house-keeping.md`,
+   `meta-tags.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`, or
+   `sprints.md`.
    Keep requirements templates in the same `requirements/` directory as the
    actual requirements documents so the template and the concrete
-   requirement files live together. For rules, create exactly one
-   `TEMPLATE-RULE.md` file in the `rules/` root and use it to create each
-   concrete rule file in the relevant rule-type directory under `rules/`.
+   requirement files live together, and likewise keep feature templates in
+   the same `features/` directory as the actual feature entries. For rules,
+   create exactly one `TEMPLATE-RULE.md` file in the `rules/` root and use
+   it to create each concrete rule file in the relevant rule-type directory
+   under `rules/`.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
    in each major deployed folder (for example `rules/`, `requirements/`,
-   `development/`, `work-items/`, and `templates/` when present) that briefly
-   explains that folder's purpose and link to it from the root README so the
-   structure is discoverable and self-documenting.
+   `features/`, `development/`, `work-items/`, and `templates/` when present)
+   that briefly explains that folder's purpose and link to it from the root
+   README so the structure is discoverable and self-documenting.
 8. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
@@ -178,7 +188,7 @@ Nothing below the work-items layer changes. Above it:
   only §1 of `rules-of-development.md` (no development without a
   targeted rule) — everything above that is replaceable with whatever
   process vocabulary your team actually uses, as long as it still
-  bottoms out in `FEAT-`/`BUG-`/`HK-` docs.
+  bottoms out in `REQ-`/`BUG-`/`HK-` docs.
 
 ## 3. Retrofitting an existing project
 
@@ -204,7 +214,7 @@ Nothing below the work-items layer changes. Above it:
    exists in some other form) in document order, per §3 — top-level
    bullets get `NNN`; enumerated sub-cases inside one bullet get
    `-1`/`-2`/... suffixes rather than new top-level IDs.
-5. Once rules exist, retrofit `BUG-`/`FEAT-`/`HK-` docs for any
+5. Once rules exist, retrofit `BUG-`/`REQ-`/`HK-` docs for any
    already-known issues (a "Known Bugs" index is a good source), citing
    the rule IDs from step 4.
 6. Add a one-line header to each of your project's rule and process files
