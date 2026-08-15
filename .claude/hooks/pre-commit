@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Catalyst local backstop. Install: cp this to .git/hooks/pre-commit && chmod +x.
+# CI (deployment-rules.yml) is the unbypassable version; --no-verify skips this.
+set -euo pipefail
+python3 scripts/check_deployment.py
+python3 scripts/check_plugin_contracts.py
