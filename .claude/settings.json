@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat development-framework/INVARIANTS.md"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/check_deployment.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 scripts/check_plugin_contracts.py"
+          }
+        ]
+      }
+    ]
+  }
+}
