@@ -59,6 +59,9 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] `/user-add` run for at least one person — deployment is not
       complete with zero active users (INV-16, hard rule, stricter than
       every other on-demand artifact)
+- [ ] `development/journal.jsonl` created from `templates/journal.template.jsonl`
+      (empty) (INV-17) — every command from this point on appends an entry
+      as its last step, including the remaining steps of this deploy
 
 ## Seed content
 - [ ] First rule document(s) created with `## Contents` + `## Known Bugs — Quick

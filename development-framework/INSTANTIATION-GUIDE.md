@@ -95,6 +95,7 @@ creates concrete rules for that particular project.
          roadmaps.md
        users.json
        roles.json
+       journal.jsonl
      work-items/
        rules-of-work-items.md
        TEMPLATE-EPIC.md
@@ -171,6 +172,13 @@ creates concrete rules for that particular project.
    `/show-backlog` once immediately after creating `BACKLOG.md` so its
    sections reflect the real, likely still-empty, indexes from the start,
    rather than leaving any template's `{{PLACEHOLDER}}` text in place.
+   Also copy `templates/journal.template.jsonl` (empty) to
+   `development/journal.jsonl` — a hard requirement (`INVARIANTS.md`
+   INV-17). From this point on, every command that creates, modifies,
+   closes, or retires a rule-linked artifact, rule, domain, or work item,
+   or changes a `Status` field, appends one entry to it as its last step
+   (`CODE-OF-CONDUCT.md` §9) — including every step of this instantiation
+   itself from here onward.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both

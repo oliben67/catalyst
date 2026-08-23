@@ -41,6 +41,12 @@ This folder contains the reusable document templates that seed the deployed cata
   `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
   — see `Rules-of-Rules.md` §11. **Hard requirement:** deployment isn't
   complete until `/user-add` has registered at least one active user.
+- [`journal.template.jsonl`](journal.template.jsonl) — an empty file,
+  copied to `development/journal.jsonl` on first deploy (`INVARIANTS.md`
+  INV-17). Append-only, one JSON object per line, transaction-log-grade
+  (exact before/after `git hash-object -w` content pointers per touched
+  file, not just prose) — see `Rules-of-Rules.md` §12 for the full schema
+  and the `/journal-restore` point-in-time reconstruction mechanism.
 
 ## How to use this folder
 
