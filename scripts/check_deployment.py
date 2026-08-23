@@ -2,7 +2,7 @@
 """Validate a deployed .catalyst-proj/ against catalyst's structural invariants.
 
 This is the enforcement layer of the anti-drift architecture: the invariants an
-agent is asked to uphold (INV-5..INV-8, INV-14) are re-checked here deterministically, so
+agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16) are re-checked here deterministically, so
 they hold every time regardless of what any agent or human did. Mirrors the
 existing scripts/check_plugins.py pattern.
 
@@ -14,6 +14,7 @@ the agent's responsibility, re-grounded via INVARIANTS.md.
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -31,6 +32,7 @@ INDEX_NAMES = {
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
     "spikes.md", "sprints.md", "README.md", "CODE-OF-CONDUCT.md", "version.txt",
     "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md", "BACKLOG.md",
+    "roadmaps.md",
 }
 
 
@@ -54,6 +56,11 @@ def check_naming(root: Path) -> list[str]:
         for f in d.rglob("*.md"):
             name = f.name
             if name in INDEX_NAMES or TEMPLATE_RE.match(name):
+                continue
+            # Named roadmaps (development/roadmaps/<name>.md) are keyed by a
+            # free-form name, not a sequential <id>-<summary> scheme — see
+            # Rules-of-Rules.md §10.
+            if f.parent.name == "roadmaps":
                 continue
             if not NAME_RE.match(name) or BARE_ID_RE.search(name):
                 errors.append(f"INV-7 naming: {f.relative_to(root)} is not "
@@ -121,6 +128,44 @@ def check_backlog_exists(root: Path) -> list[str]:
     return []
 
 
+def check_roadmaps_index_exists(root: Path) -> list[str]:
+    """INV-15: development/roadmaps/roadmaps.md index always exists."""
+    index = root / "development" / "roadmaps" / "roadmaps.md"
+    if not index.is_file():
+        return ["INV-15: development/roadmaps/roadmaps.md is missing — seed "
+                "development/roadmaps/ from templates/roadmap.template.md"]
+    return []
+
+
+def check_users_and_roles_exist(root: Path) -> list[str]:
+    """INV-16: development/users.json + development/roles.json always
+    exist, and users.json has at least one active user."""
+    errors: list[str] = []
+    users_path = root / "development" / "users.json"
+    roles_path = root / "development" / "roles.json"
+
+    if not roles_path.is_file():
+        errors.append("INV-16: development/roles.json is missing — seed it "
+                      "from templates/roles.template.json")
+
+    if not users_path.is_file():
+        errors.append("INV-16: development/users.json is missing — seed it "
+                      "from templates/users.template.json")
+        return errors
+
+    try:
+        data = json.loads(users_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        errors.append(f"INV-16: development/users.json is not valid JSON: {exc}")
+        return errors
+
+    users = data.get("users", []) if isinstance(data, dict) else []
+    if not any(isinstance(u, dict) and u.get("active") for u in users):
+        errors.append("INV-16: development/users.json has no active user — "
+                      "a project must have at least one (/user-add)")
+    return errors
+
+
 def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
@@ -134,6 +179,8 @@ def main() -> int:
     errors += check_rule_indexing(root)
     errors += check_required_headings(root)
     errors += check_backlog_exists(root)
+    errors += check_roadmaps_index_exists(root)
+    errors += check_users_and_roles_exist(root)
 
     if errors:
         print(f"catalyst deployment validation FAILED ({len(errors)} issue(s)):")
