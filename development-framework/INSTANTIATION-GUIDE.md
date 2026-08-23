@@ -89,6 +89,7 @@ creates concrete rules for that particular project.
        TEMPLATE-META-TAG.md
        meta-tags.md
        meta-tags/
+       BACKLOG.md
      work-items/
        rules-of-work-items.md
        TEMPLATE-EPIC.md
@@ -144,7 +145,13 @@ creates concrete rules for that particular project.
    the same `features/` directory as the actual feature entries. For rules,
    create exactly one `TEMPLATE-RULE.md` file in the `rules/` root and use
    it to create each concrete rule file in the relevant rule-type directory
-   under `rules/`.
+   under `rules/`. Also copy `templates/backlog.template.md` to
+   `development/BACKLOG.md` — a hard requirement (`INVARIANTS.md` INV-14),
+   not optional like the artifact templates above. Unlike those, it is
+   never hand-edited afterward: run `/show-backlog` once immediately after
+   creating it so its sections reflect the real (likely still-empty)
+   indexes from the start, rather than leaving the template's
+   `{{PLACEHOLDER}}` text in place.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
