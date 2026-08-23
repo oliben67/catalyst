@@ -1,3 +1,5 @@
+import json
+import shutil
 from pathlib import Path
 
 import check_deployment as cd
@@ -26,6 +28,18 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     (development / "BACKLOG.md").write_text(
         "# Backlog\n\n**Last refreshed:** 2026-08-23 by `/show-backlog`.\n"
     )
+    roadmaps = development / "roadmaps"
+    roadmaps.mkdir()
+    (roadmaps / "roadmaps.md").write_text("# Roadmaps index\n\n*(none)*\n")
+    (development / "users.json").write_text(json.dumps({
+        "users": [
+            {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
+             "active": True, "notes": ""},
+        ]
+    }))
+    (development / "roles.json").write_text(json.dumps({
+        "roles": [{"name": "Developer", "actions": ["/create-bug"]}]
+    }))
     return root
 
 
@@ -46,6 +60,8 @@ def test_valid_deployment_has_no_errors(tmp_path: Path):
     assert cd.check_rule_indexing(root) == []
     assert cd.check_required_headings(root) == []
     assert cd.check_backlog_exists(root) == []
+    assert cd.check_roadmaps_index_exists(root) == []
+    assert cd.check_users_and_roles_exist(root) == []
 
 
 def test_check_naming_rejects_bare_id_filename(tmp_path: Path):
@@ -60,6 +76,18 @@ def test_check_naming_ignores_index_and_template_files(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
     # rules.md and TEMPLATE-RULE.md are already present and bare-named;
     # a clean tree must not flag them.
+    assert cd.check_naming(root) == []
+
+
+def test_check_naming_ignores_named_roadmap_files(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    # A named roadmap is keyed by a free-form name (Rules-of-Rules.md §10),
+    # not the sequential <id>-<summary> scheme — a trailing-digits name like
+    # this must not be flagged as a bare ID (INV-7) the way br-AUTH-002.md
+    # would be.
+    (root / "development" / "roadmaps" / "product-2026.md").write_text(
+        "# product-2026\n"
+    )
     assert cd.check_naming(root) == []
 
 
@@ -134,10 +162,92 @@ def test_check_backlog_exists_missing(tmp_path: Path):
 
 def test_check_backlog_exists_missing_development_dir(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "BACKLOG.md").unlink()
-    (root / "development").rmdir()
+    shutil.rmtree(root / "development")
     errors = cd.check_backlog_exists(root)
     assert any("INV-14" in e for e in errors)
+
+
+def test_check_roadmaps_index_exists_missing(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "roadmaps" / "roadmaps.md").unlink()
+    errors = cd.check_roadmaps_index_exists(root)
+    assert any(
+        "INV-15" in e and "development/roadmaps/roadmaps.md is missing" in e
+        for e in errors
+    )
+
+
+def test_check_roadmaps_index_exists_missing_roadmaps_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    shutil.rmtree(root / "development" / "roadmaps")
+    errors = cd.check_roadmaps_index_exists(root)
+    assert any("INV-15" in e for e in errors)
+
+
+def test_check_roadmaps_index_exists_missing_development_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    shutil.rmtree(root / "development")
+    errors = cd.check_roadmaps_index_exists(root)
+    assert any("INV-15" in e for e in errors)
+
+
+def test_check_users_and_roles_exist_missing_users(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "users.json").unlink()
+    errors = cd.check_users_and_roles_exist(root)
+    assert any("INV-16" in e and "development/users.json is missing" in e
+               for e in errors)
+    assert not any("roles.json" in e for e in errors)
+
+
+def test_check_users_and_roles_exist_missing_roles(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "roles.json").unlink()
+    errors = cd.check_users_and_roles_exist(root)
+    assert any("INV-16" in e and "development/roles.json is missing" in e
+               for e in errors)
+    assert not any("users.json is missing" in e for e in errors)
+
+
+def test_check_users_and_roles_exist_missing_both(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "users.json").unlink()
+    (root / "development" / "roles.json").unlink()
+    errors = cd.check_users_and_roles_exist(root)
+    assert len(errors) == 2
+
+
+def test_check_users_and_roles_exist_missing_development_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    shutil.rmtree(root / "development")
+    errors = cd.check_users_and_roles_exist(root)
+    assert len(errors) == 2
+
+
+def test_check_users_and_roles_exist_no_active_user(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "users.json").write_text(json.dumps({
+        "users": [
+            {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
+             "active": False, "notes": ""},
+        ]
+    }))
+    errors = cd.check_users_and_roles_exist(root)
+    assert any("INV-16" in e and "no active user" in e for e in errors)
+
+
+def test_check_users_and_roles_exist_empty_users_array(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "users.json").write_text(json.dumps({"users": []}))
+    errors = cd.check_users_and_roles_exist(root)
+    assert any("no active user" in e for e in errors)
+
+
+def test_check_users_and_roles_exist_invalid_json(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "users.json").write_text("{not valid json")
+    errors = cd.check_users_and_roles_exist(root)
+    assert any("not valid JSON" in e for e in errors)
 
 
 def test_main_returns_zero_when_no_deployment(tmp_path: Path, monkeypatch, capsys):

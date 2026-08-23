@@ -5,7 +5,7 @@
 
 Standards for how development work — bugs, requirements, house-keeping, and
 meta-tags — gets proposed, tracked, and closed. Subordinate to
-[`{{RULES_DIR}}/Rules-of-Rules.md`](../{{RULES_DIR}}/Rules-of-Rules.md):
+[`{{RULES_DIR}}/Rules-of-Rules.md`]({{RULES_DIR}}/Rules-of-Rules.md):
 that file governs the rules themselves; this file governs the work items
 that reference those rules.
 
@@ -28,7 +28,52 @@ House-keeping is the one category where "no rule applies" is a legitimate
 answer (pure repo hygiene with no bearing on any documented behavior or
 process) — but it must be stated explicitly, not left blank.
 
-## 2. Standard document types
+## 2. Users, roles, and signing
+
+`development/users.json` is a JSON array of registered users
+(`{name, roles, registered, active, notes}`), managed only by
+`/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
+— see §4. Each user has one or more roles drawn from
+`development/roles.json`, a JSON array of `{name, actions}` objects
+mapping each role to the actions/commands it's expected to perform.
+`roles.json` is seeded with a default agile-role mapping
+(`templates/roles.template.json`) and then extended via `/role-add`
+(new role) or `/role-modify` (change an existing role's actions).
+
+**This is JSON, not hand-edited markdown, precisely because it's managed
+exclusively by commands** — the same reasoning that keeps
+`development/BACKLOG.md` machine-only, just with structured data instead
+of a regenerated document.
+
+**Hard requirement: `development/users.json` must always have at least
+one entry with `"active": true`.** A project with nobody registered has
+nobody to sign work. `/user-remove` must refuse or warn (per its own
+spec) rather than silently drop the last active user to zero.
+
+**Beyond that one hard requirement, this role model is advisory, not an
+access-control system.** Catalyst has no way to verify who is actually
+typing, so a role mismatch is a prompt for confirmation, never a silent
+block:
+
+1. Before an artifact-creating or work-item-status-changing command
+   completes, resolve who is signing it: the user established earlier
+   this session, or ask if not yet established (don't guess from git
+   config — confirm with the user).
+2. Look up that name in `development/users.json`. If unregistered, say so
+   and ask whether to proceed anyway or register them first via
+   `/user-add`.
+3. Look up their role(s) in `development/roles.json` and check whether the
+   action being performed is one that role covers. If it isn't, say so
+   and ask for confirmation before continuing — never refuse outright.
+4. Once confirmed (or if the role already covers the action), fill the
+   artifact's `Signed-off-by` field with the user's name and proceed.
+
+Every dev-artifact, feature entry, roadmap item, and work item carries a
+`Signed-off-by` field for this reason (see each type's template). It
+records who actually signed the artifact, which may differ from who typed
+the command on their behalf.
+
+## 3. Standard document types
 
 | Type | Folder | Template | ID prefix |
 |---|---|---|---|
@@ -45,6 +90,17 @@ development-artifact types above, and are exempt from this document's
 rules (no `Targets`, no `Domain`, never "done" against a rule). When a
 new feature actually needs to be developed, open a `REQ-NNNN`
 requirement — never a `BUG-NNNN` — to track it.
+
+Roadmap items (`RM-NNNN`, table rows inside `development/roadmaps/<name>.md`
+files — one file per named roadmap, template `templates/roadmap.template.md`,
+index `development/roadmaps/roadmaps.md`) sit one level above feature
+entries — see `Rules-of-Rules.md` §10. They are populated by
+`/roadmap-add`/`/roadmap-update`/`/roadmap-merge` from an external source
+file rather than created one at a time, and are exempt from this document's
+rules the same way feature entries are (no `Targets`, no `Domain`, never
+"done" against a rule). Formalizing a roadmap item means opening a
+`FEAT-NNNN` for it via `/create-feature`, citing the `RM-NNNN` ID in the
+feature's `Roadmap` field.
 
 ### Hard rule: individual files and indexes
 
@@ -65,7 +121,22 @@ requirement — never a `BUG-NNNN` — to track it.
   as the go-to document for developers to review work to be done and
   current status. It is not hand-maintained: `/show-backlog` regenerates
   it in full every time it runs, so it never drifts from the real
-  indexes. See `INVARIANTS.md` INV-14.
+  indexes — including every `development/roadmaps/<name>.md`. See
+  `INVARIANTS.md` INV-14.
+- **This is also a hard requirement.** `development/roadmaps/` and its
+  `roadmaps.md` index always exist (empty is fine — individual named
+  roadmaps are created only via `/roadmap-add`). Within any
+  `development/roadmaps/<name>.md` that does exist, only the
+  `/roadmap-add`/`-update`/`-merge`/`-remove` commands and `/show-backlog`
+  (Status/Linked refresh) ever change it; hand-editing anything but a
+  row's Notes column is pointless, the same way hand-editing `BACKLOG.md`
+  is. See `INVARIANTS.md` INV-15.
+- **This is a hard requirement, stricter than the others above.**
+  `development/users.json` and `development/roles.json` always exist, and
+  `users.json` must contain **at least one entry with `"active": true`** —
+  not "empty is fine," since a project with nobody registered has nobody
+  to sign work. Both files are managed only by the `/user-*`/`/role-*`
+  commands (§2, §4), never hand-edited. See `INVARIANTS.md` INV-16.
 
 - **Bug**: an existing ✅ rule doesn't actually hold in the running system,
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
@@ -86,7 +157,7 @@ requirement — never a `BUG-NNNN` — to track it.
   It stores one key/value pair whose key is one of `comment`, `version`, or
   `link-to`, and it is saved under the name `tag-<key>-<artefact-id>`.
 
-## 3. Slash-command entry points
+## 4. Slash-command entry points
 
 The framework exposes the following custom slash commands:
 
@@ -99,6 +170,41 @@ The framework exposes the following custom slash commands:
   in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
   prompts for a rule target or domain — features are not rule-linked (see
   `Rules-of-Rules.md` §9).
+- `/roadmap-add <name> <file>` — ingest a new named roadmap from a local
+  file, creating `development/roadmaps/<name>.md` from
+  `templates/roadmap.template.md` and registering it in
+  `development/roadmaps/roadmaps.md` (see `Rules-of-Rules.md` §10).
+  Refuses if `<name>` already exists — use `/roadmap-update` or
+  `/roadmap-merge` instead.
+- `/roadmap-remove <name>` — delete `development/roadmaps/<name>.md` and
+  its `roadmaps.md` entry if no row is linked to a `FEAT-`/`REQ-`;
+  otherwise retire it in place (never hard-deletes a linked roadmap).
+- `/roadmap-update <name> <file>` — re-ingest `<file>` as the new full,
+  authoritative version of an existing named roadmap: add new rows,
+  update matched rows, flag (never delete) rows missing from the new
+  file.
+- `/roadmap-merge <name> <update file>` — fold a partial delta file into
+  an existing named roadmap: add/update only the rows the delta
+  mentions, without flagging anything as missing.
+- `/user-add <name> <role>` — register a new user in
+  `development/users.json` with an initial role from
+  `development/roles.json`. Refuses if `<name>` is already registered —
+  use `/user-modify`/`/user-assign-role` instead.
+- `/user-remove <name>` — set `<name>`'s `active` field to `false` in
+  `development/users.json`. Never deletes the entry (see §2). Refuses or
+  warns if this would leave zero active users (hard rule, §2).
+- `/user-modify <name> <field> <value>` — edit `<name>`'s `notes` or
+  `active` field. Refuses for `roles` (use `/user-assign-role`) and for
+  identity/audit fields (`name`, `registered`).
+- `/user-assign-role <name> <role>` — add `<role>` to `<name>`'s `roles`
+  array (additive; doesn't remove their other roles).
+- `/user-list [--role <role>] [--active-only]` — list registered users,
+  optionally filtered.
+- `/role-add <role> <actions>` — add a new role entry to
+  `development/roles.json`. Refuses if `<role>` already exists — use
+  `/role-modify` instead.
+- `/role-modify <role> <actions>` — replace an existing role's `actions`.
+  Refuses if `<role>` doesn't exist — use `/role-add` instead.
 - `/create-epic` — create a new epic work item and register it in
   `epics/epics.md`.
 - `/create-story` — create a new story work item and register it in
@@ -174,8 +280,10 @@ The framework exposes the following custom slash commands:
   is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
   consistent and do not conflict.
-- `/show-backlog` — summarize open work, blockers, and missing links, and
-  refresh `development/BACKLOG.md` with the result.
+- `/show-backlog` — summarize open work, blockers, and missing links,
+  refresh `development/BACKLOG.md` with the result, and refresh every
+  active `development/roadmaps/<name>.md`'s Status/Linked columns from
+  the `FEAT-`/`REQ-` each row is linked to.
 - `/help` — return help documentation for the framework or for a specific
   command when provided.
 
@@ -194,10 +302,109 @@ When the user enters `/create-feature: ...`, create a new feature entry
 immediately using `templates/features.template.md`, register it in
 `features/features.md`, and track it as idea/roadmap content, not
 rule-linked development work. Do not prompt for a domain or rule target —
-neither field exists on this artifact type. If the user later asks to start
-building a registered feature, create a `REQ-NNNN` requirement instead
-(prompting for domain/target rule as usual), and link it back to the
-`FEAT-NNNN` entry's `Requirement(s)` field.
+neither field exists on this artifact type. If this feature formalizes an
+existing roadmap row (in any `development/roadmaps/<name>.md`), cite that
+row's `RM-NNNN` ID in the new feature's `Roadmap` field and set the row's
+`Status` to `Triaged` and `Linked` to the new `FEAT-NNNN`. If the user later
+asks to start building a registered feature, create a `REQ-NNNN`
+requirement instead (prompting for domain/target rule as usual), and link
+it back to the `FEAT-NNNN` entry's `Requirement(s)` field.
+
+When the user enters `/roadmap-add <name> <file>: ...`, refuse with a clear
+message if `development/roadmaps/<name>.md` already exists (point to
+`/roadmap-update`/`/roadmap-merge`). Otherwise read `<file>` from the
+local filesystem, identify its distinct items, and create
+`development/roadmaps/<name>.md` from `templates/roadmap.template.md` with
+one `RM-NNNN` row per item (`Status: Not triaged`, `Linked: *(none)*`),
+IDs continuing the global sequence across every existing named roadmap —
+never reused, never guessed. Register the new roadmap in
+`development/roadmaps/roadmaps.md`, then report the roadmap name and the
+IDs assigned.
+
+When the user enters `/roadmap-remove <name>`, refuse with a clear message
+if `development/roadmaps/<name>.md` does not exist. If every row's `Linked`
+field is empty, delete the file and its `roadmaps.md` entry outright and
+report that. If any row has a non-empty `Linked` field, do **not** delete
+anything — instead add a `Retired` field (today's date) to the file, mark
+its `roadmaps.md` entry `retired`, leave every row and `RM-NNNN` ID exactly
+as they are, and tell the user it was retired rather than removed because
+removing it would break a live `FEAT-`/`REQ-` cross-reference.
+
+When the user enters `/roadmap-update <name> <file>: ...`, refuse with a
+clear message if `development/roadmaps/<name>.md` does not exist (point to
+`/roadmap-add`). Otherwise treat `<file>` as the new full, authoritative
+version of this roadmap: add a new `RM-NNNN` row for each item not already
+present, update the `Title`/`Notes` of any row that matches an item in
+`<file>` by title/description similarity (ask the user rather than
+guessing when a match is ambiguous), and flag — in `Notes`, never by
+deleting — any existing row whose item no longer appears in `<file>`.
+Update the file's `Source` and `Last updated` fields, then report a short
+summary of what was added/updated/flagged.
+
+When the user enters `/roadmap-merge <name> <update file>: ...`, refuse
+with a clear message if `development/roadmaps/<name>.md` does not exist
+(point to `/roadmap-add`). Otherwise treat `<update file>` as a partial
+delta, not the full roadmap: apply the same add/update matching rule as
+`/roadmap-update` for only the items `<update file>` actually contains,
+but do not compare against or flag any row it doesn't mention, and do not
+change the `Source` field — only `Last updated`. Report a short summary of
+what was added/updated.
+
+When the user enters `/user-add <name> <role>: ...`, refuse with a clear
+message if `<name>` already has an entry in `development/users.json`
+(point to `/user-modify`/`/user-assign-role`). If `development/users.json`
+or `development/roles.json` doesn't exist yet, create them from
+`templates/users.template.json` and `templates/roles.template.json`
+first. If `<role>` isn't one of the roles listed in
+`development/roles.json`, ask whether to use an existing role or run
+`/role-add` for `<role>` first. Otherwise append a new entry (`registered`:
+today, `active: true`, `roles: [<role>]`) and report it. If this is the
+project's first registered user, note that the hard "at least one active
+user" requirement (§2) is now satisfied.
+
+When the user enters `/user-remove <name>`, refuse with a clear message if
+`<name>` has no entry in `development/users.json`. If `<name>` is the only
+`active: true` entry, warn that this would leave the project with zero
+active users (hard rule, §2) and ask for confirmation, or suggest
+`/user-add` for a replacement first. Otherwise set that entry's `active`
+field to `false` — never delete it, since existing `Signed-off-by`
+references on already-signed artifacts must stay resolvable. Report the
+result.
+
+When the user enters `/user-modify <name> <field> <value>: ...`, refuse
+with a clear message if `<name>` has no entry in `development/users.json`
+(point to `/user-add`). Refuse if `<field>` is `roles` (point to
+`/user-assign-role`) or `name`/`registered` (identity/audit fields, never
+edited in place). Refuse if `<field>` is `active` set to `false` (point to
+`/user-remove`, which also checks the "at least one active user" rule).
+Otherwise update `<field>` to `<value>` and report the result.
+
+When the user enters `/user-assign-role <name> <role>: ...`, refuse with a
+clear message if `<name>` has no entry in `development/users.json` (point
+to `/user-add`). If `<role>` isn't one of the roles listed in
+`development/roles.json`, ask whether to use an existing role or run
+`/role-add` for `<role>` first. If `<name>`'s `roles` array already
+contains `<role>`, say so and make no change. Otherwise append `<role>` to
+that array and report the result.
+
+When the user enters `/user-list [--role <role>] [--active-only]`, read
+`development/users.json`. If it doesn't exist, say so rather than
+inventing users. Apply `--role`/`--active-only` filters if given, and
+report the matching entries. If none match, say so rather than inventing
+matches.
+
+When the user enters `/role-add <role> <actions>: ...`, refuse with a
+clear message if `<role>` already has an entry in
+`development/roles.json` (point to `/role-modify`). If
+`development/roles.json` doesn't exist yet, create it from
+`templates/roles.template.json` first. Otherwise append a new entry
+(`name: <role>`, `actions: <actions>`) and report it.
+
+When the user enters `/role-modify <role> <actions>: ...`, refuse with a
+clear message if `<role>` has no entry in `development/roles.json` (point
+to `/role-add`). Otherwise replace that entry's `actions` and report the
+result. This never retroactively changes a `Signed-off-by` value already
+recorded on an existing artifact.
 
 When the user enters `/create-epic`, `/create-story`, `/create-task`,
 `/create-spike`, or `/create-sprint`, create the corresponding work-item
@@ -339,12 +546,18 @@ then report the result.
 When the user enters `/show-backlog`, inspect the current artifact indexes
 (open bugs by severity, in-progress/proposed requirements, work items with no
 linked `REQ-`/`BUG-` doc, rules with no open work targeting them, feature
-ideas with no requirement yet), **overwrite `development/BACKLOG.md`
-in full** with the result (from `templates/backlog.template.md`'s
-structure, with a refreshed timestamp), and also report the same summary
-to the user in this turn. The file write is not optional — a stale
-`BACKLOG.md` that doesn't match the last `/show-backlog` run is itself a
-bug in the deployment.
+ideas with no requirement yet, and every `development/roadmaps/<name>.md`
+not marked `Retired`, rows grouped by roadmap name then Status),
+**overwrite `development/BACKLOG.md` in full** with the result (from
+`templates/backlog.template.md`'s structure, with a refreshed timestamp),
+**also refresh every active `development/roadmaps/<name>.md`** in place —
+for each `RM-NNNN` row, resolve whichever `FEAT-`/`REQ-` its `Linked` field
+names (if any) and set `Status` to `Not triaged` / `Triaged` /
+`In progress` / `Done` accordingly, leaving `Title`/`Notes`/`Source`
+untouched — and also report the same summary to the user in this turn. No
+file write is optional — a stale `BACKLOG.md`, or any roadmap file that
+doesn't match the last `/show-backlog` run, is itself a bug in the
+deployment.
 
 When the user enters `/help` without any additional entry, list all supported
 custom slash commands and their purpose, then list every artifact type and its
@@ -353,14 +566,14 @@ return the detailed help documentation for that command only, including its
 syntax, behavior, and prerequisites. If the command is unknown, respond that
 it is unsupported and suggest the available commands.
 
-## 4. Domain field
+## 5. Domain field
 
 Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
 from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
 `features/` are not development artifacts under this document and carry no
 `Domain` field — see `Rules-of-Rules.md` §9.)
 
-## 5. Development-artifact IDs
+## 6. Development-artifact IDs
 
 Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
 sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
@@ -376,7 +589,7 @@ Example: `BUG-0001-login-form-validation` or
 retroactively during framework deployment or synchronization to existing
 deployed items whose names or filenames are still only the ID.
 
-## 6. Closing an item
+## 7. Closing an item
 
 Before closing a bug or requirement, ensure the corresponding entry exists in
 its individual file and is reflected in the relevant index file.
@@ -386,4 +599,13 @@ its individual file and is reflected in the relevant index file.
   rule targets are reflected in the implementation and tests.
 - **House-keeping**: closeable once its stated verification passes.
 
-## 7. Retired rules and development work
+## 8. Retired rules and development work
+
+Retiring a *rule* is `Rules-of-Rules.md` §4's process — status marker to
+🗑, reason plus date appended, ID never reused. Closing a *dev-artifact*
+(`BUG-`/`REQ-`/`HK-`) as `wontfix`/`rejected`/`abandoned` is independent
+of that: closing an artifact never retires the rule(s) it targeted, and
+retiring a rule never auto-closes the artifacts that cite it. Each is
+closed on its own, citing the other's ID and the reason, so the history
+stays traceable in both directions rather than one silently orphaning the
+other.

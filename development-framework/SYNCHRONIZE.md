@@ -143,6 +143,30 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      predates this requirement and has no `development/BACKLOG.md`,
      synchronizing to a version that includes it creates it from the
      template rather than skipping it as "already deployed."
+   - `development/roadmaps/TEMPLATE-ROADMAP.md` and an empty
+     `development/roadmaps/roadmaps.md` index (from
+     `templates/roadmap.template.md` on first deploy — see
+     `INVARIANTS.md` INV-15). Individual `development/roadmaps/<name>.md`
+     files are added/updated/retired by `/roadmap-add`/`-update`/`-merge`/
+     `-remove`, with Status/Linked columns refreshed by `/show-backlog`;
+     synchronization must never overwrite or delete an existing named
+     roadmap file, the same non-destructive treatment as an installed
+     plugin directory. A deployed project that predates this requirement
+     gets the folder/index created from the template on its next sync,
+     not silently skipped.
+   - `development/roles.json` (from `templates/roles.template.json` on
+     first deploy; entries added/changed by `/role-add`/`/role-modify` —
+     never overwritten by synchronization once it exists, same
+     project-owned-state treatment as an installed plugin directory) and
+     `development/users.json` (from `templates/users.template.json` on
+     first deploy; entries added/updated by
+     `/user-add`/`-remove`/`-modify`/`-assign-role` — see `INVARIANTS.md`
+     INV-16). A deployed project that predates this requirement gets both
+     created from their templates on its next sync, not silently skipped
+     — and if that leaves `users.json` with zero active users, prompt to
+     run `/user-add` before considering the sync complete (INV-16's hard
+     "at least one active user" requirement applies regardless of how the
+     file came to exist).
    - `version.txt`
    - every documented slash command from `rules-of-development.template.md`
      §3 — the canonical list; this file must never re-enumerate a subset of
@@ -151,7 +175,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      `.claude/commands/<name>.md` missing relative to that list (following
      `templates/slash-command.template.md`), and refresh an existing one
      only if this framework version actually changed that command's spec
-     in `rules-of-development.template.md` §3 — an unchanged command's file
+     in `rules-of-development.template.md` §4 — an unchanged command's file
      is project-owned content like any other synced file, not something to
      overwrite wholesale on every sync.
 7. Update the deployed framework's `version.txt` to the latest released
@@ -170,7 +194,7 @@ project re-syncs to a still-later version afterward.
 
 This framework version introduces `features/` (`Rules-of-Rules.md` §9) and
 makes explicit that new feature work belongs in a `REQ-NNNN` requirement,
-never a `BUG-NNNN` bug (`rules-of-development.md` §2). A project synchronized
+never a `BUG-NNNN` bug (`rules-of-development.md` §3). A project synchronized
 from a framework version at or below `0.3.1` may already contain `BUG-`
 items that were filed for what was actually new/desired behavior rather
 than an existing rule failing to hold.

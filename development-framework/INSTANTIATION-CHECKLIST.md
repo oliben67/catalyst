@@ -47,6 +47,18 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] `development/BACKLOG.md` created from `templates/backlog.template.md`
       (INV-14) — a hard requirement, not one of the optional-per-project
       artifact templates above
+- [ ] `development/roadmaps/TEMPLATE-ROADMAP.md` created from
+      `templates/roadmap.template.md`, and an empty
+      `development/roadmaps/roadmaps.md` index created (INV-15) — the
+      folder/index are a hard requirement, same tier as `features/`;
+      individual named roadmaps are created later via `/roadmap-add`
+- [ ] `development/roles.json` created from `templates/roles.template.json`,
+      filled in with its default agile-role mapping (INV-16)
+- [ ] `development/users.json` created from `templates/users.template.json`,
+      empty array (INV-16)
+- [ ] `/user-add` run for at least one person — deployment is not
+      complete with zero active users (INV-16, hard rule, stricter than
+      every other on-demand artifact)
 
 ## Seed content
 - [ ] First rule document(s) created with `## Contents` + `## Known Bugs — Quick
@@ -61,7 +73,7 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Per-folder `README.md` written for `rules/`, `requirements/`, `features/`,
       `development/`, `work-items/`, and `templates/` where present, linked from root
 - [ ] One `.claude/commands/<name>.md` created per command in
-      `rules-of-development.template.md` §3 (Claude Code), each following
+      `rules-of-development.template.md` §4 (Claude Code), each following
       `templates/slash-command.template.md` — or the documented fallback
       applied and noted in the deployed `README.md` (other agents), per
       `BOOTSTRAP.md §1`

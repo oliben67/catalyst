@@ -90,6 +90,11 @@ creates concrete rules for that particular project.
        meta-tags.md
        meta-tags/
        BACKLOG.md
+       roadmaps/
+         TEMPLATE-ROADMAP.md
+         roadmaps.md
+       users.json
+       roles.json
      work-items/
        rules-of-work-items.md
        TEMPLATE-EPIC.md
@@ -121,7 +126,7 @@ creates concrete rules for that particular project.
    be duplicated under `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes **every** documented custom slash command from
-   `rules-of-development.template.md` §3 — the canonical list; don't
+   `rules-of-development.template.md` §4 — the canonical list; don't
    re-enumerate a subset of it here or anywhere else, that's exactly how it
    drifts — in the same way the framework defines them, so they are
    available in the deployed environment. Under Claude Code this
@@ -146,12 +151,26 @@ creates concrete rules for that particular project.
    create exactly one `TEMPLATE-RULE.md` file in the `rules/` root and use
    it to create each concrete rule file in the relevant rule-type directory
    under `rules/`. Also copy `templates/backlog.template.md` to
-   `development/BACKLOG.md` — a hard requirement (`INVARIANTS.md` INV-14),
-   not optional like the artifact templates above. Unlike those, it is
-   never hand-edited afterward: run `/show-backlog` once immediately after
-   creating it so its sections reflect the real (likely still-empty)
-   indexes from the start, rather than leaving the template's
-   `{{PLACEHOLDER}}` text in place.
+   `development/BACKLOG.md` — a hard requirement (`INVARIANTS.md`
+   INV-14), not optional like the artifact templates above; unlike those,
+   it is not hand-edited afterward. Also copy `templates/roadmap.template.md`
+   to `development/roadmaps/TEMPLATE-ROADMAP.md` and create an empty
+   `development/roadmaps/roadmaps.md` index — also a hard requirement
+   (`INVARIANTS.md` INV-15), the same tier as `features/`: the folder and
+   index always exist, but individual named roadmaps
+   (`development/roadmaps/<name>.md`) are only created later, on demand,
+   via `/roadmap-add`. Also copy `templates/roles.template.json` to
+   `development/roles.json` (filled in with its default agile-role
+   mapping) and `templates/users.template.json` to `development/users.json`
+   (empty array) — both a hard requirement (`INVARIANTS.md` INV-16).
+   **Then immediately run `/user-add` for at least one person** — unlike
+   every other on-demand artifact, deployment is not actually complete
+   with an empty `users.json`: a project must have at least one active
+   user (INV-16). Ask the user who that first registered user should be
+   and what role they hold if it isn't obvious from context. Run
+   `/show-backlog` once immediately after creating `BACKLOG.md` so its
+   sections reflect the real, likely still-empty, indexes from the start,
+   rather than leaving any template's `{{PLACEHOLDER}}` text in place.
 7. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
