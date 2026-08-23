@@ -15,6 +15,11 @@ This folder contains the reusable document templates that seed the deployed cata
   editing the feature entry.
 - Workflow templates for epics, stories, tasks, spikes, and sprints.
 - Rule and domain scaffolding templates used when a project is instantiated.
+- [`slash-command.template.md`](slash-command.template.md) — the shape
+  every deployed `.claude/commands/<name>.md` file follows, one per
+  command in `../rules-of-development.template.md` §3. See `CLAUDE.md`'s
+  "Slash commands" entry and `INSTANTIATION-GUIDE.md` §1 step 5 — this is
+  required as part of instantiation, not an optional extra.
 
 ## How to use this folder
 

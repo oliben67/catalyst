@@ -57,7 +57,11 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Root `README.md` written (structure, deploy path, artifact folders)
 - [ ] Per-folder `README.md` written for `rules/`, `requirements/`, `features/`,
       `development/`, `work-items/`, and `templates/` where present, linked from root
-- [ ] Documented slash commands exposed (or their fallbacks per `BOOTSTRAP.md §1`)
+- [ ] One `.claude/commands/<name>.md` created per command in
+      `rules-of-development.template.md` §3 (Claude Code), each following
+      `templates/slash-command.template.md` — or the documented fallback
+      applied and noted in the deployed `README.md` (other agents), per
+      `BOOTSTRAP.md §1`
 
 ## Finalize
 - [ ] `dev-instructions.yaml` deleted after successful deploy
