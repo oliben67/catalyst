@@ -119,13 +119,17 @@ creates concrete rules for that particular project.
    work-items rule document belongs in the `work-items/` layer and should not
    be duplicated under `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
-   framework exposes the documented custom slash commands (`/create-bug`,
-   `/create-req`/`/create-requirement`, `/create-feature`, `/meta-tag`,
-   `/status`, `/run-analysis`, and `/help`) in the same way the framework
-   defines them, so they are available in the deployed environment. When
-   plugins are needed, pull their content directly from each plugin's own
-   repository; no plugin may be sourced from this framework repository, and
-   every plugin must have its own repository with no exceptions.
+   framework exposes **every** documented custom slash command from
+   `rules-of-development.template.md` §3 — the canonical list; don't
+   re-enumerate a subset of it here or anywhere else, that's exactly how it
+   drifts — in the same way the framework defines them, so they are
+   available in the deployed environment. Under Claude Code this
+   concretely means: one `.claude/commands/<name>.md` file per command,
+   created from `templates/slash-command.template.md` (see `CLAUDE.md`'s
+   "Slash commands" entry for the exact mechanism). When plugins are
+   needed, pull their content directly from each plugin's own repository;
+   no plugin may be sourced from this framework repository, and every
+   plugin must have its own repository with no exceptions.
 6. Copy `templates/*.template.md` into the corresponding subfolders, and
    rename each template file to an uppercase name such as
    `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, `TEMPLATE-FEATURE.md`, or
