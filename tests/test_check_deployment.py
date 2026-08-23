@@ -40,6 +40,22 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     (development / "roles.json").write_text(json.dumps({
         "roles": [{"name": "Developer", "actions": ["/create-bug"]}]
     }))
+    (development / "journal.jsonl").write_text(
+        json.dumps({
+            "timestamp": "2026-08-23T19:00:00Z",
+            "actor": "Ada",
+            "command": "/create-bug",
+            "action": "create",
+            "artifact": "BUG-0001",
+            "targets": ["br-AUTH-001"],
+            "intent": ["fix a real bug"],
+            "files": [
+                {"path": "development/bugs/BUG-0001-x.md",
+                 "before": None,
+                 "after": "a" * 40},
+            ],
+        }) + "\n"
+    )
     return root
 
 
@@ -62,6 +78,7 @@ def test_valid_deployment_has_no_errors(tmp_path: Path):
     assert cd.check_backlog_exists(root) == []
     assert cd.check_roadmaps_index_exists(root) == []
     assert cd.check_users_and_roles_exist(root) == []
+    assert cd.check_journal_exists(root) == []
 
 
 def test_check_naming_rejects_bare_id_filename(tmp_path: Path):
@@ -248,6 +265,84 @@ def test_check_users_and_roles_exist_invalid_json(tmp_path: Path):
     (root / "development" / "users.json").write_text("{not valid json")
     errors = cd.check_users_and_roles_exist(root)
     assert any("not valid JSON" in e for e in errors)
+
+
+def test_check_journal_exists_missing(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "journal.jsonl").unlink()
+    errors = cd.check_journal_exists(root)
+    assert any("INV-17" in e and "development/journal.jsonl is missing" in e
+               for e in errors)
+
+
+def test_check_journal_exists_empty_file_is_valid(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "journal.jsonl").write_text("")
+    assert cd.check_journal_exists(root) == []
+
+
+def test_check_journal_exists_rejects_malformed_json_line(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "journal.jsonl").write_text("{not valid json\n")
+    errors = cd.check_journal_exists(root)
+    assert any("journal.jsonl:1 is not valid JSON" in e for e in errors)
+
+
+def test_check_journal_exists_rejects_non_object_line(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "journal.jsonl").write_text("[1, 2, 3]\n")
+    errors = cd.check_journal_exists(root)
+    assert any("journal.jsonl:1 is not a JSON object" in e for e in errors)
+
+
+def test_check_journal_exists_rejects_missing_required_field(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    entry = json.loads(
+        (root / "development" / "journal.jsonl").read_text().strip()
+    )
+    del entry["intent"]
+    (root / "development" / "journal.jsonl").write_text(json.dumps(entry) + "\n")
+    errors = cd.check_journal_exists(root)
+    assert any("missing field 'intent'" in e for e in errors)
+
+
+def test_check_journal_exists_rejects_bad_file_hash(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    entry = json.loads(
+        (root / "development" / "journal.jsonl").read_text().strip()
+    )
+    entry["files"][0]["after"] = "not-a-hash"
+    (root / "development" / "journal.jsonl").write_text(json.dumps(entry) + "\n")
+    errors = cd.check_journal_exists(root)
+    assert any("not a 40-hex git hash or null" in e for e in errors)
+
+
+def test_check_journal_exists_null_hash_is_valid(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    entry = json.loads(
+        (root / "development" / "journal.jsonl").read_text().strip()
+    )
+    entry["files"][0]["after"] = None
+    (root / "development" / "journal.jsonl").write_text(json.dumps(entry) + "\n")
+    assert cd.check_journal_exists(root) == []
+
+
+def test_check_journal_exists_rejects_files_entry_missing_path(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    entry = json.loads(
+        (root / "development" / "journal.jsonl").read_text().strip()
+    )
+    entry["files"] = [{"before": None, "after": "a" * 40}]
+    (root / "development" / "journal.jsonl").write_text(json.dumps(entry) + "\n")
+    errors = cd.check_journal_exists(root)
+    assert any("missing 'path'" in e for e in errors)
+
+
+def test_check_journal_exists_ignores_blank_lines(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    existing = (root / "development" / "journal.jsonl").read_text()
+    (root / "development" / "journal.jsonl").write_text(existing + "\n\n   \n")
+    assert cd.check_journal_exists(root) == []
 
 
 def test_main_returns_zero_when_no_deployment(tmp_path: Path, monkeypatch, capsys):

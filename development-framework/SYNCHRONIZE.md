@@ -167,6 +167,13 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      run `/user-add` before considering the sync complete (INV-16's hard
      "at least one active user" requirement applies regardless of how the
      file came to exist).
+   - `development/journal.jsonl` (from `templates/journal.template.jsonl`
+     on first deploy — see `INVARIANTS.md` INV-17). Append-only: a sync
+     may create this file if missing, but must never rewrite, reorder, or
+     truncate a single existing line. A deployed project that predates
+     this requirement gets it created empty on its next sync — synchronizing
+     does not retroactively fabricate entries for history that predates
+     the journal's own existence.
    - `version.txt`
    - every documented slash command from `rules-of-development.template.md`
      §3 — the canonical list; this file must never re-enumerate a subset of

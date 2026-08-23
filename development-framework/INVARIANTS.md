@@ -58,6 +58,24 @@ faster and is the first thing a summarizer mangles.
   cannot verify who is actually typing. `/user-remove` never deletes a
   user's entry; it sets `"active": false`, and refuses (or warns) if doing
   so would leave zero active users.
+- **INV-17 — Append-only, replayable journal.** `development/journal.jsonl`
+  always exists (empty is fine). Every command that creates, modifies,
+  closes, or retires a rule-linked artifact, rule, domain, or work item, or
+  changes a `Status` field, appends exactly one entry — timestamp, actor,
+  command, action, artifact ID, `targets` (rule IDs, when applicable), one
+  or more `intent` statements (the goal driving the change, not just a
+  label), and, per touched file, its content hash immediately before and
+  immediately after (`git hash-object -w`, written to the object store so
+  it's retrievable independent of any commit; `null` for create/delete).
+  This makes the journal transaction-log-grade: replaying entries up to
+  any timestamp and materializing each file's last `after` hash as of
+  that point reconstructs the exact tree state then, via `/journal-restore`
+  into a side directory — never overwriting the live tree outright.
+  Entries are immutable once written: never edited, deleted, or reordered.
+  Complements — does not duplicate — the `catalyst-git` plugin's
+  continuous compliance auditing of a *deployed project*; this journal is
+  core, applies to catalyst's own deployment too, and records history
+  rather than flagging violations.
 
 ## Plugins
 

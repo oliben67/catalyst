@@ -379,3 +379,79 @@ every `Signed-off-by` reference already recorded against that name stays
 resolvable. A changed or removed role in `roles.json` likewise never
 retroactively changes a `Signed-off-by` value already recorded — that
 value reflects who signed it under the mapping in effect at the time.
+
+## 12. `rr-META-012` The journal is transaction-log-grade, not a changelog
+
+`development/journal.jsonl` — one JSON object per line, strictly
+append-only. A "changelog" narrates what happened; this journal is
+precise enough to **replay**: every entry carries exact content pointers,
+not just prose, so a point in time is mechanically reconstructable, not
+just describable.
+
+### Entry schema
+
+```json
+{
+  "timestamp": "2026-08-23T19:00:00Z",
+  "actor": "<name from development/users.json>",
+  "command": "/create-req",
+  "action": "create | update | close | retire | status-change | sync",
+  "artifact": "REQ-0001",
+  "targets": ["fw-STRUCTURE-003"],
+  "intent": ["one or more sentences — the goal driving this change, not a label"],
+  "files": [
+    {"path": "requirements/REQ-0001-foo.md", "before": null, "after": "a1b2c3...(40 hex)"},
+    {"path": "requirements/requirements.md", "before": "d4e5f6...", "after": "g7h8i9..."}
+  ]
+}
+```
+
+- **`targets`** — the rule ID(s) this change relates to, when applicable;
+  `[]` for non-rule-linked artifacts (`FEAT-`, `RM-`, users, roles). This
+  is the machine-readable half of the chain invariant (INV-5) — every
+  entry either names the rule(s) it serves or explicitly carries none,
+  never leaves it ambiguous.
+- **`intent`** — the *why*, as one or more full statements of purpose
+  (what the actor was trying to achieve), not a terse label. Plural
+  because one atomic change sometimes serves more than one goal (e.g.
+  "close a gap found while retrofitting a different rule" *and* "satisfy
+  the rule being retrofitted").
+- **`files[].before`/`files[].after`** — the `git hash-object` SHA-1 of
+  that file's content immediately before and immediately after this
+  change, computed **and written to the git object store** with
+  `git hash-object -w <path>` (not just computed) so the blob is
+  retrievable via `git cat-file -p <hash>` independent of whether
+  anything was ever committed or staged — this command never commits or
+  stages on its own (`INVARIANTS.md` INV-4). `null` means the file didn't
+  exist before (create) or doesn't exist after (delete).
+
+### Point-in-time restore
+
+To reconstruct the tree as of timestamp `T`: for every file path that
+appears in any entry with `timestamp <= T`, take that file's `after` hash
+from its **latest** such entry (or treat it as absent if that latest
+`after` is `null`), then materialize each into a side directory via
+`git cat-file -p <hash> > <side-dir>/<path>` — **never overwrite the live
+working tree directly**; that's the user's call once they've reviewed the
+reconstruction. `/journal-restore <timestamp>` performs exactly this.
+
+### What must append an entry
+
+Every command that creates, modifies, closes, or retires a rule-linked
+artifact, rule, domain, or work item, or changes a `Status` field
+(`CODE-OF-CONDUCT.md` §9) — resolve every touched file's `before` hash
+*before* editing it, make the edit, then compute+write its `after` hash,
+append one entry covering every file the command touched, then report the
+result. This is the last step of the command, after everything else it
+already does — it does not replace any of a command's existing steps.
+
+### Complements, does not duplicate, `catalyst-git`
+
+The `catalyst-git` plugin continuously audits a *deployed project* for
+rule violations and writes pass/fail reports to `audits/` (INV-13: never
+catalyst's own repository). This journal is core framework
+infrastructure — it applies to catalyst's own self-deployment too — and
+it records history for reconstruction, not violations for alerting. A
+project may have both: the journal answers "what changed and why, and can
+I get back to how it was," `catalyst-git` answers "did anything just
+break a rule."
