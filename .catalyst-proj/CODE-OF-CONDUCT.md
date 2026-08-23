@@ -132,6 +132,11 @@ feature's `Roadmap` field.
   not "empty is fine," since a project with nobody registered has nobody
   to sign work. Both files are managed only by the `/user-*`/`/role-*`
   commands (§2, §4), never hand-edited. See `INVARIANTS.md` INV-16.
+- **This is a hard requirement.** `development/journal.jsonl` always
+  exists (empty is fine). Once a line is appended it is never edited,
+  deleted, or reordered — stricter than every other "never hand-edited"
+  rule above, since even the commands that write to it only ever append.
+  See `INVARIANTS.md` INV-17 and §9.
 
 - **Bug**: an existing ✅ rule doesn't actually hold in the running system,
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
@@ -279,6 +284,13 @@ The framework exposes the following custom slash commands:
   refresh `development/BACKLOG.md` with the result, and refresh every
   active `development/roadmaps/<name>.md`'s Status/Linked columns from
   the `FEAT-`/`REQ-` each row is linked to.
+- `/journal [--since <date>] [--artifact <id>] [--actor <name>] [--rule
+  <id>]` — read-only: filter and report `development/journal.jsonl`
+  entries. Never writes to the journal (see §9).
+- `/journal-restore <timestamp>` — read-only: reconstruct the tree as it
+  stood at `<timestamp>` into a side directory, from the journal's
+  before/after file hashes (`Rules-of-Rules.md` §12). Never overwrites the
+  live working tree.
 - `/help` — return help documentation for the framework or for a specific
   command when provided.
 
@@ -554,6 +566,28 @@ file write is optional — a stale `BACKLOG.md`, or any roadmap file that
 doesn't match the last `/show-backlog` run, is itself a bug in the
 deployment.
 
+When the user enters `/journal [--since <date>] [--artifact <id>]
+[--actor <name>] [--rule <id>]`, read `development/journal.jsonl` (one
+JSON object per line) and apply whichever filters were given — `--since`
+on `timestamp`, `--artifact` on `artifact`, `--actor` on `actor`,
+`--rule` on membership in `targets`. Report the matching entries in
+timestamp order: what changed, who, which command, which rule(s), and
+each entry's `intent`. If the journal doesn't exist or is empty, say so
+rather than inventing history. This command never appends to the journal
+itself.
+
+When the user enters `/journal-restore <timestamp>`, read
+`development/journal.jsonl` and, for every file path that appears in any
+entry with `timestamp <= <timestamp>`, take that path's `after` hash from
+its latest such entry (skip the path entirely if that latest `after` is
+`null` — the file didn't exist at that point). Materialize each into a
+new side directory (e.g. `.catalyst-proj/.journal-restore/<timestamp>/`)
+via `git cat-file -p <hash>` — **never write into the live working
+tree**. Report the side directory's path and which files it contains. If
+a referenced hash isn't retrievable from the git object store (was never
+written with `-w`, or the repository was pruned), report that file as
+unrecoverable rather than silently omitting it.
+
 When the user enters `/help` without any additional entry, list all supported
 custom slash commands and their purpose, then list every artifact type and its
 purpose in a compact reference format. When the user enters `/help <command>`,
@@ -604,3 +638,36 @@ retiring a rule never auto-closes the artifacts that cite it. Each is
 closed on its own, citing the other's ID and the reason, so the history
 stays traceable in both directions rather than one silently orphaning the
 other.
+
+## 9. Journaling
+
+`development/journal.jsonl` is an append-only, transaction-log-grade
+record — see `Rules-of-Rules.md` §12 for the full entry schema (exact
+before/after `git hash-object -w` content pointers per file, one or more
+`intent` statements, the `targets` rule IDs) and the point-in-time
+restore mechanism (`/journal-restore`, materializes a reconstructed tree
+into a side directory — never overwrites the live tree).
+
+**Every command in §4 that creates, modifies, closes, or retires a
+rule-linked artifact, rule, domain, or work item, or changes a `Status`
+field, appends exactly one journal entry as its last step** — after
+everything that command's own section above already specifies, not
+instead of any of it. Concretely: resolve each touched file's `before`
+hash before editing it, make the edit(s), compute and write each file's
+`after` hash, then append one entry covering every file the command
+touched. Entries are immutable — never edited, deleted, or reordered
+afterward, the same "never delete, retire in place" principle as a
+retired rule (`Rules-of-Rules.md` §4) applies here in its strictest
+form: nothing about a written entry ever changes, period.
+
+Two read-only commands operate on the journal without writing to it
+themselves: `/journal [--since <date>] [--artifact <id>] [--actor <name>]
+[--rule <id>]` reconstructs/filters the history for review, and
+`/journal-restore <timestamp>` materializes the tree as it stood at that
+point into a side directory for inspection.
+
+This is core framework infrastructure, distinct from the `catalyst-git`
+plugin's continuous rule-compliance auditing of a *deployed* project
+(`INVARIANTS.md` INV-13) — the journal applies to catalyst's own
+self-deployment too, and answers "what changed, why, and can I get back
+to how it was," not "did anything just break a rule."

@@ -29,8 +29,12 @@ development/
   roadmaps/                Named roadmaps (none yet — add one via /roadmap-add)
   users.json               Registered users — managed only by /user-*
   roles.json                Role → action mapping — managed by /role-add, /role-modify
+  journal.jsonl             Append-only, transaction-log-grade change history —
+                             see rules/Rules-of-Rules.md §12
 work-items/               EPIC/STORY/TASK/SPIKE/SPRINT (none yet)
-version.txt               0.7.1 — matches development-framework/version.txt
+version.txt               0.7.1 — the framework version this was deployed against;
+                           not bumped in lockstep with development-framework/version.txt
+                           (that's /sync-framework's job, not a manual edit)
 ```
 
 ## Folder guides
@@ -49,18 +53,24 @@ multiple rule documents. See `rules/Rules-of-Rules.md` §2.
 
 ## Current state
 
-- 16 rules retrofitted from `INVARIANTS.md`, honestly marked: ✅ where a
+- 17 rules retrofitted from `INVARIANTS.md`, honestly marked: ✅ where a
   `scripts/check_*.py` function + test actually enforces it, ⚠️ where the
   invariant is behavioural (agent conduct during a session) rather than
   machine-checkable from a tree snapshot.
 - One registered user (`development/users.json`), satisfying the hard
   "at least one active user" requirement (`fw-STRUCTURE-008`).
+- `development/journal.jsonl` exists but is empty — no entries yet, since
+  journaling and this deployment's own bootstrap happened in the same
+  pass, before any command had a chance to append to it.
 - No bugs, requirements, features, roadmaps, or work items yet — this
   deployment installs the skeleton and retrofits the already-known
   invariants; it does not invent new work. See `development/BACKLOG.md`
   for what a fuller retrofit pass (`/run-analysis`) would need to close.
 
-## Not committed
+## Commit status
 
-This deployment has not been committed or pushed (`INVARIANTS.md`
-INV-4). Review it, then explicitly say so if you want it committed.
+The original deployment (rules, skeleton, first user) was committed and
+pushed to `development` in a prior session. Anything added since —
+including the journal itself — has not yet been committed or pushed
+(`INVARIANTS.md` INV-4); review it, then explicitly say so if you want it
+committed.

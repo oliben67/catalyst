@@ -23,6 +23,7 @@ Global index of every rule document and rule ID in this deployment. Per
 - `fw-STRUCTURE-006` — Persisted backlog
 - `fw-STRUCTURE-007` — Machine-maintained roadmap tracking
 - `fw-STRUCTURE-008` — At least one active user; advisory role signing
+- `fw-STRUCTURE-009` — Append-only, replayable journal
 - `fw-PLUGINS-001` — Activation gate
 - `fw-PLUGINS-002` — Plugin provenance
 - `fw-PLUGINS-003` — Contract is canonical + stable

@@ -2,7 +2,7 @@
 """Validate a deployed .catalyst-proj/ against catalyst's structural invariants.
 
 This is the enforcement layer of the anti-drift architecture: the invariants an
-agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16) are re-checked here deterministically, so
+agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16, INV-17) are re-checked here deterministically, so
 they hold every time regardless of what any agent or human did. Mirrors the
 existing scripts/check_plugins.py pattern.
 
@@ -27,6 +27,12 @@ NAME_RE = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*-[a-z0-9][a-z0-9-]*\.md$", re
 # satisfies the same character class as a real summary word would.
 BARE_ID_RE = re.compile(r"-\d+\.md$", re.I)
 TEMPLATE_RE = re.compile(r"^TEMPLATE-[A-Z-]+\.md$")
+# git hash-object is a 40-char hex SHA-1.
+HASH_RE = re.compile(r"^[0-9a-f]{40}$")
+JOURNAL_REQUIRED_FIELDS = (
+    "timestamp", "actor", "command", "action", "artifact", "targets",
+    "intent", "files",
+)
 INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
@@ -166,6 +172,49 @@ def check_users_and_roles_exist(root: Path) -> list[str]:
     return errors
 
 
+def check_journal_exists(root: Path) -> list[str]:
+    """INV-17: development/journal.jsonl always exists; every non-blank
+    line is a well-formed, schema-complete entry."""
+    journal = root / "development" / "journal.jsonl"
+    if not journal.is_file():
+        return ["INV-17: development/journal.jsonl is missing — seed it "
+                "(empty) from templates/journal.template.jsonl"]
+
+    errors: list[str] = []
+    text = journal.read_text(encoding="utf-8", errors="ignore")
+    for lineno, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError as exc:
+            errors.append(f"INV-17: journal.jsonl:{lineno} is not valid JSON: {exc}")
+            continue
+        if not isinstance(entry, dict):
+            errors.append(f"INV-17: journal.jsonl:{lineno} is not a JSON object")
+            continue
+        for field in JOURNAL_REQUIRED_FIELDS:
+            if field not in entry:
+                errors.append(f"INV-17: journal.jsonl:{lineno} missing "
+                              f"field '{field}'")
+        files = entry.get("files")
+        if isinstance(files, list):
+            for f in files:
+                if not isinstance(f, dict) or "path" not in f:
+                    errors.append(f"INV-17: journal.jsonl:{lineno} has a "
+                                  f"files[] entry missing 'path'")
+                    continue
+                for side in ("before", "after"):
+                    val = f.get(side)
+                    if val is not None and not HASH_RE.match(str(val)):
+                        errors.append(
+                            f"INV-17: journal.jsonl:{lineno} {f.get('path')} "
+                            f"'{side}' is not a 40-hex git hash or null"
+                        )
+    return errors
+
+
 def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
@@ -181,6 +230,7 @@ def main() -> int:
     errors += check_backlog_exists(root)
     errors += check_roadmaps_index_exists(root)
     errors += check_users_and_roles_exist(root)
+    errors += check_journal_exists(root)
 
     if errors:
         print(f"catalyst deployment validation FAILED ({len(errors)} issue(s)):")
