@@ -10,6 +10,22 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] `INVARIANTS.md` read this session
 - [ ] Capabilities resolved and fallbacks chosen (`BOOTSTRAP.md §1`); mode stated
 - [ ] Confirmed this is a first load ⇒ install now (INV-2)
+- [ ] Path chosen: greenfield — no code yet (`INSTANTIATION-GUIDE.md §3`) /
+      retrofit — existing code, no rules yet (`§4`) / neither, skeleton only
+
+## Greenfield path (only if chosen above, `INSTANTIATION-GUIDE.md §3`)
+- [ ] Dedicated dev-environment rule document + prefix picked (e.g. `env`),
+      added to the rule document list
+- [ ] Decision areas worked with the user: runtime/language, dependency
+      policy, code style, testing, CI/CD, local dev environment, repo layout
+      (skip/add per project)
+- [ ] Each area's `domains/<prefix>-<CODE>-<short-description>.md` created
+      before its rule bullets (per `Rules-of-Rules.md` §7)
+- [ ] Each rule implemented in the same pass (real config files created:
+      package manifest, linter config, CI workflow, devcontainer, etc.)
+- [ ] Each rule's "tested" bar met — tool/CI runs clean against the scaffold
+- [ ] `{{TEST_LOCATIONS}}` for `Rules-of-Rules.md` §2 resolved from the
+      testing decision
 
 ## Discover
 - [ ] `dev-instructions.yaml` located, or user asked for the project name
@@ -33,6 +49,8 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] First rule document(s) created with `## Contents` + `## Known Bugs — Quick
       Index` headings (INV-8)
 - [ ] Starter requirement doc created, tied to concrete screens/flows/components
+      — on the greenfield path, the dev-environment rule document stands in for
+      this since there is no product behavior yet
 - [ ] Every seeded rule/domain file follows `<id>-<short-summary>.md` (INV-7)
 
 ## Discoverability
@@ -50,4 +68,6 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Every item above `[x]` in the ledger; no silent skips
 - [ ] `scripts/check_deployment.py` passes against `.catalyst-proj/`
 - [ ] Deployed tree presented to user; **no commit/push yet** (INV-4)
-- [ ] If no work items exist yet, offered to run `ANALYSIS-PLAYBOOK.md`
+- [ ] On the retrofit path, if no work items exist yet, offered to run
+      `ANALYSIS-PLAYBOOK.md` (not applicable on the greenfield path — it reads
+      an existing codebase)

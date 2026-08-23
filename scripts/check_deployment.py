@@ -21,6 +21,10 @@ from pathlib import Path
 DEPLOY_DIRNAME = ".catalyst-proj"
 # <id>-<short-summary>.md ; id like req-0001, bug-0007, rule prefixes, domains, etc.
 NAME_RE = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*-[a-z0-9][a-z0-9-]*\.md$", re.I)
+# A trailing all-digit segment (e.g. "br-AUTH-002.md") is a bare ID with no
+# descriptive summary — NAME_RE alone can't reject it, since a run of digits
+# satisfies the same character class as a real summary word would.
+BARE_ID_RE = re.compile(r"-\d+\.md$", re.I)
 TEMPLATE_RE = re.compile(r"^TEMPLATE-[A-Z-]+\.md$")
 INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
@@ -51,7 +55,7 @@ def check_naming(root: Path) -> list[str]:
             name = f.name
             if name in INDEX_NAMES or TEMPLATE_RE.match(name):
                 continue
-            if not NAME_RE.match(name):
+            if not NAME_RE.match(name) or BARE_ID_RE.search(name):
                 errors.append(f"INV-7 naming: {f.relative_to(root)} is not "
                               f"<id>-<short-summary>.md")
     return errors

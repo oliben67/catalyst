@@ -190,7 +190,58 @@ Nothing below the work-items layer changes. Above it:
   process vocabulary your team actually uses, as long as it still
   bottoms out in `REQ-`/`BUG-`/`HK-` docs.
 
-## 3. Retrofitting an existing project
+## 3. Greenfield path — no existing code or practices
+
+Use this path when the target project has no code yet (or only a bare
+scaffold) and therefore has no practices to retrofit rules from — the
+mirror image of §4. Instead of extracting rules from what already
+exists, this path establishes the foundational tooling, stack, and dev-
+environment decisions **as rules, before the first line of application
+code is written**, so the codebase is born governed rather than governed
+after the fact.
+
+1. Pick (or confirm with the user) a dedicated rule document for these
+   decisions — e.g. `dev-environment-rules.md` with a short prefix such
+   as `env` or `dx` — separate from the application's business/UI rule
+   documents, since these rules govern the toolchain and workflow, not
+   product behavior. Add it to the rule document list from §1 step 1.
+2. Work through the foundational decision areas with the user, one
+   domain per area, creating each `domains/<prefix>-<CODE>-<short-description>.md`
+   file per §7 before writing rule bullets under it. Typical areas
+   (skip any that don't apply to the project, add any it needs):
+   - **Runtime/language** — language, version, package manager.
+   - **Dependency policy** — what may be added and how (lockfiles,
+     approval, vetting).
+   - **Code style** — linter, formatter, and their configs.
+   - **Testing** — test framework, coverage tool, and where tests live.
+     This also fills in `{{TEST_LOCATIONS}}` in `Rules-of-Rules.md` §2
+     for every rule created afterward, including application rules.
+   - **CI/CD** — pipeline provider, what gates a merge.
+   - **Local dev environment** — how a new contributor gets running
+     (devcontainer, Docker Compose, Nix, a setup script — whatever the
+     project uses), and any required environment variables/secrets
+     handling.
+   - **Repo/module layout** — the directory conventions the codebase
+     will follow.
+3. For each decision, write the rule *and* implement it in the same
+   pass: create the actual config file (`package.json`, `.eslintrc`, the
+   CI workflow, the devcontainer, etc.) as part of satisfying
+   `Rules-of-Rules.md` §2 (gathered/implemented/tested/documented). A
+   tooling rule's "tested" bar is that the tool actually runs clean
+   against the (still-empty) scaffold — e.g. the linter exits zero, the
+   CI workflow runs green — not a unit test.
+4. Once the dev-environment rule document has its first pass of domains
+   and rules, continue with §1 steps 2 onward to deploy the rest of the
+   framework skeleton (work-items, requirements, features) around it.
+   That rule document stands in for the starter requirements doc in §1
+   step 8 — there is no product behavior yet to write requirements
+   against.
+5. As soon as real application code starts, that work is a normal `REQ-`
+   (per `CODE-OF-CONDUCT.md` §1) against a business/UI rule document
+   created the usual way — the greenfield path only front-loads the
+   tooling layer, it does not replace the rest of the chain.
+
+## 4. Retrofitting an existing project
 
 1. Do **not** try to write every rule up front. Start with
    `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`,
@@ -208,7 +259,7 @@ Nothing below the work-items layer changes. Above it:
    pause and ask the user questions so the final rule reflects the
    project’s intent rather than an arbitrary choice.
 3. As each functional domain is identified, create its
-   `domains/<prefix>-<CODE>-<short-description>.md` file per §6 before adding rule bullets
+   `domains/<prefix>-<CODE>-<short-description>.md` file per §7 before adding rule bullets
    under it.
 4. Retrofit IDs onto existing prose bullets (if a rules doc already
    exists in some other form) in document order, per §3 — top-level
@@ -225,7 +276,7 @@ Nothing below the work-items layer changes. Above it:
    This keeps the project's concrete process traceable back to the
    generic framework as the framework itself evolves.
 
-## 4. Keeping the two in sync
+## 5. Keeping the two in sync
 
 When a process rule changes in a project (e.g. this repo adds a new
 `rr-META-NNN`), evaluate whether it's project-specific or a generally
@@ -237,7 +288,7 @@ replacement for what is already there. If a conflict cannot be resolved
 from the existing context, stop and ask the user targeted questions
 before continuing.
 
-## 5. Remember the deployment target across sessions
+## 6. Remember the deployment target across sessions
 
 After a successful instantiation, record the project root path and the
 project deployment path (`.catalyst-proj/`) in the persistent memory store
@@ -258,7 +309,10 @@ already exists for that project, update it instead of creating a duplicate.
 This makes the association durable across sessions and keeps the project's
 instantiated ruleset available whenever the guide is used again.
 
-At the end of a successful instantiation, if the new project currently has
-no bugs, features, house-keeping items, or other tracked work items yet,
-propose running [`analysis-playbook.md`](analysis-playbook.md) next to help
-bootstrap the first round of project-specific rules and evidence.
+At the end of a successful instantiation via the retrofit path (§4), if the
+project currently has no bugs, features, house-keeping items, or other
+tracked work items yet, propose running
+[`analysis-playbook.md`](analysis-playbook.md) next to help bootstrap the
+first round of project-specific rules and evidence — it reads an existing
+codebase, so it does not apply after the greenfield path (§3), whose
+dev-environment rule document already is the first round of rules.

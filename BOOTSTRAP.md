@@ -93,8 +93,12 @@ the guide:
    assent before any git write (hard rule 4).
 
 For an existing codebase with no prior rules, follow the retrofit path
-(`INSTANTIATION-GUIDE.md §3`) and, once the skeleton exists, offer to run
+(`INSTANTIATION-GUIDE.md §4`) and, once the skeleton exists, offer to run
 `development-framework/ANALYSIS-PLAYBOOK.md` to bootstrap the first real rules.
+For a codebase with no code yet — greenfield: stack, tooling, dev environment,
+CI all still to be chosen — follow the greenfield path
+(`INSTANTIATION-GUIDE.md §3`) instead, which establishes those decisions as the
+first rules before any application code is written.
 
 ---
 

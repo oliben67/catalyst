@@ -85,7 +85,7 @@ def parse_catalog_pins(type_dir: Path) -> dict[str, dict[str, str]]:
 
 def normalize_url(url: str) -> str:
     url = url.strip().rstrip("/")
-    url = re.sub(r"\.git$", "", url)
+    url = re.sub(r"\.git$", "", url, flags=re.I)
     url = re.sub(r"^git@([^:]+):", r"\1/", url)     # git@host:owner/repo
     url = re.sub(r"^[a-z]+://", "", url, flags=re.I)  # scheme://
     url = re.sub(r"^[^@/]+@", "", url)               # user@host
@@ -120,7 +120,10 @@ def find_plugins() -> list[Path]:
 
 def validate_plugin(plugin_dir: Path, framework_url: str | None) -> list[str]:
     errors: list[str] = []
-    rel = plugin_dir.relative_to(ROOT)
+    try:
+        rel = plugin_dir.relative_to(ROOT)
+    except ValueError:
+        rel = plugin_dir
     contract = plugin_dir / "working-contract.md"
     fields = parse_metadata(contract)
 
