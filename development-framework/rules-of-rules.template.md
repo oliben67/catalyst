@@ -455,3 +455,148 @@ it records history for reconstruction, not violations for alerting. A
 project may have both: the journal answers "what changed and why, and can
 I get back to how it was," `catalyst-git` answers "did anything just
 break a rule."
+
+## 13. `rr-META-013` Repoed deployments: `thingamabob` and per-user branches
+
+Every deployment's `.catalyst-proj/` is a **local working copy**
+(`INVARIANTS.md` INV-6 — that never changes). A deployment additionally
+becomes **repoed** when `DEPLOYMENT.md` records `repoed: true`,
+`catalyst_repo`, `catalyst_repo_url`, and `created_by`: from then on, its
+canonical, shared state also lives in a dedicated repository, letting
+multiple users/instances of the same deployed project converge on one
+agreed-upon `.catalyst-proj/` rather than silently diverging. This is
+opt-in — most deployments never need it.
+
+### Bootstrap and branching: `/thingamabob create <name> <git-info>`
+
+**First call for this deployment** (not yet repoed): establishes the
+dedicated repo. If `<git-info>` doesn't already exist, create it there
+(named `<name>`, conventionally `<project-name>-catalyst-proj` but not
+enforced); if it already exists, register it as-is rather than
+recreating it. Record `repoed: true`, `catalyst_repo: <name>`,
+`catalyst_repo_url: <git-info>`, `created_by: <the current Signed-off-by
+actor>` in `DEPLOYMENT.md`, then push the current local `.catalyst-proj/`
+state as the first commit on a branch named `thingamabob` — the
+**master version**: the canonical branch every subsequent push targets.
+Nothing is vetted on this first push; there's nothing yet to vet it
+against.
+
+**Called again, already repoed:** does not refuse. If `<git-info>`
+matches the already-registered `catalyst_repo_url`, this **branches the
+repo**: create a new branch, named `<name>` in its branch-safe form (see
+below), seeded from `thingamabob`'s current state — a fresh line of work
+that doesn't touch `thingamabob` or `created_by`. If `<git-info>` names a
+*different* repo than the one already registered, that's unusual enough
+to confirm explicitly with the user before proceeding (adding a second,
+independent dedicated repo for one deployment, rather than the ordinary
+branching case) rather than silently doing either.
+
+### Joining: `/thingamabob get <repo> <username>`
+
+For a user who doesn't have a local `.catalyst-proj/` copy of an
+already-repoed deployment yet — the "join" path, distinct from `create`
+(which is for establishing or branching the repo itself). Validate
+`<username>` per the branch-safe-name rule below, refusing with a
+suggested alternative if it doesn't survive sanitization uniquely.
+Download `<repo>`'s current `thingamabob` branch content and check out a
+new branch for it named `<username>.catalyst-proj` (in its branch-safe
+form) — this materializes as this user's local `.catalyst-proj/`, ready
+for `/thingamabob push` from there on. This is a valid alternative to the
+normal `INSTANTIATION-GUIDE.md` install flow when the project is already
+repoed elsewhere: join what exists rather than re-instantiating from the
+framework templates.
+
+### Branch-safe names
+
+Every git ref name this mechanism derives from a person's identity — the
+`<name>` in a branching `/thingamabob create` call, `/thingamabob get`'s
+`<username>`, and (before a user has a `git_username` — see below) the
+push-branch name derived from `Signed-off-by` — uses that name's
+**branch-safe form**: lowercase, every run of characters that
+isn't `[a-z0-9]` collapsed to a single `-`, leading/trailing `-` trimmed.
+A registered display name like "Olivier Steck" is not itself a valid git
+ref component (`olivier-steck` is); this is deterministic and applied
+uniformly, never skipped because a name happens to already look
+git-safe. If two distinct registered names would collapse to the same
+branch-safe form, refuse and ask for a manual override rather than
+silently colliding two people's branches.
+
+### Identity migration: `git_username`
+
+The moment a user's real git identity becomes known to catalyst — the
+current actor running `/thingamabob create` (resolved from `git config
+user.name`, branch-safe form applied), or a joining user via
+`/thingamabob get <repo> <username>` (`<username>` *is* their git
+identity, given explicitly) — that value is written as `git_username` on
+their `development/users.json` entry, alongside (not replacing) `name`.
+**From that point on, every `Signed-off-by` field and every journal
+`actor` field this framework writes for that user uses `git_username`
+instead of `name`.**
+
+Existing artifacts are handled differently from the journal, deliberately:
+
+- **Artifacts** (`bugs/`, `requirements/`, `features/`, roadmap rows,
+  work items) are living documents, not a log. Every existing
+  `Signed-off-by` occurrence that currently names this user's old `name`
+  is rewritten in place to their new `git_username` — this is what "the
+  signature of everything done before is updated" means concretely.
+- **The journal is never rewritten.** INV-17 makes it immutable —
+  entries are never edited, deleted, or reordered, full stop, and that
+  guarantee does not bend for identity migration either. Instead, the
+  migration itself gets **one new entry appended**: `command:
+  "/thingamabob create"` (or `"/thingamabob get"`), `action: "update"`,
+  `intent: ["migrate <old name>'s signing identity to git_username
+  <git_username> for all operations henceforth"]`, and `files` covering
+  every artifact file actually rewritten, with real before/after hashes
+  like any other change. The history before the migration still reads
+  "signed by `<name>`," truthfully — that's what happened at the time —
+  and the migration entry is what makes the *why* of the shift
+  reconstructable later, consistent with the whole point of §12.
+
+### Sync: `/thingamabob push`
+
+Refuses if this deployment isn't repoed yet (point to `/thingamabob
+create`). Push the local `.catalyst-proj/` state to the current actor's
+branch — `<git_username>.catalyst-proj` once they have one, otherwise the
+branch-safe form of `name` — in the dedicated repo (creating that branch
+if it's this user's first push, the same branch `/thingamabob get` would
+have created for them if they joined that way instead). Then:
+
+1. **Vet** the incoming branch against `thingamabob`: run `/dogfood`
+   (`CODE-OF-CONDUCT.md` §4) against the merged-in state — the same
+   `/check-rules` + four-eyes sub-agent check available standalone,
+   reused here rather than re-described. Disagreement between the two
+   sub-agents, or a rule violation either flags, is not silently
+   resolved — surface it and stop short of merging.
+2. **Merge** using AI where a plain merge can't resolve it: attempt a
+   normal merge of the branch into `thingamabob` first; only where that
+   leaves conflicts (git-level, or a vetting-flagged semantic clash), a
+   sub-agent proposes a resolution guided by `rr-META-001`'s own
+   conflict-check principle — never silently drop either side's
+   rule-compliant intent, and if the conflict is genuinely irreconcilable,
+   stop and prompt the user rather than guessing which side wins.
+3. **Update both branches** with the merged result: `thingamabob` gets
+   the merge commit, and the contributor's own push branch (above) is
+   fast-forwarded to match, so their next push starts from the
+   already-merged state instead of re-triggering the same merge.
+4. **Refresh the local copy**: pull the updated `thingamabob` down and
+   overwrite the local `.catalyst-proj/` directory (and this session's own
+   in-memory record of it) to match — the local copy never silently drifts
+   from what was just agreed upon remotely.
+
+### `--force`
+
+`/thingamabob push --force` skips vetting and merging entirely and
+overwrites `thingamabob` directly with the local state — the same
+destructive-shortcut shape as `/sync-framework --force`, and gated the
+same way access to anything destructive is gated in this framework:
+**refused for anyone other than the repo's recorded `created_by` user.**
+Every other contributor only ever gets the vetted-and-merged path.
+
+### What this is not
+
+Not a replacement for `/sync-framework` (that synchronizes the *framework
+template* into a deployment; this synchronizes one deployment's *own
+state* across its contributors) and not a substitute for the journal
+(§12) — a `thingamabob` merge is itself a change subject to the same
+journaling rule as any other, once it lands locally.
