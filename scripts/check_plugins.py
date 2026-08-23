@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GITMODULES = ROOT / '.gitmodules'
-PLUGINS_DIR = ROOT / 'plugins'
 
 
-def run_git(args: list[str]) -> str:
-    return subprocess.check_output(['git', *args], cwd=ROOT, text=True)
+def run_git(args: list[str], cwd: Path) -> str:
+    return subprocess.check_output(['git', *args], cwd=cwd, text=True)
 
 
-def load_submodule_entries() -> list[tuple[str, str]]:
-    if not GITMODULES.exists():
+def load_submodule_entries(root: Path) -> list[tuple[str, str]]:
+    gitmodules = root / '.gitmodules'
+    if not gitmodules.exists():
         return []
     entries: list[tuple[str, str]] = []
     current = None
-    for raw in GITMODULES.read_text().splitlines():
+    for raw in gitmodules.read_text().splitlines():
         line = raw.strip()
         if line.startswith('[') and line.endswith(']'):
             current = line[1:-1]
@@ -28,9 +29,9 @@ def load_submodule_entries() -> list[tuple[str, str]]:
     return entries
 
 
-def validate_plugin_structure() -> list[str]:
+def validate_plugin_structure(root: Path) -> list[str]:
     errors: list[str] = []
-    plugin_root = PLUGINS_DIR / 'repository'
+    plugin_root = root / 'plugins' / 'repository'
     if not plugin_root.exists():
         return ['plugins/repository directory is missing']
 
@@ -42,32 +43,28 @@ def validate_plugin_structure() -> list[str]:
         readme = path / 'README.md'
         contract = path / 'working-contract.md'
         if not readme.exists():
-            errors.append(f'{path.relative_to(ROOT)}/README.md is missing')
+            errors.append(f'{path.relative_to(root)}/README.md is missing')
         if not contract.exists():
-            errors.append(f'{path.relative_to(ROOT)}/working-contract.md is missing')
+            errors.append(f'{path.relative_to(root)}/working-contract.md is missing')
 
     return errors
 
 
-def validate_submodule_policy() -> list[str]:
+def validate_submodule_policy(root: Path) -> list[str]:
     errors: list[str] = []
-    entries = load_submodule_entries()
+    entries = load_submodule_entries(root)
     plugin_entries = [(name, path) for name, path in entries if path.startswith('plugins/')]
     for _, path in plugin_entries:
-        if not (ROOT / path).exists():
+        if not (root / path).exists():
             errors.append(f'{path} is not present in the workspace')
     return errors
 
 
-def validate_plugin_sources() -> list[str]:
+def parse_submodule_status(status: str, plugin_paths: set[str]) -> list[str]:
+    """Pure parse of `git submodule status` output. A leading '-' means the
+    submodule is not initialized/checked out; only flagged for tracked plugin
+    paths."""
     errors: list[str] = []
-    entries = load_submodule_entries()
-    plugin_paths = {path for _, path in entries if path.startswith('plugins/')}
-    try:
-        status = run_git(['submodule', 'status'])
-    except subprocess.CalledProcessError as exc:
-        return [f'git submodule status failed: {exc}']
-
     for line in status.splitlines():
         if not line.strip():
             continue
@@ -78,11 +75,21 @@ def validate_plugin_sources() -> list[str]:
     return errors
 
 
+def validate_plugin_sources(root: Path) -> list[str]:
+    entries = load_submodule_entries(root)
+    plugin_paths = {path for _, path in entries if path.startswith('plugins/')}
+    try:
+        status = run_git(['submodule', 'status'], cwd=root)
+    except subprocess.CalledProcessError as exc:
+        return [f'git submodule status failed: {exc}']
+    return parse_submodule_status(status, plugin_paths)
+
+
 def main() -> int:
     errors = []
-    errors.extend(validate_plugin_structure())
-    errors.extend(validate_submodule_policy())
-    errors.extend(validate_plugin_sources())
+    errors.extend(validate_plugin_structure(ROOT))
+    errors.extend(validate_submodule_policy(ROOT))
+    errors.extend(validate_plugin_sources(ROOT))
 
     if errors:
         print('Plugin rule validation failed:')
