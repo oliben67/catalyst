@@ -9,6 +9,7 @@
 | **Requirement doc** | `REQ-NNNN` — the corresponding entry, which owns rule-compliance bookkeeping. Create it first if it doesn't exist |
 | **Points** | story-point estimate |
 | **Domain** | `DOMAIN` code(s), from the linked requirement/rule IDs |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this story — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Story
 

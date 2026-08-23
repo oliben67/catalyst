@@ -5,6 +5,7 @@
 | **ID** | `SPRINT-NNN` |
 | **Dates** | YYYY-MM-DD – YYYY-MM-DD |
 | **Status** | planning / active / review / closed |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this sprint — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Sprint goal
 

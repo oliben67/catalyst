@@ -10,8 +10,8 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
   and `model: opus` for the long reading passes in `ANALYSIS-PLAYBOOK.md`.
 - **Persistent memory:** record the deployment target note there.
 - **Slash commands:** create one native command file per entry in
-  `CODE-OF-CONDUCT.md` §3 (the deployed copy of
-  `development-framework/rules-of-development.template.md` §3 — that's the
+  `CODE-OF-CONDUCT.md` §4 (the deployed copy of
+  `development-framework/rules-of-development.template.md` §4 — that's the
   canonical, complete list; never hand-maintain a shortlist elsewhere, it
   drifts out of sync with the real command set). For each command:
   - Path: `.claude/commands/<name>.md`, in the **target project's** root
@@ -22,7 +22,7 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
     frontmatter (`description`, `argument-hint` only; don't reach for
     less-certain frontmatter fields without verifying the running Claude
     Code version actually supports them first), with a body that points
-    back to the deployed `CODE-OF-CONDUCT.md` §3 as the canonical spec
+    back to the deployed `CODE-OF-CONDUCT.md` §4 as the canonical spec
     rather than duplicating its behavior inline, so the command stays
     correct across a `/sync-framework` without needing its own edit.
   - This is part of the instantiation procedure itself

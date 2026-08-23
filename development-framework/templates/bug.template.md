@@ -10,6 +10,7 @@
 | **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `CODE-OF-CONDUCT.md` §1) |
 | **Domain** | the `DOMAIN` code(s) of the targeted rule(s), from `{{RULES_DIR}}/domains/` |
 | **Area** | short free-text area label |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this bug — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Severity scale
 

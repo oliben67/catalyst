@@ -26,7 +26,9 @@ it exists.
 | **Status** | idea / proposed / planned / in-development / shipped / dropped |
 | **Opened** | YYYY-MM-DD |
 | **Area** | free-text product/functional area label |
+| **Roadmap** | `RM-NNNN` this feature was triaged from, if any — empty if it didn't originate from an ingested `development/roadmaps/<name>.md` item |
 | **Requirement(s)** | `REQ-NNNN` list, filled in once development starts — empty while still an idea |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this entry — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
 

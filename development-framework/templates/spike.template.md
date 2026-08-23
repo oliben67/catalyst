@@ -9,6 +9,7 @@ Time-boxed research/investigation, not a commitment to build anything.
 | **Parent** | `STORY-NNNN` or `EPIC-NNNN` this unblocks |
 | **Timebox** | e.g. "1 day" — hard stop, not an estimate |
 | **Related rule(s)** | existing rule ID(s) concerned, if any |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this spike — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Question
 

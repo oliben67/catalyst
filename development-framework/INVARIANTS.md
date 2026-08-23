@@ -41,6 +41,23 @@ faster and is the first thing a summarizer mangles.
   seeded from `templates/backlog.template.md`. It is never hand-edited —
   `/show-backlog` overwrites it in full every run, so it can't drift from
   the real indexes.
+- **INV-15 — Machine-maintained roadmap tracking.** `development/roadmaps/`
+  and its `roadmaps.md` index always exist (empty is fine); individual named
+  roadmaps are created only via `/roadmap-add`. In every
+  `development/roadmaps/<name>.md`, the Status/Linked columns are set only
+  by the `/roadmap-*` commands and `/show-backlog` — never hand-edited.
+  `/roadmap-remove` never deletes a roadmap with linked items; it retires
+  it in place.
+- **INV-16 — At least one active user; advisory role signing.**
+  `development/users.json` and `development/roles.json` always exist, and
+  `users.json` must contain **at least one user with `"active": true`** —
+  a hard requirement, not optional-if-empty like `roadmaps.md`. Every
+  dev-artifact, feature, roadmap item, and work item carries a
+  `Signed-off-by` field. Role checks against `roles.json` are advisory — a
+  mismatch prompts for confirmation, never a hard block, since catalyst
+  cannot verify who is actually typing. `/user-remove` never deletes a
+  user's entry; it sets `"active": false`, and refuses (or warns) if doing
+  so would leave zero active users.
 
 ## Plugins
 

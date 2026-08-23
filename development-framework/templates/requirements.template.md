@@ -27,6 +27,7 @@ more rules. None of those three are optional.
 | **Targets** | one or more rule IDs this requirement implements or extends — **required, never empty** (see `CODE-OF-CONDUCT.md` §1). If none exist yet, define them first (see New rules proposed below) |
 | **Domain** | the `DOMAIN` code(s) of the targeted/new rule(s), from `{{RULES_DIR}}/domains/` — **required, never free text** |
 | **Feature** | `FEAT-NNNN`, if this requirement was motivated by a documented feature — omit if none |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this requirement — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Vetted against existing rules
 

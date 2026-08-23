@@ -29,3 +29,7 @@
 ## Feature ideas with no requirement yet
 
 {{FEAT-NNNN entries with an empty Requirement(s) field, or "*(none)*"}}
+
+## Roadmap
+
+{{RM-NNNN rows from every non-retired development/roadmaps/<name>.md, grouped by roadmap name then Status (Not triaged / Triaged / In progress), or "*(none)*" if every row is Done or no named roadmap has been added yet}}

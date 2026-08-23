@@ -1,18 +1,18 @@
 # Slash-command file template
 
 > Copy this file to `.claude/commands/{{command-name}}.md` in the target
-> project, once per command listed in the deployed `CODE-OF-CONDUCT.md` §3,
+> project, once per command listed in the deployed `CODE-OF-CONDUCT.md` §4,
 > and resolve every `{{PLACEHOLDER}}`. See `INSTANTIATION-GUIDE.md` §1
 > step 5 and `CLAUDE.md`'s "Slash commands" entry — this template exists
 > because that entry requires it, not as an optional convenience.
 
 This file becomes the literal prompt Claude Code runs when the user types
 `/{{command-name}}`. Keep it a **thin, procedural pointer back to
-`CODE-OF-CONDUCT.md` §3** — the canonical behavior spec — rather than
+`CODE-OF-CONDUCT.md` §4** — the canonical behavior spec — rather than
 duplicating that spec's prose here. That's what keeps the command correct
 across a `/sync-framework` without needing its own edit: if the framework
 changes what `/create-bug` does, the deployed `CODE-OF-CONDUCT.md` gets
-synced and this file's instructions ("follow §3") are still accurate
+synced and this file's instructions ("follow §4") are still accurate
 unchanged.
 
 Only use the frontmatter fields below — `description` and
@@ -24,12 +24,12 @@ command to fail to load, which defeats the point.
 
 ```
 ---
-description: {{one-line, matching this command's bullet in CODE-OF-CONDUCT.md §3}}
+description: {{one-line, matching this command's bullet in CODE-OF-CONDUCT.md §4}}
 argument-hint: {{expected arguments, e.g. "<short description> [--flag value]"}}
 ---
 
 {{One-line restating the command's purpose.}} Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §3{{, template: .catalyst-proj/<dir>/TEMPLATE-<TYPE>.md — only if this command creates an artifact}}.
+`.catalyst-proj/CODE-OF-CONDUCT.md` §4{{, template: .catalyst-proj/<dir>/TEMPLATE-<TYPE>.md — only if this command creates an artifact}}.
 Input: $ARGUMENTS
 
 1. {{If this command creates a numbered artifact: resolve the next
@@ -65,6 +65,6 @@ every command through this artifact-creation shape:
 
 ## Related docs
 
-- [`../rules-of-development.template.md`](../rules-of-development.template.md) §3 — the canonical command list and per-command behavior spec.
+- [`../rules-of-development.template.md`](../rules-of-development.template.md) §4 — the canonical command list and per-command behavior spec.
 - [`../../CLAUDE.md`](../../CLAUDE.md) — the "Slash commands" entry this template exists to satisfy.
 - [`../SYNCHRONIZE.md`](../SYNCHRONIZE.md) §6 — what happens to these files on `/sync-framework`.

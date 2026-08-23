@@ -14,6 +14,7 @@ verifiable/documented, even indirectly.
 | **Targets** | the rule ID(s) this work supports the enforcement/verification/documentation of. If genuinely none applies, state that explicitly rather than leaving the field blank |
 | **Domain** | the `DOMAIN` code of the targeted rule(s), or `META` if this supports a `rr-META-*` process rule |
 | **Area** | free-text, e.g. "CI", "test harness", "release tooling" |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this item — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
 

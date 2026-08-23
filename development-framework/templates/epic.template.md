@@ -7,6 +7,7 @@
 | **Opened** | YYYY-MM-DD |
 | **Domain(s)** | `DOMAIN` code(s) this epic spans |
 | **Sponsor / owner** | who's accountable |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this epic — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Goal
 

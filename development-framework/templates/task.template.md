@@ -7,6 +7,7 @@
 | **Parent** | `STORY-NNNN` (technical/house-keeping work with no story goes under `HK-NNNN` directly instead) |
 | **Assignee** | who's doing it |
 | **Estimate** | hours or points, per team convention |
+| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this task — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
 

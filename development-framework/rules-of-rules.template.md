@@ -302,3 +302,80 @@ requirement, not the feature entry, is what gets vetted against existing
 rules, assigned a domain, and measured for completion. The feature entry
 records which requirement(s) resulted from it, for traceability back to
 the original idea, but that link is informational, not a rule target.
+
+## 10. `rr-META-010` Roadmap items have their own, source-tracked scheme
+
+Format: **`RM-(NNNN)`** — zero-padded 4-digit sequence number, **global
+across every named roadmap**, assigned in the order `/roadmap-add`/
+`/roadmap-update`/`/roadmap-merge` first adds each item, never reused.
+Unlike a rule or a dev-artifact but like `FEAT-NNNN`, an `RM-` item is a
+table row, not its own file — but unlike `FEAT-NNNN` (one flat
+`features/features.md`), roadmap rows are partitioned across **one file
+per named roadmap**: `development/roadmaps/<name>.md`
+(`templates/roadmap.template.md`), each registered in
+`development/roadmaps/roadmaps.md`. A project may hold several named
+roadmaps at once (e.g. a product roadmap and an infra roadmap, ingested
+and updated independently); an `RM-NNNN` ID stays unique and resolvable
+regardless of which named roadmap's file it lives in.
+
+A roadmap item records that an external source (a product roadmap, a
+planning doc, a stakeholder request) named this as a future direction —
+not a claim about current or required behavior, and not itself one of the
+development artifacts in §6. It is exempt from:
+
+- §1 (`rr-META-001`)'s conflict check,
+- `rules-of-development.md` §1 ("no development without a targeted
+  rule"), and
+- ever carrying a `Targets` or `Domain` field.
+
+A roadmap item is never "done" against a rule and is never itself
+implemented. Once a human decides it's worth tracking inside catalyst,
+`/create-feature` opens a `FEAT-NNNN` for it (§9), citing the `RM-NNNN` ID
+in the feature's `Roadmap` field — that feature entry, and the `REQ-NNNN`
+it may later become, are what actually get vetted, assigned a domain, and
+measured. Each roadmap file's `Status`/`Linked` columns mirror whichever
+of those is currently linked, refreshed by `/show-backlog`, so a roadmap
+item's progress stays visible without becoming a second, competing source
+of truth for completion.
+
+A named roadmap itself is never hard-deleted once any of its rows carry a
+`Linked` value — see §4's retirement principle. `/roadmap-remove` retires
+it in place instead (marks it retired, keeps every row and ID resolvable)
+whenever removing it outright would break a `FEAT-`/`REQ-` cross-reference.
+
+## 11. `rr-META-011` Users and roles are advisory, not access control
+
+`development/users.json` (`templates/users.template.json`) is the registry
+of people who can sign work — a JSON array of `{name, roles, registered,
+active, notes}` objects, kept as data rather than a hand-edited document
+because it is managed exclusively by commands:
+`/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
+— see `rules-of-development.md` §4. `development/roles.json`
+(`templates/roles.template.json`) maps each role to the actions/commands
+it typically performs — a JSON array of `{name, actions}` objects, seeded
+with a default agile-role mapping and then extended via `/role-add`
+(new role) and `/role-modify` (change an existing role's actions).
+
+**`development/users.json` must contain at least one entry with `"active":
+true`.** This is a hard requirement, unlike `roadmaps.md`'s "empty is
+fine": a project with zero active users has nobody to sign work, so
+deployment is not complete until `/user-add` has registered at least one
+person. `/user-remove` refuses (or warns, per the command's own spec) if
+removing the last active user would leave zero.
+
+Catalyst has no way to verify who is actually typing, so beyond that one
+hard existence requirement, this scheme is **advisory**: before an
+artifact-creating or status-changing command completes, the agent
+resolves who is signing it, checks their role(s) against `roles.json`,
+and — if the action isn't one their role covers, or they aren't
+registered at all — asks for confirmation rather than refusing outright.
+Every dev-artifact, feature entry, roadmap item, and work item carries a
+`Signed-off-by` field recording the outcome (`rules-of-development.md`
+§2).
+
+`/user-remove` never deletes a user's entry, the same "never delete,
+retire in place" principle as §4 and §10: it sets `active` to `false` so
+every `Signed-off-by` reference already recorded against that name stays
+resolvable. A changed or removed role in `roles.json` likewise never
+retroactively changes a `Signed-off-by` value already recorded — that
+value reflects who signed it under the mapping in effect at the time.
