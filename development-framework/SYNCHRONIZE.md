@@ -137,7 +137,12 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    - `bugs/` individual bug files
    - `house-keeping/house-keeping.md`
    - `meta-tags/meta-tags.md`
-   - `BACKLOG.md`
+   - `development/BACKLOG.md` (from `templates/backlog.template.md` on
+     first deploy; refreshed in full by `/show-backlog`, never
+     hand-edited — see `INVARIANTS.md` INV-14). If a deployed project
+     predates this requirement and has no `development/BACKLOG.md`,
+     synchronizing to a version that includes it creates it from the
+     template rather than skipping it as "already deployed."
    - `version.txt`
    - every documented slash command from `rules-of-development.template.md`
      §3 — the canonical list; this file must never re-enumerate a subset of

@@ -37,6 +37,10 @@ faster and is the first thing a summarizer mangles.
 - **INV-9 — Requirements, not bugs, for new work.** `FEAT-` entries are
   non-rule-linked roadmap. When work on one starts it becomes a `REQ-` (never a
   `BUG-`), which is vetted against every rule, assigned a domain, and measured.
+- **INV-14 — Persisted backlog.** `development/BACKLOG.md` always exists,
+  seeded from `templates/backlog.template.md`. It is never hand-edited —
+  `/show-backlog` overwrites it in full every run, so it can't drift from
+  the real indexes.
 
 ## Plugins
 

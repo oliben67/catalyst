@@ -21,6 +21,11 @@ def make_valid_deployment(tmp_path: Path) -> Path:
         "## Contents\n\n...\n\n"
         "## Known Bugs — Quick Index\n\n(none)\n"
     )
+    development = root / "development"
+    development.mkdir()
+    (development / "BACKLOG.md").write_text(
+        "# Backlog\n\n**Last refreshed:** 2026-08-23 by `/show-backlog`.\n"
+    )
     return root
 
 
@@ -40,6 +45,7 @@ def test_valid_deployment_has_no_errors(tmp_path: Path):
     assert cd.check_single_rule_template(root) == []
     assert cd.check_rule_indexing(root) == []
     assert cd.check_required_headings(root) == []
+    assert cd.check_backlog_exists(root) == []
 
 
 def test_check_naming_rejects_bare_id_filename(tmp_path: Path):
@@ -116,6 +122,22 @@ def test_check_required_headings_missing_known_bugs(tmp_path: Path):
     rule.write_text("# br-AUTH-001-login-flow\n\n## Contents\n")
     errors = cd.check_required_headings(root)
     assert any("missing '## Known Bugs" in e for e in errors)
+
+
+def test_check_backlog_exists_missing(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "BACKLOG.md").unlink()
+    errors = cd.check_backlog_exists(root)
+    assert any("INV-14" in e and "development/BACKLOG.md is missing" in e
+               for e in errors)
+
+
+def test_check_backlog_exists_missing_development_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "development" / "BACKLOG.md").unlink()
+    (root / "development").rmdir()
+    errors = cd.check_backlog_exists(root)
+    assert any("INV-14" in e for e in errors)
 
 
 def test_main_returns_zero_when_no_deployment(tmp_path: Path, monkeypatch, capsys):
