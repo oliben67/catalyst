@@ -31,9 +31,12 @@ process) — but it must be stated explicitly, not left blank.
 ## 2. Users, roles, and signing
 
 `development/users.json` is a JSON array of registered users
-(`{name, roles, registered, active, notes}`), managed only by
+(`{name, roles, registered, active, notes}`, plus `git_username` once a
+repoed deployment resolves it — `Rules-of-Rules.md` §13), managed only by
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
-— see §4. Each user has one or more roles drawn from
+— see §4. Once a user has a `git_username`, every `Signed-off-by`/journal
+`actor` written for them uses that, never `name`. Each user has one or
+more roles drawn from
 `development/roles.json`, a JSON array of `{name, actions}` objects
 mapping each role to the actions/commands it's expected to perform.
 `roles.json` is seeded with a default agile-role mapping
@@ -271,6 +274,28 @@ The framework exposes the following custom slash commands:
   behavior. Each plugin must live in its own repository, with no exceptions,
   and during framework deployment or synchronization plugins must be pulled
   directly from that plugin repository rather than from this repository.
+- `/thingamabob create <name> <git-info>` — bootstrap a repoed deployment
+  (`Rules-of-Rules.md` §13, `INVARIANTS.md` INV-18): register or create
+  the dedicated repo, then push local `.catalyst-proj/` as the first
+  commit on its `thingamabob` branch. Also resolves the current actor's
+  `git_username` and migrates their prior `Signed-off-by` occurrences to
+  it (never the journal — see §9/§13). Called again against the same
+  repo with a different `<name>`, branches instead of refusing: a new
+  branch off `thingamabob`, named `<name>` in its branch-safe form.
+- `/thingamabob get <repo> <username>` — join an already-repoed
+  deployment: download `<repo>`'s `thingamabob` branch and check out
+  `<username>.catalyst-proj` (branch-safe form) from it as this user's
+  local `.catalyst-proj/`. `<username>` is this user's `git_username`,
+  same identity-migration treatment as `create`.
+- `/thingamabob push [--force]` — vet the current user's push branch
+  (`<git_username>.catalyst-proj`, or the branch-safe form of `name` if
+  they don't have a `git_username` yet) against `thingamabob`
+  (`/check-rules` + a four-eyes sub-agent pass), AI-merge where a plain
+  merge can't resolve it, update both branches, and refresh the local
+  `.catalyst-proj/` to match. Refuses if not yet repoed (point to
+  `/thingamabob create`). `--force` skips vetting and overwrites
+  `thingamabob` directly — refused for anyone but the repo's
+  `created_by` user.
 - `/status` — update an artifact or work item's `Status` field.
 - `/audit <file-name>` — analyze the change-impact of the specified file by
   checking the current repository state, the file's role in the framework,
@@ -285,6 +310,12 @@ The framework exposes the following custom slash commands:
   is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
   consistent and do not conflict.
+- `/dogfood` — vet the current deployment against its own rules: run
+  `/check-rules`, then an independent four-eyes sub-agent pass checking
+  whether the deployment's actual state (code, tests, docs) still
+  matches what its rules claim, surfacing drift rather than fixing it.
+  This is the named check `/thingamabob push` runs on every push (see
+  §13) — usable standalone any time, not only around a push.
 - `/show-backlog` — summarize open work, blockers, and missing links,
   refresh `development/BACKLOG.md` with the result, and refresh every
   active `development/roadmaps/<name>.md`'s Status/Linked columns from
@@ -483,6 +514,70 @@ framework startup, the framework must scan the installed plugins and activate
 each one whose `active` metadata flag is true the same way `/catalyzer
 activate` loads a plugin into memory (see above). This is a hard rule.
 
+When the user enters `/thingamabob create <name> <git-info>: ...`: if
+`DEPLOYMENT.md` doesn't yet show `repoed: true`, this is the first-call
+bootstrap — check whether `<git-info>` already exists: if it does,
+register it as-is; if it doesn't, create it there under `<name>` — this
+is an externally-visible, hard-to-reverse action, so confirm with the
+user before creating it, distinct from the general push-assent already
+implied by invoking this command. Write `repoed: true`, `catalyst_repo:
+<name>`, `catalyst_repo_url: <git-info>`, `created_by: <the current
+Signed-off-by actor>` to `DEPLOYMENT.md`, push the current local
+`.catalyst-proj/` state as the first commit on a `thingamabob` branch
+there. Nothing is vetted on this first push. If `DEPLOYMENT.md` **already**
+shows `repoed: true`: don't refuse — if `<git-info>` matches the
+registered `catalyst_repo_url`, create a new branch off `thingamabob`'s
+current state named `<name>` in its branch-safe form (§13) and stop
+there (no repo mutation, no `DEPLOYMENT.md` change); if `<git-info>`
+names a different repo, confirm explicitly with the user before doing
+anything, since that's an unusual second-repo scenario rather than
+ordinary branching. On the first-call path only, also run the identity
+migration below, then report the result.
+
+When the user enters `/thingamabob get <repo> <username>: ...`, validate
+`<username>` against the branch-safe-name rule (§13) — refuse with a
+suggested alternative if it doesn't survive sanitization uniquely against
+already-registered users. Download `<repo>`'s `thingamabob` branch content
+and check out `<username>.catalyst-proj` (branch-safe form) from it as
+this user's local `.catalyst-proj/`, creating a `development/users.json`
+entry for them first if one doesn't already exist. Then run the identity
+migration below for this user, and report the result.
+
+**Identity migration** (part of both `/thingamabob create`'s first call
+and `/thingamabob get`): set `git_username` on the current user's
+`development/users.json` entry to their resolved git identity (`git
+config user.name`, branch-safe form, for `create`; the given `<username>`
+for `get`). Rewrite every existing artifact's `Signed-off-by` field that
+currently names this user's old `name` to their new `git_username` —
+from this point on, every `Signed-off-by`/journal `actor` written for
+them uses `git_username`, never `name`. **Never rewrite the journal
+itself** (`Rules-of-Rules.md` §12, INV-17 — entries are immutable, no
+exception for this either); instead append one new entry (`action:
+"update"`, `intent` describing the migration) covering every artifact
+file actually rewritten.
+
+When the user enters `/thingamabob push [--force]`, refuse with a clear
+message if `DEPLOYMENT.md` doesn't show `repoed: true` (point to
+`/thingamabob create`). Resolve the current actor's push branch —
+`<git_username>.catalyst-proj` if they have one, otherwise the
+branch-safe form of `name` — and push local `.catalyst-proj/` there in
+the repoed repository (creating that branch on their first push). If
+`--force` is given: refuse unless the current actor matches
+`DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
+overwrite `thingamabob` directly from local state and skip everything
+below. Otherwise: (1) vet the incoming branch against `thingamabob` by
+running `/dogfood` against the merged-in state; disagreement between its
+two sub-agents, or a flagged violation, stops here rather than proceeding
+silently; (2) merge —
+attempt a normal merge first, and only where that leaves conflicts
+(git-level or vetting-flagged), have a sub-agent propose a resolution
+guided by `Rules-of-Rules.md` §1's conflict-check principle, stopping to
+ask the user if a conflict is genuinely irreconcilable rather than
+guessing; (3) update both `thingamabob` (the merge commit) and the
+contributor's own branch (fast-forwarded to match); (4) pull the updated
+`thingamabob` down and overwrite the local `.catalyst-proj/` directory
+and this session's in-memory record of it. Report the result.
+
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
 for that artifact type, change it normally. If the status is invalid and the
@@ -554,6 +649,21 @@ failed validation becomes a blocking issue.
 When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
 then report the result.
+
+When the user enters `/dogfood`, first run `/check-rules`. Then spawn two
+independent four-eyes sub-agents (no shared context between them) that
+each separately evaluate whether the deployment's actual state — its
+code, its tests, its documentation — still matches what its own rules
+claim (for a rule marked ✅, does the cited `file:line` still hold and
+still have real test coverage; for a rule marked ⚠️/❌, is that status
+still accurate rather than stale). Reconcile the two passes; where they
+disagree, surface the disagreement rather than picking one silently.
+Report every drift found — a rule whose implementation moved, whose test
+was deleted, whose status marker no longer matches reality — without
+fixing any of it automatically; fixing is the user's or a follow-up
+command's call. This is exactly the check `/thingamabob push` runs
+against the incoming branch before merging (`Rules-of-Rules.md` §13);
+running it here standalone doesn't touch `thingamabob` or any branch.
 
 When the user enters `/show-backlog`, inspect the current artifact indexes
 (open bugs by severity, in-progress/proposed requirements, work items with no

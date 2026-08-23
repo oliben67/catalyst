@@ -76,6 +76,34 @@ faster and is the first thing a summarizer mangles.
   continuous compliance auditing of a *deployed project*; this journal is
   core, applies to catalyst's own deployment too, and records history
   rather than flagging violations.
+- **INV-18 — Repoed deployments sync through a dedicated repo.** A
+  deployment with `repoed: true` (`DEPLOYMENT.md`) mirrors
+  `.catalyst-proj/` through a dedicated repository. `/thingamabob create
+  <name> <git-info>` establishes it the first time (creates it if it
+  doesn't exist, registers it as-is if it does; pushes local
+  `.catalyst-proj/` as the `thingamabob` branch — the canonical, master
+  version). Run again against the same repo with a different `<name>`, it
+  doesn't refuse — it branches: a new branch named `<name>` off the
+  current `thingamabob`, without touching `thingamabob` itself or who's
+  recorded as `created_by`. `/thingamabob get <repo> <username>` is the
+  join path: download `thingamabob`'s current state and check out a new
+  branch for `<username>` from it, for a user who doesn't have a local
+  copy yet. **This never supersedes INV-6**: `.catalyst-proj/` stays the
+  local working copy; the dedicated repo is an additional, synced backing
+  store. Every contributor pushes via `/thingamabob push` to their own
+  fixed branch `<branch-safe-name>.catalyst-proj`, never directly to
+  `thingamabob` — **every git ref name derived from a user's identity
+  (this branch, and `/thingamabob get`'s `<username>`) is that name's
+  branch-safe form** (lowercase, non-alphanumeric runs collapsed to a
+  single `-`, trimmed), since a registered display name like "Olivier
+  Steck" is not itself a valid git ref component; refuse rather than
+  silently colliding if two distinct names would collapse to the same
+  form. Every push is vetted (`/check-rules` plus a four-eyes sub-agent
+  pass) and merged into `thingamabob`; both `thingamabob` and the
+  contributor's branch are updated with the result, and the local
+  `.catalyst-proj/` is refreshed to match. `--force` overwrites
+  `thingamabob` directly, skipping vetting, and is refused for anyone but
+  the repo's recorded `created_by` user.
 
 ## Plugins
 
