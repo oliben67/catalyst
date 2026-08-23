@@ -44,6 +44,9 @@ from drifting. The guide holds the rationale; this holds the checks.
       `spikes.md`, `sprints.md`)
 - [ ] `domains/` created at root (empty index allowed)
 - [ ] `features/` created at root, alongside `requirements/`
+- [ ] `development/BACKLOG.md` created from `templates/backlog.template.md`
+      (INV-14) — a hard requirement, not one of the optional-per-project
+      artifact templates above
 
 ## Seed content
 - [ ] First rule document(s) created with `## Contents` + `## Known Bugs — Quick

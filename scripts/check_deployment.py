@@ -2,7 +2,7 @@
 """Validate a deployed .catalyst-proj/ against catalyst's structural invariants.
 
 This is the enforcement layer of the anti-drift architecture: the invariants an
-agent is asked to uphold (INV-5..INV-8) are re-checked here deterministically, so
+agent is asked to uphold (INV-5..INV-8, INV-14) are re-checked here deterministically, so
 they hold every time regardless of what any agent or human did. Mirrors the
 existing scripts/check_plugins.py pattern.
 
@@ -30,7 +30,7 @@ INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
     "spikes.md", "sprints.md", "README.md", "CODE-OF-CONDUCT.md", "version.txt",
-    "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md",
+    "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md", "BACKLOG.md",
 }
 
 
@@ -112,6 +112,15 @@ def check_required_headings(root: Path) -> list[str]:
     return errors
 
 
+def check_backlog_exists(root: Path) -> list[str]:
+    """INV-14: development/BACKLOG.md always exists."""
+    backlog = root / "development" / "BACKLOG.md"
+    if not backlog.is_file():
+        return ["INV-14: development/BACKLOG.md is missing — seed it from "
+                "templates/backlog.template.md"]
+    return []
+
+
 def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
@@ -124,6 +133,7 @@ def main() -> int:
     errors += check_single_rule_template(root)
     errors += check_rule_indexing(root)
     errors += check_required_headings(root)
+    errors += check_backlog_exists(root)
 
     if errors:
         print(f"catalyst deployment validation FAILED ({len(errors)} issue(s)):")

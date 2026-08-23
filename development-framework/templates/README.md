@@ -20,6 +20,10 @@ This folder contains the reusable document templates that seed the deployed cata
   command in `../rules-of-development.template.md` §3. See `CLAUDE.md`'s
   "Slash commands" entry and `INSTANTIATION-GUIDE.md` §1 step 5 — this is
   required as part of instantiation, not an optional extra.
+- [`backlog.template.md`](backlog.template.md) — copy to
+  `development/BACKLOG.md` on first deploy (`INVARIANTS.md` INV-14). Unlike
+  every other template here, never hand-edited afterward — `/show-backlog`
+  overwrites it in full on every run.
 
 ## How to use this folder
 

@@ -60,7 +60,12 @@ requirement — never a `BUG-NNNN` — to track it.
   - `house-keeping/house-keeping.md` for the house-keeping index.
   - `meta-tags/meta-tags.md` for the meta-tag index.
 - These index files are the canonical indexes for their directory and must be kept up to date.
-- `BACKLOG.md` remains the go-to document for developers to review work to be done and current status.
+- **This is a hard requirement.** `development/BACKLOG.md` always
+  exists — seeded from `templates/backlog.template.md` on first deploy —
+  as the go-to document for developers to review work to be done and
+  current status. It is not hand-maintained: `/show-backlog` regenerates
+  it in full every time it runs, so it never drifts from the real
+  indexes. See `INVARIANTS.md` INV-14.
 
 - **Bug**: an existing ✅ rule doesn't actually hold in the running system,
   or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
@@ -169,7 +174,8 @@ The framework exposes the following custom slash commands:
   is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
   consistent and do not conflict.
-- `/show-backlog` — summarize open work, blockers, and missing links.
+- `/show-backlog` — summarize open work, blockers, and missing links, and
+  refresh `development/BACKLOG.md` with the result.
 - `/help` — return help documentation for the framework or for a specific
   command when provided.
 
@@ -330,8 +336,15 @@ When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
 then report the result.
 
-When the user enters `/show-backlog`, inspect the current backlog documents and
-artifact indexes, then summarize the relevant open work and blockers.
+When the user enters `/show-backlog`, inspect the current artifact indexes
+(open bugs by severity, in-progress/proposed requirements, work items with no
+linked `REQ-`/`BUG-` doc, rules with no open work targeting them, feature
+ideas with no requirement yet), **overwrite `development/BACKLOG.md`
+in full** with the result (from `templates/backlog.template.md`'s
+structure, with a refreshed timestamp), and also report the same summary
+to the user in this turn. The file write is not optional — a stale
+`BACKLOG.md` that doesn't match the last `/show-backlog` run is itself a
+bug in the deployment.
 
 When the user enters `/help` without any additional entry, list all supported
 custom slash commands and their purpose, then list every artifact type and its
