@@ -76,9 +76,19 @@ The rules layer and the dev-artifacts layer never change based on this
 choice — "no development without a targeted rule" is a project-wide
 invariant regardless of how work is scheduled above it.
 
+## Greenfield projects (no code yet)
+
+See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §3. The mirror
+image of retrofitting: instead of extracting rules from existing code,
+this path establishes the stack, tooling, and dev-environment decisions
+— language/runtime, package manager, linter/formatter, test framework,
+CI, local dev setup, repo layout — as the first rule document, before
+any application code exists, so the project is born governed rather than
+governed after the fact.
+
 ## Retrofitting an existing project
 
-See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §3. This repo's own
+See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §4. This repo's own
 `.thingamabob/` folder was retrofitted this way — its
 `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and
 `rules-of-work-items.md` each carry a header noting they are this
