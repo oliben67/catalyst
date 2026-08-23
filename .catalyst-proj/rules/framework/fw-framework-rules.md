@@ -13,7 +13,7 @@ note.
 ## Contents
 
 - [`BEHAVIOR`](#behavioural-invariants) — `fw-BEHAVIOR-001`..`004`
-- [`STRUCTURE`](#structural-invariants) — `fw-STRUCTURE-001`..`008`
+- [`STRUCTURE`](#structural-invariants) — `fw-STRUCTURE-001`..`009`
 - [`PLUGINS`](#plugin-system-invariants) — `fw-PLUGINS-001`..`004`
 
 ## Behavioural invariants
@@ -147,6 +147,25 @@ parses `users.json` and fails the deployment if no entry has
 `::test_check_users_and_roles_exist_invalid_json`, and siblings. This
 project's own `development/users.json` satisfies it: at least one
 `"active": true` entry as of this deployment.
+
+### `fw-STRUCTURE-009` Append-only, replayable journal
+
+✅ working. `development/journal.jsonl` always exists (empty is fine);
+every non-blank line is a well-formed entry (timestamp, actor, command,
+action, artifact, targets, intent, files with 40-hex or null before/after
+`git hash-object` pointers per touched file); entries are immutable once
+written. `development-framework/INVARIANTS.md:61-73`. Implemented:
+`scripts/check_deployment.py:169` (`check_journal_exists`) — parses every
+line, validates required fields and file-hash format, not just checking
+file existence. Tested:
+`tests/test_check_deployment.py::test_check_journal_exists_missing`,
+`::test_check_journal_exists_rejects_malformed_json_line`,
+`::test_check_journal_exists_rejects_missing_required_field`,
+`::test_check_journal_exists_rejects_bad_file_hash`, and siblings. This
+project's own `development/journal.jsonl` satisfies it: present, empty,
+as of this deployment — no entries yet, since this rule and its own
+enforcement were only just retrofitted and nothing has been journaled
+since.
 
 ## Plugin system invariants
 
