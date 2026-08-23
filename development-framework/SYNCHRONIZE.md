@@ -139,10 +139,16 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    - `meta-tags/meta-tags.md`
    - `BACKLOG.md`
    - `version.txt`
-   - the documented slash commands (`/create-bug`, `/create-req`/
-     `/create-requirement`, `/create-feature`, `/meta-tag`, `/status`, and
-     `/help`) must be available in the deployed environment after
-     synchronization.
+   - every documented slash command from `rules-of-development.template.md`
+     §3 — the canonical list; this file must never re-enumerate a subset of
+     it — must be available in the deployed environment after
+     synchronization. Under Claude Code: create any
+     `.claude/commands/<name>.md` missing relative to that list (following
+     `templates/slash-command.template.md`), and refresh an existing one
+     only if this framework version actually changed that command's spec
+     in `rules-of-development.template.md` §3 — an unchanged command's file
+     is project-owned content like any other synced file, not something to
+     overwrite wholesale on every sync.
 7. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
 
