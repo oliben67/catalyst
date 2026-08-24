@@ -20,7 +20,7 @@ show `repoed: true` yet):
    under `<name>`.
 2. Write `repoed: true`, `catalyst_repo: <name>`, `catalyst_repo_url:
    <git-info>`, `created_by: <current Signed-off-by actor>` to
-   `DEPLOYMENT.md`.
+   `.catalyst-proj/DEPLOYMENT.md`.
 3. Push the current local `.catalyst-proj/` state as the first commit on
    a branch named `thingamabob` — the canonical, master version. Nothing
    is vetted on this first push.
@@ -30,7 +30,7 @@ show `repoed: true` yet):
 **Called again, already repoed:** don't refuse.
 - If `<git-info>` matches the already-registered `catalyst_repo_url`,
   this branches: create a new branch off `thingamabob`'s current state,
-  named `<name>` in its branch-safe form. No `DEPLOYMENT.md` change.
+  named `<name>` in its branch-safe form. No `.catalyst-proj/DEPLOYMENT.md` change.
 - If `<git-info>` names a *different* repo, confirm explicitly with the
   user first — this is an unusual second-repo scenario, not ordinary
   branching.
@@ -74,13 +74,13 @@ every artifact file actually rewritten.
 
 ## `push [--force]`
 
-1. Refuse if `DEPLOYMENT.md` doesn't show `repoed: true` (point to
+1. Refuse if `.catalyst-proj/DEPLOYMENT.md` doesn't show `repoed: true` (point to
    `/thingamabob create`).
 2. Resolve the current actor's push branch — `<git_username>.catalyst-proj`
    if they have one, otherwise the branch-safe form of `name` — and push
    local `.catalyst-proj/` there (creating the branch on their first
    push).
-3. If `--force`: refuse unless the current actor matches `DEPLOYMENT.md`'s
+3. If `--force`: refuse unless the current actor matches `.catalyst-proj/DEPLOYMENT.md`'s
    `created_by`. Otherwise confirm with the user, then overwrite
    `thingamabob` directly from local state and skip everything below.
 4. Otherwise:

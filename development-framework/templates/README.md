@@ -47,6 +47,17 @@ This folder contains the reusable document templates that seed the deployed cata
   (exact before/after `git hash-object -w` content pointers per touched
   file, not just prose) — see `Rules-of-Rules.md` §12 for the full schema
   and the `/journal-restore` point-in-time reconstruction mechanism.
+- [`catalyst-pointer.template.json`](catalyst-pointer.template.json) —
+  copy to `<app-name>.catalyst` **at the target project's own root**
+  (`INVARIANTS.md` INV-6), the one exception to "everything else deploys
+  under `.catalyst-proj/`": this file is the only catalyst artifact the
+  target project's own repo ever tracks. Its `agent-source` field names
+  where the real working copy actually lives — agent-owned space if the
+  running agent has one, the in-project `.catalyst-proj/` (gitignored)
+  otherwise. Managed by `/project create`/`remove`/`export`/`import` and
+  kept in sync with `.catalyst-proj/DEPLOYMENT.md`'s `repoed`/
+  `catalyst_repo`/`catalyst_repo_url`/`created_by` — see
+  `Rules-of-Rules.md` §14.
 
 ## How to use this folder
 

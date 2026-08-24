@@ -7,8 +7,10 @@ truth; this file only records the generic-agent posture.
 Assume nothing beyond repo file read/write. Work through `BOOTSTRAP.md §1` and
 pick a fallback for every capability you cannot confirm:
 - No parallel sub-agents → run analysis passes sequentially, context-isolated.
-- No persistent memory tool → write the deployment note to
-  `.catalyst-proj/DEPLOYMENT.md` in the target repo.
+- No persistent memory tool → no problem: `<app-name>.catalyst` (project
+  root, always tracked) and `.catalyst-proj/DEPLOYMENT.md` (inside the
+  working copy) are the durable record regardless — read them fresh each
+  session instead of relying on a memory-tool cache.
 - No slash-command UI → expose the framework commands as named procedures you
   recognize when the user types the same token in plain text.
 
