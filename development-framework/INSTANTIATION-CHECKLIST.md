@@ -33,7 +33,9 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Optional `layout` override read, or default layout selected
 - [ ] Rule document(s) and short lowercase prefixes chosen per project seams
 
-## Deploy skeleton (into `.catalyst-proj/`, INV-6)
+## Deploy skeleton (into `.catalyst-proj/` at the resolved `agent-source`, INV-6)
+- [ ] `agent-source` resolved (`BOOTSTRAP.md §1`) — agent-owned per-project
+      storage if available, else the in-project fallback
 - [ ] `CODE-OF-CONDUCT.md` created from `rules-of-development.template.md`
 - [ ] `rules/Rules-of-Rules.md` created from `rules-of-rules.template.md`
 - [ ] Exactly one `rules/TEMPLATE-RULE.md` created; none in rule-type dirs (INV-8)
@@ -83,12 +85,22 @@ from drifting. The guide holds the rationale; this holds the checks.
 
 ## Finalize
 - [ ] `dev-instructions.yaml` deleted after successful deploy
-- [ ] Deployment target recorded (memory tool or `.catalyst-proj/DEPLOYMENT.md`)
+- [ ] `<app-name>.catalyst` written at the target project's own root, from
+      `templates/catalyst-pointer.template.json`, `agent-source` set
+      (INV-6) — the only catalyst artifact the target project's own repo
+      ever carries
+- [ ] On the no-owned-space fallback only: `.catalyst-proj/` added to the
+      target project's own `.gitignore` — not needed if already there
+      from a prior instantiation
+- [ ] Deployment target cached in the memory tool if one is available
+      (optional — `<app-name>.catalyst` and `.catalyst-proj/DEPLOYMENT.md`
+      are read fresh regardless, `INSTANTIATION-GUIDE.md §6`)
 - [ ] `version.txt` written to match framework `version.txt`
 
 ## Definition of done
 - [ ] Every item above `[x]` in the ledger; no silent skips
-- [ ] `scripts/check_deployment.py` passes against `.catalyst-proj/`
+- [ ] `scripts/check_deployment.py` passes (resolves `.catalyst-proj/` via
+      `<app-name>.catalyst`'s `agent-source`, or the in-project fallback)
 - [ ] Deployed tree presented to user; **no commit/push yet** (INV-4)
 - [ ] On the retrofit path, if no work items exist yet, offered to run
       `ANALYSIS-PLAYBOOK.md` (not applicable on the greenfield path — it reads

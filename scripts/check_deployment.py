@@ -20,6 +20,10 @@ import sys
 from pathlib import Path
 
 DEPLOY_DIRNAME = ".catalyst-proj"
+# <app-name>.catalyst — the tracked pointer file at a target project's root.
+# Its "agent-source" field names where the actual .catalyst-proj/ working
+# copy lives (agent-owned space, not necessarily inside the project tree).
+POINTER_SUFFIX = ".catalyst"
 # <id>-<short-summary>.md ; id like req-0001, bug-0007, rule prefixes, domains, etc.
 NAME_RE = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*-[a-z0-9][a-z0-9-]*\.md$", re.I)
 # A trailing all-digit segment (e.g. "br-AUTH-002.md") is a bare ID with no
@@ -42,8 +46,31 @@ INDEX_NAMES = {
 }
 
 
+def _resolve_pointer(pointer_path: Path) -> Path | None:
+    """Read a <app-name>.catalyst pointer file's "agent-source" field and
+    return it as a Path if it names a real directory, else None (malformed
+    or stale pointer — callers fall back to legacy in-tree discovery)."""
+    try:
+        data = json.loads(pointer_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    source = data.get("agent-source")
+    if not source:
+        return None
+    candidate = Path(source).expanduser()
+    return candidate if candidate.is_dir() else None
+
+
 def find_deploy_root(start: Path) -> Path | None:
+    """Prefer the pointer-file model: a *<app-name>.catalyst file at or above
+    `start` whose "agent-source" resolves to a real directory. Fall back to
+    the legacy model — a `.catalyst-proj/` directory itself at or above
+    `start` — for deployments not yet migrated (INV-6)."""
     for base in (start, *start.parents):
+        for pointer in sorted(base.glob(f"*{POINTER_SUFFIX}")):
+            resolved = _resolve_pointer(pointer)
+            if resolved is not None:
+                return resolved
         candidate = base / DEPLOY_DIRNAME
         if candidate.is_dir():
             return candidate
@@ -219,7 +246,10 @@ def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
         # No deployment in this repo — nothing to validate, not a failure.
-        print(f"no {DEPLOY_DIRNAME}/ found; skipping deployment validation")
+        print(
+            f"no *{POINTER_SUFFIX} pointer or {DEPLOY_DIRNAME}/ found; "
+            "skipping deployment validation"
+        )
         return 0
 
     errors: list[str] = []

@@ -122,6 +122,19 @@ grounded across long runs through explicit anti-drift mechanisms (an invariants
 file, deployment ledgers, and a re-ground cadence) rather than trusting the
 agent to simply remember.
 
+`.catalyst-proj/` itself is the agent's own governance context for the
+project — not part of the developed code structure, so it doesn't build
+inside the project's own tree at all. It builds in **agent-owned space**
+instead, and the target project tracks exactly one small, committed file
+for it, `<app-name>.catalyst`, whose `agent-source` field points at where
+the real working copy lives; `/project create`/`remove`/`export`/`import`
+manage that lifecycle. An agent with no owned-space concept falls back to
+building `.catalyst-proj/` directly in the project, gitignored there
+instead. Either way, `/thingamabob` is the opt-in mechanism for a team
+that wants the working copy to persist and sync across contributors,
+through a dedicated repository rather than a commit into the product's
+own history.
+
 `BOOTSTRAP.md` is the single source of truth. Everything else here either points
 at it or extends it.
 

@@ -26,8 +26,26 @@ faster and is the first thing a summarizer mangles.
 - **INV-5 — Chain invariant.** No work without a traceable link down to a
   documented rule: epic → story → task → REQ/BUG/HK → rule → domain. Every
   document, domain, and rule has a stable, permanent, never-reused ID.
-- **INV-6 — Fixed deploy dir.** The deployment directory is `.catalyst-proj/`.
-  No exception.
+- **INV-6 — Working copy in agent-owned space; one tracked pointer.** The
+  deployment's real working copy is a directory named `.catalyst-proj/`,
+  living in **agent-owned space** resolved per the running agent
+  (`BOOTSTRAP.md` §1) — never inside the developed project's own tree.
+  The target project tracks exactly one file for this: `<app-name>.catalyst`
+  (JSON, project root, committed — the only catalyst artifact the
+  project's own repo ever carries), whose `agent-source` field names
+  where the real working copy actually is. `.catalyst-proj/DEPLOYMENT.md`
+  stays the source of record for deployment/repo metadata, inside the
+  working copy wherever it's now rooted (unchanged in role — only its
+  location moved); `<app-name>.catalyst` mirrors the same `repoed`/
+  `catalyst_repo`/`catalyst_repo_url`/`created_by` fields for project-root
+  visibility without resolving `agent-source` first. Fallback for an agent with no
+  owned-space concept: keep `.catalyst-proj/` directly in the project
+  instead, gitignored, never committed. `/thingamabob` (INV-18) is the
+  opt-in, repo-backed persistence/sync layer on top of either shape —
+  never a commit into the product's own repo. `/project
+  create`/`remove`/`export`/`import` (INV-19) manage the lifecycle;
+  `Rules-of-Rules.md` §14 has the one-time migration off the pre-pointer
+  model.
 - **INV-7 — Descriptive naming.** Every rule, dev-artifact, and domain file is
   `<id>-<short-summary>.md` (sub-domain: `<prefix>-<PARENT>.<SUB>-<summary>.md`).
   Bare-ID filenames are invalid.
@@ -77,7 +95,9 @@ faster and is the first thing a summarizer mangles.
   core, applies to catalyst's own deployment too, and records history
   rather than flagging violations.
 - **INV-18 — Repoed deployments sync through a dedicated repo.** A
-  deployment with `repoed: true` (`DEPLOYMENT.md`) mirrors
+  deployment with `repoed: true` (`.catalyst-proj/DEPLOYMENT.md` — the
+  source of record, wherever `.catalyst-proj/` is now rooted; mirrored
+  into `<app-name>.catalyst` at the project root per INV-6) mirrors
   `.catalyst-proj/` through a dedicated repository. `/thingamabob create
   <name> <git-info>` establishes it the first time (creates it if it
   doesn't exist, registers it as-is if it does; pushes local
@@ -89,8 +109,9 @@ faster and is the first thing a summarizer mangles.
   join path: download `thingamabob`'s current state and check out a new
   branch for `<username>` from it, for a user who doesn't have a local
   copy yet. **This never supersedes INV-6**: `.catalyst-proj/` stays the
-  local working copy; the dedicated repo is an additional, synced backing
-  store. Every contributor pushes via `/thingamabob push` to their own
+  real working copy (wherever it's rooted — agent-owned space or, on the
+  fallback, in-project); the dedicated repo is an additional, synced
+  backing store. Every contributor pushes via `/thingamabob push` to their own
   fixed branch `<branch-safe-name>.catalyst-proj`, never directly to
   `thingamabob` — **every git ref name derived from a user's identity
   (this branch, and `/thingamabob get`'s `<username>`) is that name's
@@ -104,6 +125,20 @@ faster and is the first thing a summarizer mangles.
   `.catalyst-proj/` is refreshed to match. `--force` overwrites
   `thingamabob` directly, skipping vetting, and is refused for anyone but
   the repo's recorded `created_by` user.
+- **INV-19 — Project lifecycle commands.** `/project create <name>`
+  installs a fresh deployment: a working copy in agent-owned space (or
+  the in-project fallback) plus its `<app-name>.catalyst` pointer.
+  `/project remove <name>` un-links the pointer locally only — the
+  working copy, this agent's memory note, and any `thingamabob` repo are
+  all left untouched (never delete, retire in place). `/project remove
+  <name> force` additionally deletes the local working copy and this
+  agent's memory note for the project — confirm explicitly first; never
+  touches a `thingamabob` repo, which is a separate, externally-hosted
+  artifact out of scope for a local removal. `/project export <name>
+  [file]` bundles every file under the working copy into one JSON
+  export. `/project import <file>` installs from a bundle, refusing if a
+  deployment already exists here; `/project import <file> force`
+  overwrites an existing one instead — confirm explicitly first.
 
 ## Plugins
 
