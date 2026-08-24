@@ -310,12 +310,10 @@ The framework exposes the following custom slash commands:
   is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
   consistent and do not conflict.
-- `/dogfood` — vet the current deployment against its own rules: run
-  `/check-rules`, then an independent four-eyes sub-agent pass checking
-  whether the deployment's actual state (code, tests, docs) still
-  matches what its rules claim, surfacing drift rather than fixing it.
-  This is the named check `/thingamabob push` runs on every push (see
-  §13) — usable standalone any time, not only around a push.
+- `/commands list [--filter ...]` — list every slash command available in
+  this deployment (name, one-line purpose), sourced from this document's
+  §4. `/help` with no argument delegates here for its command listing
+  rather than re-describing it.
 - `/show-backlog` — summarize open work, blockers, and missing links,
   refresh `development/BACKLOG.md` with the result, and refresh every
   active `development/roadmaps/<name>.md`'s Status/Linked columns from
@@ -565,10 +563,11 @@ the repoed repository (creating that branch on their first push). If
 `--force` is given: refuse unless the current actor matches
 `DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
 overwrite `thingamabob` directly from local state and skip everything
-below. Otherwise: (1) vet the incoming branch against `thingamabob` by
-running `/dogfood` against the merged-in state; disagreement between its
-two sub-agents, or a flagged violation, stops here rather than proceeding
-silently; (2) merge —
+below. Otherwise: (1) vet the incoming branch against `thingamabob` —
+`/check-rules` plus an independent four-eyes sub-agent pass checking
+whether the incoming state still matches what its own rules claim;
+disagreement between the two sub-agents, or a flagged violation, stops
+here rather than proceeding silently; (2) merge —
 attempt a normal merge first, and only where that leaves conflicts
 (git-level or vetting-flagged), have a sub-agent propose a resolution
 guided by `Rules-of-Rules.md` §1's conflict-check principle, stopping to
@@ -650,20 +649,15 @@ When the user enters `/check-rules`, inspect the deployed framework for
 missing rule targets, conflicting domains, missing indexes, and broken links,
 then report the result.
 
-When the user enters `/dogfood`, first run `/check-rules`. Then spawn two
-independent four-eyes sub-agents (no shared context between them) that
-each separately evaluate whether the deployment's actual state — its
-code, its tests, its documentation — still matches what its own rules
-claim (for a rule marked ✅, does the cited `file:line` still hold and
-still have real test coverage; for a rule marked ⚠️/❌, is that status
-still accurate rather than stale). Reconcile the two passes; where they
-disagree, surface the disagreement rather than picking one silently.
-Report every drift found — a rule whose implementation moved, whose test
-was deleted, whose status marker no longer matches reality — without
-fixing any of it automatically; fixing is the user's or a follow-up
-command's call. This is exactly the check `/thingamabob push` runs
-against the incoming branch before merging (`Rules-of-Rules.md` §13);
-running it here standalone doesn't touch `thingamabob` or any branch.
+When the user enters `/commands list [--filter ...]`, list every slash
+command available in this deployment — name, one-line purpose — sourced
+from this document's §4 (the canonical list; never re-enumerate a
+subset). Apply `--filter` the same way `/list` does. If this session is
+working on catalyst's own repository (`development-framework/` present
+at the root) rather than a deployed project, also list
+catalyst-development-only commands that exist there but aren't part of
+this deployed set — `/dogfood` (see that repo's own `.claude/commands/`)
+is the current example.
 
 When the user enters `/show-backlog`, inspect the current artifact indexes
 (open bugs by severity, in-progress/proposed requirements, work items with no
@@ -703,9 +697,10 @@ a referenced hash isn't retrievable from the git object store (was never
 written with `-w`, or the repository was pruned), report that file as
 unrecoverable rather than silently omitting it.
 
-When the user enters `/help` without any additional entry, list all supported
-custom slash commands and their purpose, then list every artifact type and its
-purpose in a compact reference format. When the user enters `/help <command>`,
+When the user enters `/help` without any additional entry, run `/commands
+list` for the command listing rather than re-describing it, then list
+every artifact type and its purpose in a compact reference format. When
+the user enters `/help <command>`,
 return the detailed help documentation for that command only, including its
 syntax, behavior, and prerequisites. If the command is unknown, respond that
 it is unsupported and suggest the available commands.
