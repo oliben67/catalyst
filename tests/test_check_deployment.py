@@ -69,6 +69,48 @@ def test_find_deploy_root_returns_none_when_absent(tmp_path: Path):
     assert cd.find_deploy_root(tmp_path) is None
 
 
+def test_find_deploy_root_follows_pointer_file(tmp_path: Path):
+    project = tmp_path / "project"
+    project.mkdir()
+    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned.mkdir(parents=True)
+    (project / "myapp.catalyst").write_text(json.dumps({
+        "project_name": "myapp",
+        "agent-source": str(agent_owned),
+    }))
+    assert cd.find_deploy_root(project) == agent_owned
+
+
+def test_find_deploy_root_pointer_resolved_from_nested_dir(tmp_path: Path):
+    project = tmp_path / "project"
+    nested = project / "some" / "nested" / "dir"
+    nested.mkdir(parents=True)
+    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned.mkdir(parents=True)
+    (project / "myapp.catalyst").write_text(json.dumps({
+        "project_name": "myapp",
+        "agent-source": str(agent_owned),
+    }))
+    assert cd.find_deploy_root(nested) == agent_owned
+
+
+def test_find_deploy_root_falls_back_to_legacy_dir_on_stale_pointer(tmp_path: Path):
+    """A pointer whose agent-source no longer exists (moved/deleted) must not
+    mask a legacy in-tree .catalyst-proj/ that's actually still there."""
+    root = make_valid_deployment(tmp_path)
+    (tmp_path / "myapp.catalyst").write_text(json.dumps({
+        "project_name": "myapp",
+        "agent-source": str(tmp_path / "nowhere"),
+    }))
+    assert cd.find_deploy_root(tmp_path) == root
+
+
+def test_find_deploy_root_ignores_malformed_pointer(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (tmp_path / "myapp.catalyst").write_text("not json{")
+    assert cd.find_deploy_root(tmp_path) == root
+
+
 def test_valid_deployment_has_no_errors(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
     assert cd.check_naming(root) == []

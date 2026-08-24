@@ -459,9 +459,11 @@ break a rule."
 ## 13. `rr-META-013` Repoed deployments: `thingamabob` and per-user branches
 
 Every deployment's `.catalyst-proj/` is a **local working copy**
-(`INVARIANTS.md` INV-6 — that never changes). A deployment additionally
-becomes **repoed** when `DEPLOYMENT.md` records `repoed: true`,
-`catalyst_repo`, `catalyst_repo_url`, and `created_by`: from then on, its
+(`INVARIANTS.md` INV-6 — that never changes; it stays out of the
+developed code structure, gitignored in the target project). A
+deployment additionally becomes **repoed** when
+`.catalyst-proj/DEPLOYMENT.md` records `repoed: true`, `catalyst_repo`,
+`catalyst_repo_url`, and `created_by`: from then on, its
 canonical, shared state also lives in a dedicated repository, letting
 multiple users/instances of the same deployed project converge on one
 agreed-upon `.catalyst-proj/` rather than silently diverging. This is
@@ -475,7 +477,7 @@ dedicated repo. If `<git-info>` doesn't already exist, create it there
 enforced); if it already exists, register it as-is rather than
 recreating it. Record `repoed: true`, `catalyst_repo: <name>`,
 `catalyst_repo_url: <git-info>`, `created_by: <the current Signed-off-by
-actor>` in `DEPLOYMENT.md`, then push the current local `.catalyst-proj/`
+actor>` in `.catalyst-proj/DEPLOYMENT.md`, then push the current local `.catalyst-proj/`
 state as the first commit on a branch named `thingamabob` — the
 **master version**: the canonical branch every subsequent push targets.
 Nothing is vetted on this first push; there's nothing yet to vet it
@@ -615,3 +617,109 @@ exposes. It isn't listed in `CODE-OF-CONDUCT.md` §4 and
 catalyst's own repository, for verifying catalyst's own rules against
 catalyst's own actual state. `/commands list` (§4) surfaces it when
 running in that context, and stays silent about it everywhere else.
+
+## 14. `rr-META-014` Agent-owned working copy, the tracked pointer, and project lifecycle
+
+INV-6 (revised): the working copy — a directory always named
+`.catalyst-proj/` — is not built inside the target project's own tree. It
+builds in **agent-owned space**: a per-project data location the running
+agent already maintains, outside the project being governed. The target
+project tracks exactly one file for it, at its root: **`<app-name>.catalyst`**
+(JSON, from `templates/catalyst-pointer.template.json`), whose
+`agent-source` field names where the working copy actually is. This is
+the only catalyst artifact the target project's own repo ever carries —
+small, safe to commit, no rule/requirement/journal content in it.
+
+`.catalyst-proj/DEPLOYMENT.md` (§13) keeps its existing role unchanged —
+the source of record for `repoed`, `catalyst_repo`, `catalyst_repo_url`,
+`created_by` — it just now lives inside the working copy wherever
+`agent-source` currently puts it. `<app-name>.catalyst` mirrors those same
+four fields at the project root so they're visible without resolving
+`agent-source` first; any command that writes them (`/thingamabob create`,
+`/thingamabob push --force`) updates both files in the same step. If they
+ever disagree, `.catalyst-proj/DEPLOYMENT.md` wins — it is the source of
+record.
+
+**No agent owned-space concept available:** fall back to building
+`.catalyst-proj/` directly inside the target project, gitignored there,
+never committed. `<app-name>.catalyst` still gets written at the project
+root — its `agent-source` just names the in-project path instead. Every
+mechanism below (migration, export, import) treats this fallback as an
+ordinary `agent-source` value, not a special case.
+
+### Migration from the pre-pointer-file model
+
+A deployment installed before this section existed has `.catalyst-proj/`
+sitting directly in the project root, with no `<app-name>.catalyst`
+anywhere. Detect this (a `.catalyst-proj/` dir at the project root and no
+`*.catalyst` pointer file beside it) and offer the migration — it is a
+structural change, so confirm with the user before proceeding, the same
+courtesy as `/thingamabob create`:
+
+1. Resolve `agent-source` per `BOOTSTRAP.md` §1. If the running agent has
+   no owned-space concept, there is nothing to migrate — stop here; the
+   in-project fallback shape already **is** the target shape, it just
+   still needs its `<app-name>.catalyst` pointer written (step 3 below,
+   skipping step 2).
+2. **Move**, not copy, the entire existing `.catalyst-proj/` tree from
+   the project root to the resolved `agent-source` location.
+3. Write `<app-name>.catalyst` at the project root: `agent-source` set to
+   the (possibly unchanged, on the fallback) working-copy location;
+   `repoed`/`catalyst_repo`/`catalyst_repo_url`/`created_by` carried over
+   from the existing `.catalyst-proj/DEPLOYMENT.md` if one exists, else
+   left at their unset defaults.
+4. If the move actually relocated the tree (step 2 ran): delete the
+   now-empty `.catalyst-proj/` from the project root, and remove its line
+   from that project's `.gitignore` (leave the file itself in place, even
+   if now empty).
+5. Append one journal entry, in the working copy's new location, for the
+   migration itself (`action: "migrate"`, `intent` describing the move,
+   `files` covering the old and new `DEPLOYMENT.md`/pointer locations by
+   content hash) — this is exactly what the journal (§12) exists to
+   record, and its immutability means the pre-migration history stays
+   readable at its old hashes regardless of where the tree now lives.
+6. Report the result. Per hard rule 4, nothing is committed
+   automatically — but note explicitly that `<app-name>.catalyst` is now
+   something the user will want tracked, unlike anything that came before
+   it.
+
+### `/project create`/`remove`/`export`/`import`
+
+The lifecycle commands for this model (full command spec:
+`CODE-OF-CONDUCT.md` §4).
+
+- **`create <name>`** is the explicit, named entry point for the
+  instantiation procedure (`INSTANTIATION-GUIDE.md`) — resolves
+  `agent-source`, builds a fresh working copy there, and writes
+  `<app-name>.catalyst`. Refuses if a pointer file or an in-project
+  `.catalyst-proj/` already exists here — that's `/project import
+  --force`'s job, not `create`'s.
+- **`remove <name>`** un-links locally only: deletes the project's
+  `<app-name>.catalyst` (and, on the fallback, stops treating the
+  in-project `.catalyst-proj/` as active). The working copy itself, this
+  agent's memory note, and any `thingamabob` repo are all left exactly as
+  they are — never delete, retire in place (`rr-META-004`), same
+  principle as roadmap/user retirement.
+- **`remove <name> force`** additionally deletes the working copy at
+  `agent-source` and this agent's memory note for the project. This is
+  the one genuinely destructive path here — confirm explicitly before
+  proceeding, the same as `/thingamabob create`'s repo creation or
+  `--force` push. It never touches a `thingamabob` repo: that's a
+  separate, externally-hosted, possibly multi-contributor artifact, well
+  outside the blast radius of a local removal.
+- **`export <name> [file]`** reads every file under the working copy and
+  writes one JSON bundle — relative path → file content, plus the
+  pointer fields (minus `agent-source`, which is meaningless outside the
+  exporting machine). Default filename when omitted:
+  `<name>-catalyst-export-<UTC timestamp>.json`, written to the current
+  directory.
+- **`import <file>`** installs a bundle into the current project — same
+  refusal condition as `create` if a deployment already exists here.
+  Resolves a fresh `agent-source` (never the exporting machine's), writes
+  every bundled file there, writes `<app-name>.catalyst` with the
+  bundle's pointer fields carried over as-is, and appends one journal
+  entry for the import.
+- **`import <file> force`** is the one case allowed to proceed even when
+  a deployment already exists here — it overwrites it. Warn what's about
+  to be replaced and confirm explicitly first, same tier of
+  destructiveness as `remove ... force`.

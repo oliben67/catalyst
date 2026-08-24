@@ -30,8 +30,15 @@ These are non-negotiable and apply for the entire session. They are restated in
 5. **The chain invariant.** No work happens without a traceable link down to a
    documented rule: epic → story → task → REQ/BUG/HK → rule → domain, every one
    carrying a stable, permanent, never-reused ID.
-6. **Fixed deploy target.** The deployment directory is always `.catalyst-proj/`
-   in the target project. No exception.
+6. **Working copy in agent-owned space; one tracked pointer.** The
+   working-copy directory is always named `.catalyst-proj/`, but it
+   builds in **agent-owned space** you resolve at install time (§1), not
+   inside the target project's own tree — the target project tracks
+   exactly one file for it, `<app-name>.catalyst` at its root. No agent
+   owned-space concept available → fall back to building `.catalyst-proj/`
+   directly inside the target project instead, gitignored there, never
+   committed. `/thingamabob`, not a commit into the product's own repo,
+   is how a team persists or shares the working copy across contributors.
 7. **Descriptive naming.** Every rule, dev artifact, and domain file is named
    `<id>-<short-summary>.md`. Bare-ID filenames are not acceptable.
 8. **Plugins are gated.** A plugin is never loaded unless explicitly activated
@@ -53,8 +60,9 @@ consistent.
 | Capability | If present | Fallback if absent |
 |---|---|---|
 | **Parallel sub-agents** (background workers) | Use them for the four-eyes analysis passes and audits. | Run each pass sequentially as separate, context-isolated turns; do not let one pass see the other's output before reconciliation. |
-| **Persistent memory store** | Record the deployment target note there (framework name, deployed project, `.catalyst-proj/`, date; plus, once repoed, `repoed: true`, `catalyst_repo`, `catalyst_repo_url`, `created_by` — see `Rules-of-Rules.md` §13). | Write the same note to `.catalyst-proj/DEPLOYMENT.md`, committed to the target repo. This is the portable memory. |
-| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/thingamabob create`, `/thingamabob get`, `/thingamabob push`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
+| **Agent-owned per-project storage** (a data directory this agent already maintains per project, outside the project's own tree — e.g. Claude Code's per-project config space) | Build `.catalyst-proj/` there; record its path as `agent-source` in `<app-name>.catalyst` (hard rule 6). | Build `.catalyst-proj/` directly inside the target project instead, and add it to that project's own `.gitignore` — never committed. `<app-name>.catalyst`'s `agent-source` then just names the in-project path. |
+| **Persistent memory store** | Additionally cache the deployment note there for fast recall (framework name, deployed project, resolved `agent-source`, date — see `INSTANTIATION-GUIDE.md` §6). Optional: a nice-to-have, not load-bearing. | No problem: `<app-name>.catalyst` (project root, always tracked) and `.catalyst-proj/DEPLOYMENT.md` (inside the working copy — `repoed`, `catalyst_repo`, `catalyst_repo_url`, `created_by`, see `Rules-of-Rules.md` §13) are read fresh each session regardless. |
+| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/thingamabob create`, `/thingamabob get`, `/thingamabob push`, `/project create`, `/project remove`, `/project export`, `/project import`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
 | **`/dogfood`** — not part of the set above | Only ever exposed when working on catalyst's own repository (`development-framework/` present), never materialized into a deployed project. See `Rules-of-Rules.md` §13. | Same — this one has no deployed fallback, because it has nothing to run against outside catalyst's own repo. |
 | **Repo file read/write** | — | This is the baseline requirement. If you cannot read and write files in the target repo, stop: catalyst cannot be installed. |
 
@@ -83,10 +91,15 @@ the guide:
    `dev-instructions.yaml`. If present, read its `name` (and optional `layout`);
    if absent, ask the user for the project name, defaulting to the target repo
    name. After a successful deploy, delete that bootstrap file.
-3. Deploy the framework into `.catalyst-proj/` per the guide: copy the rule /
-   development / work-item templates, create the index files, write the
-   per-folder and root `README.md`, and seed the first rule document(s) with the
-   required `## Contents` and `## Known Bugs — Quick Index` headings.
+3. Resolve `agent-source` (§1) and deploy the framework into `.catalyst-proj/`
+   there per the guide: copy the rule / development / work-item templates,
+   create the index files, write the per-folder and root `README.md`, seed
+   the first rule document(s) with the required `## Contents` and
+   `## Known Bugs — Quick Index` headings. Then write `<app-name>.catalyst`
+   at the target project's own root, from
+   `templates/catalyst-pointer.template.json`, with `agent-source` set
+   (hard rule 6) — on the no-owned-space fallback, also add
+   `.catalyst-proj/` to the target project's own `.gitignore`.
 4. Tick each ledger item as you complete it. If an item is blocked, mark it
    `[!] blocked: <reason>` and surface it — never silently skip.
 5. Record the deployment target (§1 memory row).

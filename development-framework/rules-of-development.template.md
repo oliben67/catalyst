@@ -296,6 +296,24 @@ The framework exposes the following custom slash commands:
   `/thingamabob create`). `--force` skips vetting and overwrites
   `thingamabob` directly — refused for anyone but the repo's
   `created_by` user.
+- `/project create <project name>` — install a fresh catalyst deployment
+  here (`Rules-of-Rules.md` §14): resolve `agent-source`, build the
+  working copy there, and write `<app-name>.catalyst` at this project's
+  root. Refuses if a deployment already exists here.
+- `/project remove <project name> [force]` — un-link the local
+  `<app-name>.catalyst` pointer; the working copy, memory note, and any
+  `thingamabob` repo are left untouched (retire in place). `force`
+  additionally deletes the working copy at `agent-source` and this
+  agent's memory note for the project — confirm explicitly first; never
+  touches a `thingamabob` repo.
+- `/project export <project name> [export filename]` — bundle every file
+  under the working copy, plus its pointer fields (minus
+  `agent-source`), into one JSON export. Default filename:
+  `<project name>-catalyst-export-<UTC timestamp>.json`.
+- `/project import <export filename> [force]` — install a bundle into
+  the current project. Refuses if a deployment already exists here,
+  unless `force` is given, in which case it overwrites the existing one
+  — confirm explicitly first.
 - `/status` — update an artifact or work item's `Status` field.
 - `/audit <file-name>` — analyze the change-impact of the specified file by
   checking the current repository state, the file's role in the framework,
@@ -513,20 +531,20 @@ each one whose `active` metadata flag is true the same way `/catalyzer
 activate` loads a plugin into memory (see above). This is a hard rule.
 
 When the user enters `/thingamabob create <name> <git-info>: ...`: if
-`DEPLOYMENT.md` doesn't yet show `repoed: true`, this is the first-call
+`.catalyst-proj/DEPLOYMENT.md` doesn't yet show `repoed: true`, this is the first-call
 bootstrap — check whether `<git-info>` already exists: if it does,
 register it as-is; if it doesn't, create it there under `<name>` — this
 is an externally-visible, hard-to-reverse action, so confirm with the
 user before creating it, distinct from the general push-assent already
 implied by invoking this command. Write `repoed: true`, `catalyst_repo:
 <name>`, `catalyst_repo_url: <git-info>`, `created_by: <the current
-Signed-off-by actor>` to `DEPLOYMENT.md`, push the current local
+Signed-off-by actor>` to `.catalyst-proj/DEPLOYMENT.md`, push the current local
 `.catalyst-proj/` state as the first commit on a `thingamabob` branch
-there. Nothing is vetted on this first push. If `DEPLOYMENT.md` **already**
+there. Nothing is vetted on this first push. If `.catalyst-proj/DEPLOYMENT.md` **already**
 shows `repoed: true`: don't refuse — if `<git-info>` matches the
 registered `catalyst_repo_url`, create a new branch off `thingamabob`'s
 current state named `<name>` in its branch-safe form (§13) and stop
-there (no repo mutation, no `DEPLOYMENT.md` change); if `<git-info>`
+there (no repo mutation, no `.catalyst-proj/DEPLOYMENT.md` change); if `<git-info>`
 names a different repo, confirm explicitly with the user before doing
 anything, since that's an unusual second-repo scenario rather than
 ordinary branching. On the first-call path only, also run the identity
@@ -555,13 +573,13 @@ exception for this either); instead append one new entry (`action:
 file actually rewritten.
 
 When the user enters `/thingamabob push [--force]`, refuse with a clear
-message if `DEPLOYMENT.md` doesn't show `repoed: true` (point to
+message if `.catalyst-proj/DEPLOYMENT.md` doesn't show `repoed: true` (point to
 `/thingamabob create`). Resolve the current actor's push branch —
 `<git_username>.catalyst-proj` if they have one, otherwise the
 branch-safe form of `name` — and push local `.catalyst-proj/` there in
 the repoed repository (creating that branch on their first push). If
 `--force` is given: refuse unless the current actor matches
-`DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
+`.catalyst-proj/DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
 overwrite `thingamabob` directly from local state and skip everything
 below. Otherwise: (1) vet the incoming branch against `thingamabob` —
 `/check-rules` plus an independent four-eyes sub-agent pass checking
@@ -576,6 +594,52 @@ guessing; (3) update both `thingamabob` (the merge commit) and the
 contributor's own branch (fast-forwarded to match); (4) pull the updated
 `thingamabob` down and overwrite the local `.catalyst-proj/` directory
 and this session's in-memory record of it. Report the result.
+
+When the user enters `/project create <project name>: ...`, refuse if a
+`<app-name>.catalyst` pointer or an in-project `.catalyst-proj/` already
+exists at this project's root — point to `/project import ... force`
+instead. Otherwise run the instantiation procedure
+(`INSTANTIATION-GUIDE.md`): resolve `agent-source` (`BOOTSTRAP.md` §1),
+build the working copy there, then write `<app-name>.catalyst` from
+`templates/catalyst-pointer.template.json` with `<project name>` and the
+resolved `agent-source`. Report the result; per hard rule 4, nothing is
+committed automatically.
+
+When the user enters `/project remove <project name> [force]: ...`,
+without `force`: delete this project's `<app-name>.catalyst` (and, on
+the in-project fallback, stop treating that `.catalyst-proj/` as active)
+— nothing else. The working copy at `agent-source`, this agent's memory
+note, and any `thingamabob` repo are left exactly as they are (never
+delete, retire in place — `Rules-of-Rules.md` §14). With `force`: this is
+externally-visible within this agent's own state and hard to reverse, so
+confirm explicitly with the user first, distinct from the general assent
+already implied by invoking this command; then additionally delete the
+working copy at `agent-source` and this agent's memory note for the
+project. Never delete a `thingamabob` repo — that is a separate,
+possibly multi-contributor, externally-hosted artifact outside a local
+removal's scope, regardless of `force`.
+
+When the user enters `/project export <project name> [export filename]:
+...`, resolve `agent-source` for `<project name>` and read every file
+under its working copy into one JSON bundle keyed by path relative to
+`.catalyst-proj/`, plus the pointer fields from `<app-name>.catalyst`
+(all but `agent-source`, which is meaningless outside this machine).
+Write it to `<export filename>` if given, else
+`<project name>-catalyst-export-<UTC timestamp>.json` in the current
+directory. Report the result.
+
+When the user enters `/project import <export filename> [force]: ...`,
+without `force`: refuse if a `<app-name>.catalyst` pointer or an
+in-project `.catalyst-proj/` already exists at the current project's
+root — point to the `force` form instead. Otherwise (or with `force`,
+after confirming explicitly with the user what will be overwritten):
+parse the bundle, resolve a **fresh** `agent-source` (never the
+exporting machine's original), materialize every bundled file there,
+then write `<app-name>.catalyst` carrying the bundle's pointer fields
+over as-is (`repoed`, `catalyst_repo`, `catalyst_repo_url`,
+`created_by`) with `agent-source` set to the new location. Append one
+journal entry for the import (`action: "import"`), then report the
+result.
 
 When the user enters `/status <artefact-id> <status> [force]`, update the
 artifact's `Status` field. If the supplied status is one of the valid statuses
