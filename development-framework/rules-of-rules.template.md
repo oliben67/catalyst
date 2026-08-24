@@ -562,12 +562,15 @@ branch-safe form of `name` — in the dedicated repo (creating that branch
 if it's this user's first push, the same branch `/thingamabob get` would
 have created for them if they joined that way instead). Then:
 
-1. **Vet** the incoming branch against `thingamabob`: run `/dogfood`
-   (`CODE-OF-CONDUCT.md` §4) against the merged-in state — the same
-   `/check-rules` + four-eyes sub-agent check available standalone,
-   reused here rather than re-described. Disagreement between the two
-   sub-agents, or a rule violation either flags, is not silently
-   resolved — surface it and stop short of merging.
+1. **Vet** the incoming branch against `thingamabob`: run `/check-rules`
+   against the merged-in state, plus an independent four-eyes sub-agent
+   pass checking whether that state still matches what its own rules
+   claim. Disagreement between the two sub-agents, or a rule violation
+   either flags, is not silently resolved — surface it and stop short of
+   merging. (This is the same procedure `/dogfood` runs standalone when
+   developing catalyst itself — see the note below; it isn't available
+   in an ordinary deployment, so this step describes it directly rather
+   than depending on that command existing.)
 2. **Merge** using AI where a plain merge can't resolve it: attempt a
    normal merge of the branch into `thingamabob` first; only where that
    leaves conflicts (git-level, or a vetting-flagged semantic clash), a
@@ -600,3 +603,15 @@ template* into a deployment; this synchronizes one deployment's *own
 state* across its contributors) and not a substitute for the journal
 (§12) — a `thingamabob` merge is itself a change subject to the same
 journaling rule as any other, once it lands locally.
+
+### `/dogfood` is catalyst-development-only
+
+The vetting procedure above (`/check-rules` + a four-eyes drift check) is
+also available as a standalone command, `/dogfood` — but only when
+developing catalyst itself, never as part of what an ordinary deployment
+exposes. It isn't listed in `CODE-OF-CONDUCT.md` §4 and
+`INSTANTIATION-GUIDE.md`/`SYNCHRONIZE.md` never materialize a
+`.claude/commands/dogfood.md` for a deployed project; it exists only in
+catalyst's own repository, for verifying catalyst's own rules against
+catalyst's own actual state. `/commands list` (§4) surfaces it when
+running in that context, and stays silent about it everywhere else.

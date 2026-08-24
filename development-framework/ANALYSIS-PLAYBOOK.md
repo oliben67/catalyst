@@ -2,11 +2,9 @@
 
 A recipe for bootstrapping this framework's rules/domains/bugs against an
 **existing** codebase that has no prior rules documentation — the process
-actually used to build this project's own
-`<resolved-proj-data-target>/rules/` directory (for example
-`../.thingamabob/rules/` when `proj-data.target` resolves to
-`.thingamabob`). Reusable
-on any project once you've picked your rule document(s) and prefixes per
+used to build this project's own [`.catalyst-proj/rules/`](../.catalyst-proj/rules/)
+directory. Reusable on any project once you've picked your rule
+document(s) and prefixes per
 [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
 
 ## The four-eyes principle

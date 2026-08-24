@@ -1,12 +1,17 @@
 # Catalyst Framework
 
 A project-agnostic, portable specification for how any codebase organizes
-its rules, its development work, and its agile process — extrapolated
-from the concrete system built in this repo's
-[`.thingamabob/`](../.thingamabob/) folder. That folder is
-**one instantiation** of this framework, for this project; this folder is
-the generic template for standing the same system up in any project so it
+its rules, its development work, its agile process, its roadmap, its
+accountability, and its own change history — extrapolated from the
+concrete system built in this repo's own [`.catalyst-proj/`](../.catalyst-proj/)
+deployment. That folder is **one instantiation** of this framework, for
+this project, built via the retrofit path (§4 below); this folder is the
+generic template for standing the same system up in any project so it
 can create rules that fit that project's reality.
+
+(`thingamabob` is a different thing entirely as of INV-18 — the
+canonical branch name in a *repoed* deployment's dedicated sync
+repository, not a folder. See §13 of `rules-of-rules.template.md`.)
 
 ## What this framework is
 
@@ -42,6 +47,38 @@ invariant: when work on one actually starts, that work is tracked as a
 against every existing rule document, assigned a domain, and measured for
 completion. See `Rules-of-Rules.md` §9.
 
+`FEAT-` entries can themselves be bulk-populated: named roadmaps
+(`development/roadmaps/<name>.md`, one file per external source ingested
+via `/roadmap-add`/`-update`/`-merge`) hold `RM-NNNN` items with their own
+Status, triaged into a `FEAT-` when a human decides one's worth tracking.
+See `Rules-of-Rules.md` §10.
+
+Every artifact this framework creates — dev-artifact, feature, roadmap
+item, or work item — carries a `Signed-off-by` field, resolved against
+`development/users.json` (managed by `/user-add`/`-remove`/`-modify`/
+`-assign-role`) and `development/roles.json` (the role → typical-action
+mapping, `/role-add`/`-modify`). A deployment must always have at least
+one active user; beyond that, role checks are advisory, not access
+control — see `Rules-of-Rules.md` §11.
+
+Every rule-linked change also appends one entry to
+`development/journal.jsonl`, an append-only, transaction-log-grade
+record: exact git content hashes before/after per touched file, the
+rule(s) it served, and the actual intent behind it. Precise enough that
+`/journal-restore <timestamp>` can materialize the tree as it stood at
+any point into a side directory — real reconstruction, not narrative.
+See `Rules-of-Rules.md` §12.
+
+A deployment can additionally opt into being **repoed**: `.catalyst-proj/`
+mirrored through a dedicated repository so multiple contributors converge
+on one agreed-upon state instead of silently diverging.
+`/thingamabob create`/`get`/`push` manage it; every push is vetted against
+the framework's own rules (`/check-rules` plus a four-eyes drift check)
+before an AI-assisted merge lands it on the canonical `thingamabob`
+branch. `/dogfood` runs that same vetting procedure standalone, but only
+against catalyst's own repository — it's never part of what a deployed
+project carries. See `Rules-of-Rules.md` §13.
+
 ## Files in this folder
 
 | File | Purpose |
@@ -51,7 +88,7 @@ completion. See `Rules-of-Rules.md` §9.
 | [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
 | [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, feature, house-keeping, meta-tag, epic, story, task, spike, sprint, domain, slash-command, backlog, roadmap, roles, users, journal). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
-| [`version.txt`](version.txt) | Current framework version (`0.1.10`). |
+| [`version.txt`](version.txt) | Current framework version. |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
 
 ## Folder guides
@@ -89,12 +126,17 @@ governed after the fact.
 ## Retrofitting an existing project
 
 See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §4. This repo's own
-`.thingamabob/` folder was retrofitted this way — its
-`Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and
-`rules-of-work-items.md` each carry a header noting they are this
-project's instantiation of the corresponding template here, so the two
-stay traceable to each other as this framework evolves.
+[`.catalyst-proj/`](../.catalyst-proj/) was retrofitted this way — its
+`Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and `rules-of-work-items.md`
+each carry a header noting they are this project's instantiation of the
+corresponding template here, so the two stay traceable to each other as
+this framework evolves. Its one rule document
+(`rules/framework/fw-framework-rules.md`) retrofits every entry in
+`INVARIANTS.md` into a real, ID'd rule, honestly marked ✅ where a
+`scripts/check_*.py` function and test actually enforce it and ⚠️ where
+it's behavioural (agent conduct during a session) rather than
+machine-checkable from a tree snapshot.
 
 The instantiation guide also now includes a persistent-memory step so the
-project path and `.thingamabob/` location used for deployment are remembered
-across sessions.
+project path and `.catalyst-proj/` location used for deployment are
+remembered across sessions.

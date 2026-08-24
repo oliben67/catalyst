@@ -84,8 +84,12 @@ every artifact file actually rewritten.
    `created_by`. Otherwise confirm with the user, then overwrite
    `thingamabob` directly from local state and skip everything below.
 4. Otherwise:
-   a. **Vet**: run `/dogfood` against the merged-in state. Disagreement
-      between its two sub-agents, or a flagged violation, stops here.
+   a. **Vet**: run `/check-rules` against the merged-in state, plus an
+      independent four-eyes sub-agent pass checking whether it still
+      matches what its own rules claim. Disagreement between the two
+      sub-agents, or a flagged violation, stops here. (This is the exact
+      procedure `/dogfood` runs standalone when developing catalyst
+      itself — not available here, so described directly instead.)
    b. **Merge**: attempt a normal merge first. Only where that leaves
       conflicts (git-level or vetting-flagged), have a sub-agent propose
       a resolution guided by `Rules-of-Rules.md` §1's conflict-check
