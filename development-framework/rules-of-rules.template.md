@@ -621,7 +621,9 @@ record it before proceeding. What happens next depends on that value:
 **`thingamabob_branch` is a real contributor branch** (the default —
 `<git_username>.catalyst-proj` once the actor has one, otherwise the
 branch-safe form of `name`): push the local `.catalyst-proj/` state
-there (creating the branch on this actor's first push), then:
+there (creating the branch on this actor's first push) — scoped to this
+actor's own objects unless they hold the `Admin` role (see "Signed-object
+scoping" below) — then:
 
 1. **Vet** the incoming branch against `thingamabob`: run `/check-rules`
    against the merged-in state, plus an independent four-eyes sub-agent
@@ -647,6 +649,27 @@ there (creating the branch on this actor's first push), then:
    overwrite the local `.catalyst-proj/` directory (and this session's own
    in-memory record of it) to match — the local copy never silently drifts
    from what was just agreed upon remotely.
+
+### Signed-object scoping
+
+A contributor-branch push (not single-maintainer mode, not `--force`)
+only ever pushes artifact files whose own `Signed-off-by` names the
+current actor (`git_username` once migrated, else `name`) — a file
+signed by someone else is left out of *this* push rather than swept up
+wholesale, so pushing your own local state can never be the vehicle for
+carrying someone else's un-vetted change. An actor holding the `Admin`
+role (`IAM/roles/roles.json`) is exempt from this scoping and pushes
+everything, same as before this rule existed. The scoping applies only
+to individually-signed artifact files — shared registries/indexes
+(`rules.md`, `requirements.md`, `roadmaps.md`, `BACKLOG.md`,
+`IAM/users/users.json`, `IAM/roles/roles.json`) and the journal aren't
+signed by one person and are never filtered on their own; they only
+ever carry entries the actor was already entitled to add through the
+command that wrote them. If scoping excludes anything, report exactly
+which files and why — a smaller-than-expected push is never silent.
+This narrows what a push contains; it doesn't refuse the command itself
+(`rr-META-011`'s advisory-roles principle) — a non-`Admin` actor's push
+still succeeds, just scoped to what they signed.
 
 **`thingamabob_branch` is `thingamabob` itself** (single-maintainer
 mode): push the local `.catalyst-proj/` state directly onto

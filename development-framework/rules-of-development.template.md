@@ -625,8 +625,18 @@ deployment from before this field existed), ask now — same question as
 **If `thingamabob_branch` names a real contributor branch**
 (`<git_username>.catalyst-proj` if the actor has one, otherwise the
 branch-safe form of `name`): push local `.catalyst-proj/` there in the
-repoed repository (creating that branch on their first push). If
-`--force` is given: refuse unless the current actor matches
+repoed repository (creating that branch on their first push), **scoped
+to artifact files whose `Signed-off-by` names the current actor** —
+check the actor's `roles` array in `IAM/users/users.json` against
+`IAM/roles/roles.json`; if it includes the `Admin` role, skip scoping
+and push everything. Otherwise leave out any artifact file signed by
+someone else, and report which files (if any) were excluded and why.
+Shared registries/indexes (`rules.md`, `requirements.md`,
+`roadmaps.md`, `BACKLOG.md`, `IAM/users/users.json`,
+`IAM/roles/roles.json`) and the journal aren't signed by one person and
+are never filtered by this rule. This scopes what gets pushed; it never
+refuses the command outright. If `--force` is given: refuse unless the
+current actor matches
 `.catalyst-proj/DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
 overwrite `thingamabob` directly from local state and skip everything
 below. Otherwise: (1) vet the incoming branch against `thingamabob` —
