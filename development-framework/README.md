@@ -38,28 +38,34 @@ stable, permanent, never-reused ID. This is what makes "why does this code
 do X" and "what rule does this ticket satisfy" both answerable by
 following IDs, in either direction, indefinitely.
 
-Sitting above all of this, `FEAT-NNNN` feature entries (`features/`) are a
+Sitting above all of this, `FEAT-NNNNNN` feature entries (`features/`) are a
 separate, optional, **non-rule-linked** layer — a place to write down new or
 future app functionality as an idea or roadmap item, before it's ready to be
 measured. A feature is never itself implemented and never breaks the chain's
 invariant: when work on one actually starts, that work is tracked as a
-`REQ-NNNN` requirement (never a `BUG-NNNN`), which is what gets vetted
+`REQ-NNNNNN` requirement (never a `BUG-NNNNNN`), which is what gets vetted
 against every existing rule document, assigned a domain, and measured for
 completion. See `Rules-of-Rules.md` §9.
 
 `FEAT-` entries can themselves be bulk-populated: named roadmaps
 (`development/roadmaps/<name>.md`, one file per external source ingested
-via `/roadmap-add`/`-update`/`-merge`) hold `RM-NNNN` items with their own
+via `/roadmap-add`/`-update`/`-merge`) hold `RM-NNNNNN` items with their own
 Status, triaged into a `FEAT-` when a human decides one's worth tracking.
 See `Rules-of-Rules.md` §10.
 
 Every artifact this framework creates — dev-artifact, feature, roadmap
 item, or work item — carries a `Signed-off-by` field, resolved against
-`development/users.json` (managed by `/user-add`/`-remove`/`-modify`/
-`-assign-role`) and `development/roles.json` (the role → typical-action
+`IAM/users/users.json` (managed by `/user-add`/`-remove`/`-modify`/
+`-assign-role`) and `IAM/roles/roles.json` (the role → typical-action
 mapping, `/role-add`/`-modify`). A deployment must always have at least
 one active user; beyond that, role checks are advisory, not access
 control — see `Rules-of-Rules.md` §11.
+
+Every artifact-type directory follows the same shape — a versioned,
+catalogued `templates/` subdirectory and its own `README.md`
+(`INVARIANTS.md` INV-20, `Rules-of-Rules.md` §15) — including `boards/`
+and `workflows/` (optional, per agile flavor) and a `tickets/` slot
+reserved for plugin population rather than a core-defined type.
 
 Every rule-linked change also appends one entry to
 `development/journal.jsonl`, an append-only, transaction-log-grade
@@ -90,6 +96,8 @@ project carries. See `Rules-of-Rules.md` §13.
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version. |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
+| [`ARTIFACT-LAYOUT.md`](ARTIFACT-LAYOUT.md) | Clean, standalone reference tree for the deployed uniform artifact-type layout (`Rules-of-Rules.md` §15, INV-20) — the shape alone, without the deploy-procedure prose. |
+| [`migrations/`](migrations/) | One-time migration plans for bringing an existing deployment up to a framework version that changed the deployed shape. |
 
 ## Folder guides
 

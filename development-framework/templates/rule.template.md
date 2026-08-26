@@ -1,6 +1,6 @@
 # Rule template
 
-> Copy this file to `{{RULES_DIR}}/TEMPLATE-RULE.md` and resolve every `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
+> Copy this file to `{{RULES_DIR}}/templates/TEMPLATE-RULE-v1.md` and resolve every `{{PLACEHOLDER}}` (INV-8, INV-20 — never at the rules root directly). See [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
 
 Use this template to create one concrete rule file per rule under the relevant
 rule-type directory, for example `{{RULES_DIR}}/{{RULE_TYPE_DIR}}/{{RULE_SLUG}}.md`.

@@ -1,13 +1,13 @@
-# `EPIC-NNNN` — short title
+# `EPIC-NNNNNN` — short title
 
 | Field | Value |
 |---|---|
-| **ID** | `EPIC-NNNN` |
+| **ID** | `EPIC-NNNNNN` |
 | **Status** | proposed / committed / in-progress / done / abandoned |
 | **Opened** | YYYY-MM-DD |
 | **Domain(s)** | `DOMAIN` code(s) this epic spans |
 | **Sponsor / owner** | who's accountable |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this epic — see `CODE-OF-CONDUCT.md` §2 |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this epic — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Goal
 
@@ -26,7 +26,7 @@ What's in, what's explicitly out.
 
 | Story | Title | Status |
 |---|---|---|
-| `STORY-NNNN` | … | … |
+| `STORY-NNNNNN` | … | … |
 
 An epic with zero stories is still in grooming, not committed.
 

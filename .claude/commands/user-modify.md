@@ -1,5 +1,5 @@
 ---
-description: Edit a registered user's notes or reactivate them in .catalyst-proj/development/users.json (role changes go through /user-assign-role instead)
+description: Edit a registered user's notes or reactivate them in .catalyst-proj/IAM/users/users.json (role changes go through /user-assign-role instead)
 argument-hint: <name> <field> <value>
 ---
 
@@ -10,7 +10,7 @@ Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name> <field> <value>`. If any part is
    missing, ask for it.
-2. If `<name>` has no entry in `.catalyst-proj/development/users.json`, refuse and point
+2. If `<name>` has no entry in `.catalyst-proj/IAM/users/users.json`, refuse and point
    to `/user-add`.
 3. Only `notes` and `active` (`true`/`false`) are editable this way.
    - `<field>` = `roles`: refuse and point to `/user-assign-role`

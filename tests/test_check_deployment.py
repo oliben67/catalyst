@@ -13,8 +13,9 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     rules = root / "rules"
     business = rules / "business"
     business.mkdir(parents=True)
+    (rules / "templates").mkdir()
 
-    (rules / "TEMPLATE-RULE.md").write_text("# Rule template\n")
+    (rules / "templates" / "TEMPLATE-RULE-v1.md").write_text("# Rule template\n")
     (rules / "rules.md").write_text(
         "# Rules index\n\n- br-AUTH-001-login-flow\n"
     )
@@ -31,13 +32,18 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     roadmaps = development / "roadmaps"
     roadmaps.mkdir()
     (roadmaps / "roadmaps.md").write_text("# Roadmaps index\n\n*(none)*\n")
-    (development / "users.json").write_text(json.dumps({
+    iam = root / "IAM"
+    users_dir = iam / "users"
+    roles_dir = iam / "roles"
+    users_dir.mkdir(parents=True)
+    roles_dir.mkdir()
+    (users_dir / "users.json").write_text(json.dumps({
         "users": [
             {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
              "active": True, "notes": ""},
         ]
     }))
-    (development / "roles.json").write_text(json.dumps({
+    (roles_dir / "roles.json").write_text(json.dumps({
         "roles": [{"name": "Developer", "actions": ["/create-bug"]}]
     }))
     (development / "journal.jsonl").write_text(
@@ -46,11 +52,11 @@ def make_valid_deployment(tmp_path: Path) -> Path:
             "actor": "Ada",
             "command": "/create-bug",
             "action": "create",
-            "artifact": "BUG-0001",
+            "artifact": "BUG-000001",
             "targets": ["br-AUTH-001"],
             "intent": ["fix a real bug"],
             "files": [
-                {"path": "development/bugs/BUG-0001-x.md",
+                {"path": "development/bugs/BUG-000001-x.md",
                  "before": None,
                  "after": "a" * 40},
             ],
@@ -133,8 +139,8 @@ def test_check_naming_rejects_bare_id_filename(tmp_path: Path):
 
 def test_check_naming_ignores_index_and_template_files(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    # rules.md and TEMPLATE-RULE.md are already present and bare-named;
-    # a clean tree must not flag them.
+    # rules.md and rules/templates/TEMPLATE-RULE-v1.md are already present
+    # and bare-named; a clean tree must not flag them.
     assert cd.check_naming(root) == []
 
 
@@ -152,24 +158,24 @@ def test_check_naming_ignores_named_roadmap_files(tmp_path: Path):
 
 def test_check_single_rule_template_missing(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "rules" / "TEMPLATE-RULE.md").unlink()
+    (root / "rules" / "templates" / "TEMPLATE-RULE-v1.md").unlink()
     errors = cd.check_single_rule_template(root)
-    assert any("expected exactly one" in e for e in errors)
+    assert any("no TEMPLATE-RULE" in e for e in errors)
 
 
-def test_check_single_rule_template_duplicated(tmp_path: Path):
+def test_check_single_rule_template_multiple_versions_is_fine(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "rules" / "business" / "TEMPLATE-RULE.md").write_text("dup\n")
-    errors = cd.check_single_rule_template(root)
-    assert any("expected exactly one" in e for e in errors)
+    # INV-20: versioning means adding a new file, never editing in place —
+    # v1 and v2 coexisting in templates/ is the normal, expected state.
+    (root / "rules" / "templates" / "TEMPLATE-RULE-v2.md").write_text("v2\n")
+    assert cd.check_single_rule_template(root) == []
 
 
 def test_check_single_rule_template_wrong_location(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "rules" / "TEMPLATE-RULE.md").unlink()
-    (root / "rules" / "business" / "TEMPLATE-RULE.md").write_text("misplaced\n")
+    (root / "rules" / "business" / "TEMPLATE-RULE-v1.md").write_text("misplaced\n")
     errors = cd.check_single_rule_template(root)
-    assert any("must live in rules/ root" in e for e in errors)
+    assert any("must live in rules/templates/" in e for e in errors)
 
 
 def test_check_single_rule_template_missing_rules_dir(tmp_path: Path):
@@ -186,6 +192,40 @@ def test_check_rule_indexing_flags_orphan_rule(tmp_path: Path):
     )
     errors = cd.check_rule_indexing(root)
     assert any("br-AUTH-002-logout-flow" in e and "orphan" in e for e in errors)
+
+
+def test_check_rule_indexing_ignores_domain_files(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    domains = root / "rules" / "domains"
+    domains.mkdir()
+    (domains / "br-AUTH-user-authentication.md").write_text(
+        "# br-AUTH — User authentication\n\n**Document:** ...\n"
+    )
+    # Domain files are not rule documents (INV-20) — exempt from both the
+    # rules.md orphan check and the ## Contents / Known Bugs heading check.
+    assert cd.check_rule_indexing(root) == []
+    assert cd.check_required_headings(root) == []
+
+
+def test_check_naming_ignores_templates_catalog_files(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "rules" / "templates" / "templates-rule.md").write_text(
+        "| Version | File | Timestamp | Notes |\n|---|---|---|---|\n"
+        "| v1 | TEMPLATE-RULE-v1.md | 2026-08-23 | Initial version. |\n"
+    )
+    assert cd.check_naming(root) == []
+
+
+def test_check_naming_ignores_tickets_boards_workflows_indexes(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    work_items = root / "work-items"
+    (work_items / "tickets").mkdir(parents=True)
+    (work_items / "tickets" / "tickets.md").write_text("# Tickets index\n")
+    (work_items / "boards").mkdir(parents=True)
+    (work_items / "boards" / "boards.md").write_text("# Boards index\n")
+    (work_items / "workflows").mkdir(parents=True)
+    (work_items / "workflows" / "workflows.md").write_text("# Workflows index\n")
+    assert cd.check_naming(root) == []
 
 
 def test_check_rule_indexing_missing_global_index(tmp_path: Path):
@@ -252,40 +292,40 @@ def test_check_roadmaps_index_exists_missing_development_dir(tmp_path: Path):
 
 def test_check_users_and_roles_exist_missing_users(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "users.json").unlink()
+    (root / "IAM" / "users" / "users.json").unlink()
     errors = cd.check_users_and_roles_exist(root)
-    assert any("INV-16" in e and "development/users.json is missing" in e
+    assert any("INV-16" in e and "IAM/users/users.json is missing" in e
                for e in errors)
     assert not any("roles.json" in e for e in errors)
 
 
 def test_check_users_and_roles_exist_missing_roles(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "roles.json").unlink()
+    (root / "IAM" / "roles" / "roles.json").unlink()
     errors = cd.check_users_and_roles_exist(root)
-    assert any("INV-16" in e and "development/roles.json is missing" in e
+    assert any("INV-16" in e and "IAM/roles/roles.json is missing" in e
                for e in errors)
     assert not any("users.json is missing" in e for e in errors)
 
 
 def test_check_users_and_roles_exist_missing_both(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "users.json").unlink()
-    (root / "development" / "roles.json").unlink()
+    (root / "IAM" / "users" / "users.json").unlink()
+    (root / "IAM" / "roles" / "roles.json").unlink()
     errors = cd.check_users_and_roles_exist(root)
     assert len(errors) == 2
 
 
-def test_check_users_and_roles_exist_missing_development_dir(tmp_path: Path):
+def test_check_users_and_roles_exist_missing_iam_dir(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    shutil.rmtree(root / "development")
+    shutil.rmtree(root / "IAM")
     errors = cd.check_users_and_roles_exist(root)
     assert len(errors) == 2
 
 
 def test_check_users_and_roles_exist_no_active_user(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "users.json").write_text(json.dumps({
+    (root / "IAM" / "users" / "users.json").write_text(json.dumps({
         "users": [
             {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
              "active": False, "notes": ""},
@@ -297,14 +337,14 @@ def test_check_users_and_roles_exist_no_active_user(tmp_path: Path):
 
 def test_check_users_and_roles_exist_empty_users_array(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "users.json").write_text(json.dumps({"users": []}))
+    (root / "IAM" / "users" / "users.json").write_text(json.dumps({"users": []}))
     errors = cd.check_users_and_roles_exist(root)
     assert any("no active user" in e for e in errors)
 
 
 def test_check_users_and_roles_exist_invalid_json(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    (root / "development" / "users.json").write_text("{not valid json")
+    (root / "IAM" / "users" / "users.json").write_text("{not valid json")
     errors = cd.check_users_and_roles_exist(root)
     assert any("not valid JSON" in e for e in errors)
 
@@ -401,6 +441,6 @@ def test_main_returns_zero_for_valid_deployment(tmp_path: Path, monkeypatch):
 
 def test_main_returns_one_for_broken_deployment(tmp_path: Path, monkeypatch):
     root = make_valid_deployment(tmp_path)
-    (root / "rules" / "TEMPLATE-RULE.md").unlink()
+    (root / "rules" / "templates" / "TEMPLATE-RULE-v1.md").unlink()
     monkeypatch.chdir(tmp_path)
     assert cd.main() == 1

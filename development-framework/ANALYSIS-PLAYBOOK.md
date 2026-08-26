@@ -155,7 +155,7 @@ For each functional-area group in this reconciled rule list, propose:
 ```
 
 Then mechanically assign IDs (`<prefix>-<CODE>-<NNN>`, in document
-order) and create each domain's `domains/<prefix>-<CODE>-<short-description>.md`
+order) and create each domain's `rules/domains/<prefix>-<CODE>-<short-description>.md`
 file per §6 — this step is deterministic, not another agent pass; a short
 script or careful manual edit is more reliable than delegating it.
 
@@ -172,7 +172,7 @@ matching rule ID. If no matching rule bullet exists, say so explicitly —
 that means the rule was never written down and needs to be added first.
 ```
 
-Then open `BUG-NNNN` docs per
+Then open `BUG-NNNNNN` docs per
 [`rules-of-development.template.md`](rules-of-development.template.md),
 citing the matched rule ID in `Targets`.
 

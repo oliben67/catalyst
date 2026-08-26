@@ -1,16 +1,16 @@
-# `BUG-NNNN` — descriptive title
+# `BUG-NNNNNN` — descriptive title
 
 | Field | Value |
 |---|---|
-| **ID** | `BUG-NNNN` |
-| **Filename** | descriptive kebab-case filename, e.g. `BUG-0012-password-reset-link-expired.md` — prefer specific problem/context over generic labels like `bug.md` or `auth-issue.md` |
+| **ID** | `BUG-NNNNNN` |
+| **Filename** | descriptive kebab-case filename, e.g. `BUG-000012-password-reset-link-expired.md` — prefer specific problem/context over generic labels like `bug.md` or `auth-issue.md` |
 | **Status** | open / in-progress / fixed / wontfix / duplicate-of `BUG-xxxx` |
 | **Severity** | Critical / High / Medium / Low — see scale below. **Required.** |
 | **Opened** | YYYY-MM-DD |
 | **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `CODE-OF-CONDUCT.md` §1) |
 | **Domain** | the `DOMAIN` code(s) of the targeted rule(s), from `{{RULES_DIR}}/domains/` |
 | **Area** | short free-text area label |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this bug — see `CODE-OF-CONDUCT.md` §2 |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this bug — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Severity scale
 

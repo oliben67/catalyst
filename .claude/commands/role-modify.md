@@ -1,5 +1,5 @@
 ---
-description: Change an existing role's mapped actions in .catalyst-proj/development/roles.json
+description: Change an existing role's mapped actions in .catalyst-proj/IAM/roles/roles.json
 argument-hint: <role> <actions>
 ---
 
@@ -10,7 +10,7 @@ Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<role> <actions>`. If either is missing, ask
    for it.
-2. If `<role>` has no entry in `.catalyst-proj/development/roles.json`, refuse and point
+2. If `<role>` has no entry in `.catalyst-proj/IAM/roles/roles.json`, refuse and point
    to `/role-add` instead.
 3. Replace that entry's `actions` array with `<actions>` and report the
    result.

@@ -5,7 +5,7 @@ argument-hint: <name>
 
 Delete or retire a named roadmap. Full spec:
 `.catalyst-proj/CODE-OF-CONDUCT.md` §4, template:
-`.catalyst-proj/development/roadmaps/TEMPLATE-ROADMAP.md`.
+`.catalyst-proj/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`.
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name>`. If missing, ask for it.
@@ -15,7 +15,7 @@ Input: $ARGUMENTS
    `.catalyst-proj/development/roadmaps/roadmaps.md`; report that it was removed.
 4. If any row has a non-empty `Linked` field, do **not** delete anything.
    Instead add a `**Retired:** <today>` field to the file, mark its
-   `roadmaps.md` row `retired`, and leave every row and `RM-NNNN` ID
+   `roadmaps.md` row `retired`, and leave every row and `RM-NNNNNN` ID
    exactly as they are. Tell the user it was retired, not removed,
    because deleting it would break a live `FEAT-`/`REQ-` cross-reference.
 5. Report the result. Do not commit or push — leave changes unstaged

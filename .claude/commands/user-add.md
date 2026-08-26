@@ -1,5 +1,5 @@
 ---
-description: Register a new user in .catalyst-proj/development/users.json with an initial role from .catalyst-proj/development/roles.json
+description: Register a new user in .catalyst-proj/IAM/users/users.json with an initial role from .catalyst-proj/IAM/roles/roles.json
 argument-hint: <name> <role>
 ---
 
@@ -10,18 +10,18 @@ templates: `development-framework/templates/users.template.json`,
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name> <role>`. If either is missing, ask for it.
-2. If `.catalyst-proj/development/roles.json` or `.catalyst-proj/development/users.json` doesn't exist
+2. If `.catalyst-proj/IAM/roles/roles.json` or `.catalyst-proj/IAM/users/users.json` doesn't exist
    yet, create them from
    `development-framework/templates/roles.template.json` (filled in with
    its default agile-role mapping) and
    `development-framework/templates/users.template.json` (`{"users": []}`)
    first.
-3. If `<name>` already has an entry in `.catalyst-proj/development/users.json`, refuse
+3. If `<name>` already has an entry in `.catalyst-proj/IAM/users/users.json`, refuse
    and point to `/user-modify`/`/user-assign-role` instead.
-4. If `<role>` isn't one of the roles listed in `.catalyst-proj/development/roles.json`,
+4. If `<role>` isn't one of the roles listed in `.catalyst-proj/IAM/roles/roles.json`,
    ask whether to use an existing role or run `/role-add` for `<role>`
    first.
-5. Append a new object to the `users` array in `.catalyst-proj/development/users.json`:
+5. Append a new object to the `users` array in `.catalyst-proj/IAM/users/users.json`:
    `{"name": "<name>", "roles": ["<role>"], "registered": "<today>",
    "active": true, "notes": ""}`.
 6. Report the result. If this is the project's first registered user,
