@@ -1,4 +1,4 @@
-# `HK-NNNN` — short title
+# `HK-NNNNNN` — short title
 
 House-keeping = development of tools/scripts/process that support the
 dev effort itself, not product behavior. Still requires a rule target,
@@ -7,14 +7,14 @@ verifiable/documented, even indirectly.
 
 | Field | Value |
 |---|---|
-| **ID** | `HK-NNNN` |
+| **ID** | `HK-NNNNNN` |
 | **Status** | proposed / in-progress / done / abandoned |
 | **Priority** | High / Medium / Low — how urgently this blocks or de-risks other work |
 | **Opened** | YYYY-MM-DD |
 | **Targets** | the rule ID(s) this work supports the enforcement/verification/documentation of. If genuinely none applies, state that explicitly rather than leaving the field blank |
 | **Domain** | the `DOMAIN` code of the targeted rule(s), or `META` if this supports a `rr-META-*` process rule |
 | **Area** | free-text, e.g. "CI", "test harness", "release tooling" |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this item — see `CODE-OF-CONDUCT.md` §2 |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this item — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
 

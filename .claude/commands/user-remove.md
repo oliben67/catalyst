@@ -1,5 +1,5 @@
 ---
-description: Deactivate a registered user in .catalyst-proj/development/users.json (never deletes the entry, so existing Signed-off-by references stay resolvable)
+description: Deactivate a registered user in .catalyst-proj/IAM/users/users.json (never deletes the entry, so existing Signed-off-by references stay resolvable)
 argument-hint: <name>
 ---
 
@@ -9,7 +9,7 @@ template: `development-framework/templates/users.template.json`.
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name>`. If missing, ask for it.
-2. If `<name>` has no entry in `.catalyst-proj/development/users.json`, refuse and say
+2. If `<name>` has no entry in `.catalyst-proj/IAM/users/users.json`, refuse and say
    so.
 3. If `<name>` is the only entry with `"active": true`, warn that
    deactivating them would leave the project with zero active users (a

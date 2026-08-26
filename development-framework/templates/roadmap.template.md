@@ -1,8 +1,9 @@
-# `RM-NNNN` roadmap — template
+# `RM-NNNNNN` roadmap — template
 
-> Copy this file to `development/roadmaps/TEMPLATE-ROADMAP.md` on first
-> deploy (see `INSTANTIATION-GUIDE.md` and `INVARIANTS.md` INV-15), the
-> same way every other `TEMPLATE-<TYPE>.md` seeds its type. `/roadmap-add
+> Copy this file to `development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`
+> on first deploy (see `INSTANTIATION-GUIDE.md` and `INVARIANTS.md`
+> INV-15, INV-20), the same way every other `TEMPLATE-<TYPE>-vN.md` seeds
+> its type. `/roadmap-add
 > <name> <file>` then copies *this* template to
 > `development/roadmaps/<name>.md` each time a new named roadmap is
 > ingested — one file per named roadmap, registered in
@@ -10,7 +11,7 @@
 >
 > Unlike the other artifact templates, a roadmap file is not filled in
 > once by a human: `/roadmap-add`/`/roadmap-update`/`/roadmap-merge` add
-> or update its `RM-NNNN` rows from an external source file, and
+> or update its `RM-NNNNNN` rows from an external source file, and
 > `/show-backlog` refreshes each row's `Status`/`Linked` columns from
 > whichever `FEAT-`/`REQ-` is currently linked to it. Hand-edit the
 > `Notes` column freely; never hand-edit `Status` or `Linked` — the next
@@ -27,21 +28,21 @@
 
 | ID | Title | Status | Linked | Signed-off-by | Notes |
 |---|---|---|---|---|---|
-| `RM-0001` | {{short title, as given by the source file}} | Not triaged | *(none)* | {{registered user who ran the ingest — see `CODE-OF-CONDUCT.md` §2}} | {{free text}} |
+| `RM-000001` | {{short title, as given by the source file}} | Not triaged | *(none)* | {{registered user who ran the ingest — see `CODE-OF-CONDUCT.md` §2}} | {{free text}} |
 
 ## Status values
 
 - **Not triaged** — ingested; no `FEAT-`/`REQ-` for it yet.
-- **Triaged** — a `FEAT-NNNN` exists for this item (see its `Roadmap` field).
-- **In progress** — the linked `FEAT-` was promoted to a `REQ-NNNN` that is not yet done.
-- **Done** — the linked `REQ-NNNN` is complete.
+- **Triaged** — a `FEAT-NNNNNN` exists for this item (see its `Roadmap` field).
+- **In progress** — the linked `FEAT-` was promoted to a `REQ-NNNNNN` that is not yet done.
+- **Done** — the linked `REQ-NNNNNN` is complete.
 
 ## How this file is maintained
 
 - `/roadmap-add <name> <file>` creates this file (this template, once)
-  and parses `<file>` into one `RM-NNNN` row per distinct item it
+  and parses `<file>` into one `RM-NNNNNN` row per distinct item it
   identifies (`Not triaged`, globally next ID across every named
-  roadmap — never reused, same as `FEAT-NNNN`), `Signed-off-by` set per
+  roadmap — never reused, same as `FEAT-NNNNNN`), `Signed-off-by` set per
   `CODE-OF-CONDUCT.md` §2.
 - `/roadmap-update <name> <file>` re-reads `<file>` as the new full,
   authoritative version of this roadmap: adds rows for new items,
@@ -63,8 +64,8 @@
   exactly as they are, resolvable, just excluded from `/show-backlog`'s
   active Roadmap section going forward.
 - A row stays `Not triaged` until a human decides it's worth tracking
-  inside catalyst, at which point `/create-feature` opens its `FEAT-NNNN`
-  (citing this row's `RM-NNNN` ID in the feature's own `Roadmap` field).
+  inside catalyst, at which point `/create-feature` opens its `FEAT-NNNNNN`
+  (citing this row's `RM-NNNNNN` ID in the feature's own `Roadmap` field).
 - From there, the normal `FEAT-` → `REQ-` promotion applies
   (`Rules-of-Rules.md` §9/§10, `INVARIANTS.md` INV-9); this file's
   `Status`/`Linked` columns always mirror whichever artifact is currently

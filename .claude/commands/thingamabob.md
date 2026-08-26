@@ -15,17 +15,28 @@ invoking this command already implies intent to push.**
 
 **First call for this deployment** (`.catalyst-proj/DEPLOYMENT.md` doesn't
 show `repoed: true` yet):
-1. Check whether `<git-info>` already exists. If it does, register it
-   as-is. If it doesn't, confirm with the user, then create it there
-   under `<name>`.
+1. Check whether `<git-info>` already exists.
+   - If it doesn't, confirm with the user, then create it there under
+     `<name>`.
+   - If it does, inspect its content before registering it as-is: if
+     it's genuinely this same deployment's own prior state, proceed; if
+     it holds *unrelated* content (a different project's own
+     `.catalyst-proj/` deployment, not a rejoin of this one), stop and
+     confirm explicitly with the user before doing anything — same tier
+     of confirmation as creating a new repo.
 2. Write `repoed: true`, `catalyst_repo: <name>`, `catalyst_repo_url:
    <git-info>`, `created_by: <current Signed-off-by actor>` to
    `.catalyst-proj/DEPLOYMENT.md`.
-3. Push the current local `.catalyst-proj/` state as the first commit on
+3. **Ask which branch this actor will push to** — the suggested default
+   is their own `<branch-safe-name>.catalyst-proj`, but `thingamabob`
+   itself is a valid choice (see `push` below for what that changes).
+   Write the answer as `thingamabob_branch` in both
+   `.catalyst-proj/DEPLOYMENT.md` and `<app-name>.catalyst`.
+4. Push the current local `.catalyst-proj/` state as the first commit on
    a branch named `thingamabob` — the canonical, master version. Nothing
    is vetted on this first push.
-4. Run the **identity migration** (below) for the current actor.
-5. Report the result.
+5. Run the **identity migration** (below) for the current actor.
+6. Report the result.
 
 **Called again, already repoed:** don't refuse.
 - If `<git-info>` matches the already-registered `catalyst_repo_url`,
@@ -44,10 +55,13 @@ deployment yet — the join path.
    sanitization uniquely against already-registered users.
 2. Download `<repo>`'s `thingamabob` branch content and check out
    `<username>.catalyst-proj` (branch-safe form) from it as this user's
-   local `.catalyst-proj/`. Create a `development/users.json` entry for
+   local `.catalyst-proj/`. Create a `IAM/users/users.json` entry for
    them first if one doesn't exist yet.
-3. Run the identity migration (below) for this user.
-4. Report the result.
+3. **Ask which branch this actor will push to**, same as `create` above
+   — the just-created `<username>.catalyst-proj` is the default. Record
+   `thingamabob_branch`.
+4. Run the identity migration (below) for this user.
+5. Report the result.
 
 ## Branch-safe names
 
@@ -62,7 +76,7 @@ and ask for a manual override rather than silently colliding branches.
 ## Identity migration
 
 Part of both `create`'s first call and `get`. Set `git_username` on the
-current user's `development/users.json` entry (`git config user.name`,
+current user's `IAM/users/users.json` entry (`git config user.name`,
 branch-safe form, for `create`; the given `<username>` for `get`).
 Rewrite every existing artifact's `Signed-off-by` field currently naming
 this user's old `name` to their new `git_username` — from here on, every
@@ -75,32 +89,46 @@ every artifact file actually rewritten.
 ## `push [--force]`
 
 1. Refuse if `.catalyst-proj/DEPLOYMENT.md` doesn't show `repoed: true` (point to
-   `/thingamabob create`).
-2. Resolve the current actor's push branch — `<git_username>.catalyst-proj`
-   if they have one, otherwise the branch-safe form of `name` — and push
-   local `.catalyst-proj/` there (creating the branch on their first
-   push).
-3. If `--force`: refuse unless the current actor matches `.catalyst-proj/DEPLOYMENT.md`'s
-   `created_by`. Otherwise confirm with the user, then overwrite
-   `thingamabob` directly from local state and skip everything below.
-4. Otherwise:
-   a. **Vet**: run `/check-rules` against the merged-in state, plus an
-      independent four-eyes sub-agent pass checking whether it still
-      matches what its own rules claim. Disagreement between the two
-      sub-agents, or a flagged violation, stops here. (This is the exact
-      procedure `/dogfood` runs standalone when developing catalyst
-      itself — not available here, so described directly instead.)
-   b. **Merge**: attempt a normal merge first. Only where that leaves
-      conflicts (git-level or vetting-flagged), have a sub-agent propose
-      a resolution guided by `Rules-of-Rules.md` §1's conflict-check
-      principle — never silently drop either side's rule-compliant
-      intent, and stop to ask if a conflict is genuinely irreconcilable.
-   c. **Update both branches**: `thingamabob` gets the merge commit; the
-      contributor's own branch is fast-forwarded to match.
-   d. **Refresh locally**: pull the updated `thingamabob` and overwrite
-      the local `.catalyst-proj/` directory and this session's in-memory
-      record of it.
-5. Report the result.
+   `/thingamabob create`). If no `thingamabob_branch` is recorded yet (a
+   deployment from before this field existed), ask now — same question
+   as `create`'s — and record the answer before continuing.
+2. **If `thingamabob_branch` names a real contributor branch**
+   (`<git_username>.catalyst-proj` if the actor has one, otherwise the
+   branch-safe form of `name`):
+   a. Push local `.catalyst-proj/` there (creating the branch on their
+      first push).
+   b. If `--force`: refuse unless the current actor matches
+      `.catalyst-proj/DEPLOYMENT.md`'s `created_by`. Otherwise confirm
+      with the user, then overwrite `thingamabob` directly from local
+      state and skip everything below.
+   c. Otherwise:
+      - **Vet**: run `/check-rules` against the merged-in state, plus an
+        independent four-eyes sub-agent pass checking whether it still
+        matches what its own rules claim. Disagreement between the two
+        sub-agents, or a flagged violation, stops here. (This is the
+        exact procedure `/dogfood` runs standalone when developing
+        catalyst itself — not available here, so described directly
+        instead.)
+      - **Merge**: attempt a normal merge first. Only where that leaves
+        conflicts (git-level or vetting-flagged), have a sub-agent
+        propose a resolution guided by `Rules-of-Rules.md` §1's
+        conflict-check principle — never silently drop either side's
+        rule-compliant intent, and stop to ask if a conflict is
+        genuinely irreconcilable.
+      - **Update both branches**: `thingamabob` gets the merge commit;
+        the contributor's own branch is fast-forwarded to match.
+      - **Refresh locally**: pull the updated `thingamabob` and
+        overwrite the local `.catalyst-proj/` directory and this
+        session's in-memory record of it.
+3. **If `thingamabob_branch` *is* `thingamabob` itself**
+   (single-maintainer mode): push local `.catalyst-proj/` state directly
+   onto `thingamabob`, overwriting it — every time, no vetting, no
+   merge, not gated behind `--force`. Still refuse unless the current
+   actor matches `.catalyst-proj/DEPLOYMENT.md`'s `created_by`. This is
+   catalyst's own repo's expected mode — offered as the natural
+   follow-up after `/dogfood` ends clean or ends with fixes applied and
+   reverified, since that audit already served as the vetting step.
+4. Report the result.
 
 Not a replacement for `/sync-framework` (that syncs the framework
 *template* into a deployment; this syncs one deployment's *own state*

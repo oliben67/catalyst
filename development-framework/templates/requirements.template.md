@@ -1,6 +1,6 @@
-# `REQ-NNNN` — <project or requirement name>
+# `REQ-NNNNNN` — <project or requirement name>
 
-> Copy this file to `{{REQUIREMENTS_DIR}}/TEMPLATE-REQUIREMENT.md` and resolve every `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
+> Copy this file to `{{REQUIREMENTS_DIR}}/templates/TEMPLATE-REQUIREMENT-v1.md` and resolve every `{{PLACEHOLDER}}` (INV-20). See [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
 
 This document captures concrete, application-bound requirements derived
 from the project's rule documents, especially UI and business rules. Use
@@ -10,8 +10,8 @@ the main input for tests, acceptance criteria, and the bugs that will be
 raised when behavior is incorrect.
 
 This is also the artifact to open when a **new feature** needs to be
-developed — never a `BUG-NNNN` for that (a bug asserts an existing rule
-doesn't hold; a requirement introduces or extends behavior). A `FEAT-NNNN`
+developed — never a `BUG-NNNNNN` for that (a bug asserts an existing rule
+doesn't hold; a requirement introduces or extends behavior). A `FEAT-NNNNNN`
 entry (see [`features.template.md`](features.template.md)) may have
 motivated it, but a requirement stands on its own: it must be vetted
 against every existing rule document before it's opened, it always
@@ -20,14 +20,14 @@ more rules. None of those three are optional.
 
 | Field | Value |
 |---|---|
-| **ID** | `REQ-NNNN` |
-| **Filename** | descriptive kebab-case filename, e.g. `REQ-0002-password-reset-flow.md` — prefer specific problem/context over generic labels like `requirement.md` or `auth.md` |
+| **ID** | `REQ-NNNNNN` |
+| **Filename** | descriptive kebab-case filename, e.g. `REQ-000002-password-reset-flow.md` — prefer specific problem/context over generic labels like `requirement.md` or `auth.md` |
 | **Status** | proposed / approved / in-progress / done / rejected |
 | **Opened** | YYYY-MM-DD |
 | **Targets** | one or more rule IDs this requirement implements or extends — **required, never empty** (see `CODE-OF-CONDUCT.md` §1). If none exist yet, define them first (see New rules proposed below) |
 | **Domain** | the `DOMAIN` code(s) of the targeted/new rule(s), from `{{RULES_DIR}}/domains/` — **required, never free text** |
-| **Feature** | `FEAT-NNNN`, if this requirement was motivated by a documented feature — omit if none |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this requirement — see `CODE-OF-CONDUCT.md` §2 |
+| **Feature** | `FEAT-NNNNNN`, if this requirement was motivated by a documented feature — omit if none |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this requirement — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Vetted against existing rules
 
@@ -41,7 +41,7 @@ decision that authorized that).
 
 *(omit if this requirement fits an existing domain.)* Per
 `Rules-of-Rules.md` §7: domain-level conflict check performed; proposed
-code; the domain file content (`domains/<prefix>-<CODE>-<short-description>.md`)
+code; the domain file content (`rules/domains/<prefix>-<CODE>-<short-description>.md`)
 this will create, including Scope and Relationship to other domains.
 
 ## New rules proposed

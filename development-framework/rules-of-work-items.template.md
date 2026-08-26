@@ -23,25 +23,25 @@ EPIC ─▶ STORY ─▶ TASK           (agile layer — this document)
 
 ## 1. A story is not a substitute for a `REQ-`/`BUG-` doc
 
-Every `STORY-NNNN` links to exactly one `REQ-NNNN` (or `BUG-NNNN`). The
+Every `STORY-NNNNNN` links to exactly one `REQ-NNNNNN` (or `BUG-NNNNNN`). The
 `REQ-`/`BUG-` doc owns rule targets, conflict checks, and new-rule
 proposals. The story is the sized, scheduled slice of that same work.
 
 If a story has no `REQ-`/`BUG-` doc yet, create one before pulling the
-story into a sprint/iteration. (A `FEAT-NNNN` entry may motivate a story
+story into a sprint/iteration. (A `FEAT-NNNNNN` entry may motivate a story
 too, but it never substitutes for the `REQ-`/`BUG-` doc — features aren't
 rule-linked; see `Rules-of-Rules.md` §9.)
 
 ## 2. Tasks inherit their parent story's rule target
 
-A `TASK-NNNN` never gets its own rule target — it inherits its parent
+A `TASK-NNNNNN` never gets its own rule target — it inherits its parent
 story's. If task-level work needs a rule the story doesn't cover, fix the
 story/feature doc first rather than letting scope creep in unreviewed.
 
 ## 3. Spikes exist to produce rules or estimates, not code
 
-A `SPIKE-NNNN` is time-boxed and never itself "implements" anything. Its
-outcome is a new rule proposal (handed to a `REQ-NNNN`), an
+A `SPIKE-NNNNNN` is time-boxed and never itself "implements" anything. Its
+outcome is a new rule proposal (handed to a `REQ-NNNNNN`), an
 implementation approach, or a go/no-go decision. A spike that ships
 production code has stopped being a spike.
 
@@ -52,23 +52,59 @@ never targets a rule directly. "Done" means all child stories are done.
 
 ## 5. Iteration containers schedule work items; they don't reclassify them
 
-Whatever container your methodology uses (`SPRINT-NNN`, a Kanban column,
+Whatever container your methodology uses (`SPRINT-NNN`, `BOARD-NNNNNN`,
 etc.) holds `STORY-`/`TASK-`/`SPIKE-` IDs as-is — it never restates
 acceptance criteria or rule targets. Retro/review action items that imply
-a process change get filed as `HK-NNNN`, not left as an untracked note.
+a process change get filed as `HK-NNNNNN`, not left as an untracked note.
 
-## 6. IDs
+## 6. Boards are Kanban/Scrumban's container, not Scrum's
 
-Per `Rules-of-Rules.md` §8: `(EPIC|STORY|TASK|SPIKE)-NNNN` (4 digits),
-`SPRINT-NNN` (3 digits), each sequence global within its own type, never
-reused.
+A `BOARD-NNNNNN` is the Kanban-flavor structural counterpart to
+`SPRINT-NNN` (§2 of `INSTANTIATION-GUIDE.md`): a trackable container,
+`Status` of `Active`/`Archived`, that stories/tasks reference instead of
+sprint membership. A pure-Scrum deployment has no need for it, the same
+way a pure-Kanban deployment has no need for `sprints/` — pick the one
+your flavor actually uses, not both by default.
 
-## 7. Templates
+## 7. Workflows document a process, they are not themselves work
+
+A `WORKFLOW-NNNNNN` is a process-definition document — how a category of
+work moves through its steps (e.g. "how a bug moves from triage to
+resolution") — never a unit of work with acceptance criteria. `Status` is
+`Active`/`Deprecated`, reflecting whether the process is currently in
+use; a workflow is never "done" the way a story or task is.
+
+## 8. Tickets are a plugin-territory slot, not a core work-item type
+
+`tickets/` is scaffolded like every other artifact type (`Rules-of-Rules.md`
+§15) but core catalyst defines no `TICKET-NNNNNN` semantics, no `/create-ticket`
+command, and no lifecycle for it. Its actual population — typically
+syncing from or mirroring an external tracker — is the job of whichever
+project-management-type plugin is activated for that concern
+(`Rules-of-Rules.md` §8, INV-13). If no such plugin is active, the folder
+stays empty; that is not a deployment error.
+
+## 9. IDs
+
+Per `Rules-of-Rules.md` §8: `(EPIC|STORY|TASK|SPIKE|BOARD|WORKFLOW)-NNNNNN`
+(6 digits), `SPRINT-NNN` (3 digits), each sequence global within its own
+type, never reused. `TICKET-NNNNNN` is reserved but not core-managed (§8
+above) — whichever plugin populates it owns its own ID/sequencing
+behavior.
+
+## 10. Templates
 
 | Type | Folder | Template |
 |---|---|---|
+| Board | `boards/` | `templates/board.template.md` |
 | Epic | `epics/` | `templates/epic.template.md` |
 | Story | `stories/` | `templates/story.template.md` |
 | Task | `tasks/` | `templates/task.template.md` |
 | Spike | `spikes/` | `templates/spike.template.md` |
 | Sprint | `sprints/` | `templates/sprint.template.md` |
+| Workflow | `workflows/` | `templates/workflow.template.md` |
+| Ticket | `tickets/` | (plugin-provided — §8 above) |
+
+Each folder's template deploys nested and versioned per
+`Rules-of-Rules.md` §15 — e.g. `boards/templates/TEMPLATE-BOARD-v1.md`,
+not a bare `boards/TEMPLATE-BOARD.md`.

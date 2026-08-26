@@ -1,13 +1,13 @@
-# `TASK-NNNN` — short title
+# `TASK-NNNNNN` — short title
 
 | Field | Value |
 |---|---|
-| **ID** | `TASK-NNNN` |
+| **ID** | `TASK-NNNNNN` |
 | **Status** | todo / in-progress / review / done |
-| **Parent** | `STORY-NNNN` (technical/house-keeping work with no story goes under `HK-NNNN` directly instead) |
+| **Parent** | `STORY-NNNNNN` (technical/house-keeping work with no story goes under `HK-NNNNNN` directly instead) |
 | **Assignee** | who's doing it |
 | **Estimate** | hours or points, per team convention |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this task — see `CODE-OF-CONDUCT.md` §2 |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this task — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
 

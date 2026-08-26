@@ -30,14 +30,14 @@ process) — but it must be stated explicitly, not left blank.
 
 ## 2. Users, roles, and signing
 
-`development/users.json` is a JSON array of registered users
+`IAM/users/users.json` is a JSON array of registered users
 (`{name, roles, registered, active, notes}`, plus `git_username` once a
 repoed deployment resolves it — `Rules-of-Rules.md` §13), managed only by
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
 — see §4. Once a user has a `git_username`, every `Signed-off-by`/journal
 `actor` written for them uses that, never `name`. Each user has one or
 more roles drawn from
-`development/roles.json`, a JSON array of `{name, actions}` objects
+`IAM/roles/roles.json`, a JSON array of `{name, actions}` objects
 mapping each role to the actions/commands it's expected to perform.
 `roles.json` is seeded with a default agile-role mapping
 (`templates/roles.template.json`) and then extended via `/role-add`
@@ -48,7 +48,7 @@ exclusively by commands** — the same reasoning that keeps
 `development/BACKLOG.md` machine-only, just with structured data instead
 of a regenerated document.
 
-**Hard requirement: `development/users.json` must always have at least
+**Hard requirement: `IAM/users/users.json` must always have at least
 one entry with `"active": true`.** A project with nobody registered has
 nobody to sign work. `/user-remove` must refuse or warn (per its own
 spec) rather than silently drop the last active user to zero.
@@ -62,10 +62,10 @@ block:
    completes, resolve who is signing it: the user established earlier
    this session, or ask if not yet established (don't guess from git
    config — confirm with the user).
-2. Look up that name in `development/users.json`. If unregistered, say so
+2. Look up that name in `IAM/users/users.json`. If unregistered, say so
    and ask whether to proceed anyway or register them first via
    `/user-add`.
-3. Look up their role(s) in `development/roles.json` and check whether the
+3. Look up their role(s) in `IAM/roles/roles.json` and check whether the
    action being performed is one that role covers. If it isn't, say so
    and ask for confirmation before continuing — never refuse outright.
 4. Once confirmed (or if the role already covers the action), fill the
@@ -80,21 +80,21 @@ the command on their behalf.
 
 | Type | Folder | Template | ID prefix |
 |---|---|---|---|
-| Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNN` |
-| Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNN` |
-| House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNN` |
+| Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNNNN` |
+| Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNNNN` |
+| House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNNNN` |
 | Meta-tag | `meta-tags/` | `templates/meta-tag.template.md` | `TAG-<KEY>-<ARTEFACT-ID>` |
 
-Feature entries (`FEAT-NNNN`, folder `features/`, template
+Feature entries (`FEAT-NNNNNN`, folder `features/`, template
 `templates/features.template.md` → `TEMPLATE-FEATURE.md`) are a related
 but **separate, non-rule-linked** scheme — see `Rules-of-Rules.md` §9.
 They document possible future work, are not one of the four
 development-artifact types above, and are exempt from this document's
 rules (no `Targets`, no `Domain`, never "done" against a rule). When a
-new feature actually needs to be developed, open a `REQ-NNNN`
-requirement — never a `BUG-NNNN` — to track it.
+new feature actually needs to be developed, open a `REQ-NNNNNN`
+requirement — never a `BUG-NNNNNN` — to track it.
 
-Roadmap items (`RM-NNNN`, table rows inside `development/roadmaps/<name>.md`
+Roadmap items (`RM-NNNNNN`, table rows inside `development/roadmaps/<name>.md`
 files — one file per named roadmap, template `templates/roadmap.template.md`,
 index `development/roadmaps/roadmaps.md`) sit one level above feature
 entries — see `Rules-of-Rules.md` §10. They are populated by
@@ -102,7 +102,7 @@ entries — see `Rules-of-Rules.md` §10. They are populated by
 file rather than created one at a time, and are exempt from this document's
 rules the same way feature entries are (no `Targets`, no `Domain`, never
 "done" against a rule). Formalizing a roadmap item means opening a
-`FEAT-NNNN` for it via `/create-feature`, citing the `RM-NNNN` ID in the
+`FEAT-NNNNNN` for it via `/create-feature`, citing the `RM-NNNNNN` ID in the
 feature's `Roadmap` field.
 
 ### Hard rule: individual files and indexes
@@ -135,7 +135,7 @@ feature's `Roadmap` field.
   row's Notes column is pointless, the same way hand-editing `BACKLOG.md`
   is. See `INVARIANTS.md` INV-15.
 - **This is a hard requirement, stricter than the others above.**
-  `development/users.json` and `development/roles.json` always exist, and
+  `IAM/users/users.json` and `IAM/roles/roles.json` always exist, and
   `users.json` must contain **at least one entry with `"active": true`** —
   not "empty is fine," since a project with nobody registered has nobody
   to sign work. Both files are managed only by the `/user-*`/`/role-*`
@@ -195,11 +195,11 @@ The framework exposes the following custom slash commands:
   an existing named roadmap: add/update only the rows the delta
   mentions, without flagging anything as missing.
 - `/user-add <name> <role>` — register a new user in
-  `development/users.json` with an initial role from
-  `development/roles.json`. Refuses if `<name>` is already registered —
+  `IAM/users/users.json` with an initial role from
+  `IAM/roles/roles.json`. Refuses if `<name>` is already registered —
   use `/user-modify`/`/user-assign-role` instead.
 - `/user-remove <name>` — set `<name>`'s `active` field to `false` in
-  `development/users.json`. Never deletes the entry (see §2). Refuses or
+  `IAM/users/users.json`. Never deletes the entry (see §2). Refuses or
   warns if this would leave zero active users (hard rule, §2).
 - `/user-modify <name> <field> <value>` — edit `<name>`'s `notes` or
   `active` field. Refuses for `roles` (use `/user-assign-role`) and for
@@ -209,7 +209,7 @@ The framework exposes the following custom slash commands:
 - `/user-list [--role <role>] [--active-only]` — list registered users,
   optionally filtered.
 - `/role-add <role> <actions>` — add a new role entry to
-  `development/roles.json`. Refuses if `<role>` already exists — use
+  `IAM/roles/roles.json`. Refuses if `<role>` already exists — use
   `/role-modify` instead.
 - `/role-modify <role> <actions>` — replace an existing role's `actions`.
   Refuses if `<role>` doesn't exist — use `/role-add` instead.
@@ -222,7 +222,13 @@ The framework exposes the following custom slash commands:
 - `/create-spike` — create a new spike work item and register it in
   `spikes/spikes.md`.
 - `/create-sprint` — create a new sprint container and register it in
-  `sprints/sprints.md`.
+  `sprints/sprints.md`. Scrum flavor only (`rules-of-work-items.md` §2).
+- `/create-board` — create a new board container and register it in
+  `boards/boards.md`. Kanban/Scrumban flavor only — the structural
+  counterpart to `/create-sprint`.
+- `/create-workflow` — create a new process-definition document and
+  register it in `workflows/workflows.md`. Not a unit of work: no parent
+  epic/story link, `Status` is `Active`/`Deprecated`.
 - `/meta-tag` — create a new meta-tag artifact, save it as
   `tag-<key>-<artefact-id>`, register it in `meta-tags/meta-tags.md`, and
   link it to the specified artifact.
@@ -276,26 +282,40 @@ The framework exposes the following custom slash commands:
   directly from that plugin repository rather than from this repository.
 - `/thingamabob create <name> <git-info>` — bootstrap a repoed deployment
   (`Rules-of-Rules.md` §13, `INVARIANTS.md` INV-18): register or create
-  the dedicated repo, then push local `.catalyst-proj/` as the first
-  commit on its `thingamabob` branch. Also resolves the current actor's
-  `git_username` and migrates their prior `Signed-off-by` occurrences to
-  it (never the journal — see §9/§13). Called again against the same
-  repo with a different `<name>`, branches instead of refusing: a new
-  branch off `thingamabob`, named `<name>` in its branch-safe form.
+  the dedicated repo (confirm explicitly first if `<git-info>` already
+  has *unrelated* content — a different deployment's own state, not a
+  rejoin of this one), then ask which branch this actor will push to and
+  record it as `thingamabob_branch` in `<app-name>.catalyst`, then push
+  local `.catalyst-proj/` as the first commit on its `thingamabob`
+  branch. Also resolves the current actor's `git_username` and migrates
+  their prior `Signed-off-by` occurrences to it (never the journal — see
+  §9/§13). Called again against the same repo with a different `<name>`,
+  branches instead of refusing: a new branch off `thingamabob`, named
+  `<name>` in its branch-safe form.
 - `/thingamabob get <repo> <username>` — join an already-repoed
   deployment: download `<repo>`'s `thingamabob` branch and check out
   `<username>.catalyst-proj` (branch-safe form) from it as this user's
   local `.catalyst-proj/`. `<username>` is this user's `git_username`,
-  same identity-migration treatment as `create`.
-- `/thingamabob push [--force]` — vet the current user's push branch
-  (`<git_username>.catalyst-proj`, or the branch-safe form of `name` if
-  they don't have a `git_username` yet) against `thingamabob`
-  (`/check-rules` + a four-eyes sub-agent pass), AI-merge where a plain
-  merge can't resolve it, update both branches, and refresh the local
-  `.catalyst-proj/` to match. Refuses if not yet repoed (point to
-  `/thingamabob create`). `--force` skips vetting and overwrites
-  `thingamabob` directly — refused for anyone but the repo's
-  `created_by` user.
+  same identity-migration treatment as `create`. Also asks which branch
+  to push to and records `thingamabob_branch`, same as `create`.
+- `/thingamabob push [--force]` — refuses if not yet repoed (point to
+  `/thingamabob create`), or asks for and records `thingamabob_branch`
+  first if this deployment predates that field. If `thingamabob_branch`
+  is a real contributor branch (the default —
+  `<git_username>.catalyst-proj`, or the branch-safe form of `name`):
+  vet the pushed state against `thingamabob` (`/check-rules` + a
+  four-eyes sub-agent pass), AI-merge where a plain merge can't resolve
+  it, update both branches, and refresh the local `.catalyst-proj/` to
+  match; `--force` skips vetting for this one push and overwrites
+  `thingamabob` directly anyway — refused for anyone but the repo's
+  `created_by` user. If `thingamabob_branch` **is** `thingamabob`
+  itself (single-maintainer mode, e.g. catalyst's own self-dogfooding):
+  every push overwrites `thingamabob` directly, no vetting, no merge —
+  the normal behavior in this mode, not a `--force`-only shortcut —
+  still refused for anyone but `created_by`. After a `/dogfood` run that
+  ends clean or ends with fixes applied and reverified, offer this
+  command (`create` if not yet repoed, `push` otherwise) as the natural
+  next step — never run it automatically.
 - `/project create <project name>` — install a fresh catalyst deployment
   here (`Rules-of-Rules.md` §14): resolve `agent-source`, build the
   working copy there, and write `<app-name>.catalyst` at this project's
@@ -363,18 +383,18 @@ immediately using `templates/features.template.md`, register it in
 rule-linked development work. Do not prompt for a domain or rule target —
 neither field exists on this artifact type. If this feature formalizes an
 existing roadmap row (in any `development/roadmaps/<name>.md`), cite that
-row's `RM-NNNN` ID in the new feature's `Roadmap` field and set the row's
-`Status` to `Triaged` and `Linked` to the new `FEAT-NNNN`. If the user later
-asks to start building a registered feature, create a `REQ-NNNN`
+row's `RM-NNNNNN` ID in the new feature's `Roadmap` field and set the row's
+`Status` to `Triaged` and `Linked` to the new `FEAT-NNNNNN`. If the user later
+asks to start building a registered feature, create a `REQ-NNNNNN`
 requirement instead (prompting for domain/target rule as usual), and link
-it back to the `FEAT-NNNN` entry's `Requirement(s)` field.
+it back to the `FEAT-NNNNNN` entry's `Requirement(s)` field.
 
 When the user enters `/roadmap-add <name> <file>: ...`, refuse with a clear
 message if `development/roadmaps/<name>.md` already exists (point to
 `/roadmap-update`/`/roadmap-merge`). Otherwise read `<file>` from the
 local filesystem, identify its distinct items, and create
 `development/roadmaps/<name>.md` from `templates/roadmap.template.md` with
-one `RM-NNNN` row per item (`Status: Not triaged`, `Linked: *(none)*`),
+one `RM-NNNNNN` row per item (`Status: Not triaged`, `Linked: *(none)*`),
 IDs continuing the global sequence across every existing named roadmap —
 never reused, never guessed. Register the new roadmap in
 `development/roadmaps/roadmaps.md`, then report the roadmap name and the
@@ -385,14 +405,14 @@ if `development/roadmaps/<name>.md` does not exist. If every row's `Linked`
 field is empty, delete the file and its `roadmaps.md` entry outright and
 report that. If any row has a non-empty `Linked` field, do **not** delete
 anything — instead add a `Retired` field (today's date) to the file, mark
-its `roadmaps.md` entry `retired`, leave every row and `RM-NNNN` ID exactly
+its `roadmaps.md` entry `retired`, leave every row and `RM-NNNNNN` ID exactly
 as they are, and tell the user it was retired rather than removed because
 removing it would break a live `FEAT-`/`REQ-` cross-reference.
 
 When the user enters `/roadmap-update <name> <file>: ...`, refuse with a
 clear message if `development/roadmaps/<name>.md` does not exist (point to
 `/roadmap-add`). Otherwise treat `<file>` as the new full, authoritative
-version of this roadmap: add a new `RM-NNNN` row for each item not already
+version of this roadmap: add a new `RM-NNNNNN` row for each item not already
 present, update the `Title`/`Notes` of any row that matches an item in
 `<file>` by title/description similarity (ask the user rather than
 guessing when a match is ambiguous), and flag — in `Notes`, never by
@@ -410,19 +430,19 @@ change the `Source` field — only `Last updated`. Report a short summary of
 what was added/updated.
 
 When the user enters `/user-add <name> <role>: ...`, refuse with a clear
-message if `<name>` already has an entry in `development/users.json`
-(point to `/user-modify`/`/user-assign-role`). If `development/users.json`
-or `development/roles.json` doesn't exist yet, create them from
+message if `<name>` already has an entry in `IAM/users/users.json`
+(point to `/user-modify`/`/user-assign-role`). If `IAM/users/users.json`
+or `IAM/roles/roles.json` doesn't exist yet, create them from
 `templates/users.template.json` and `templates/roles.template.json`
 first. If `<role>` isn't one of the roles listed in
-`development/roles.json`, ask whether to use an existing role or run
+`IAM/roles/roles.json`, ask whether to use an existing role or run
 `/role-add` for `<role>` first. Otherwise append a new entry (`registered`:
 today, `active: true`, `roles: [<role>]`) and report it. If this is the
 project's first registered user, note that the hard "at least one active
 user" requirement (§2) is now satisfied.
 
 When the user enters `/user-remove <name>`, refuse with a clear message if
-`<name>` has no entry in `development/users.json`. If `<name>` is the only
+`<name>` has no entry in `IAM/users/users.json`. If `<name>` is the only
 `active: true` entry, warn that this would leave the project with zero
 active users (hard rule, §2) and ask for confirmation, or suggest
 `/user-add` for a replacement first. Otherwise set that entry's `active`
@@ -431,7 +451,7 @@ references on already-signed artifacts must stay resolvable. Report the
 result.
 
 When the user enters `/user-modify <name> <field> <value>: ...`, refuse
-with a clear message if `<name>` has no entry in `development/users.json`
+with a clear message if `<name>` has no entry in `IAM/users/users.json`
 (point to `/user-add`). Refuse if `<field>` is `roles` (point to
 `/user-assign-role`) or `name`/`registered` (identity/audit fields, never
 edited in place). Refuse if `<field>` is `active` set to `false` (point to
@@ -439,28 +459,28 @@ edited in place). Refuse if `<field>` is `active` set to `false` (point to
 Otherwise update `<field>` to `<value>` and report the result.
 
 When the user enters `/user-assign-role <name> <role>: ...`, refuse with a
-clear message if `<name>` has no entry in `development/users.json` (point
+clear message if `<name>` has no entry in `IAM/users/users.json` (point
 to `/user-add`). If `<role>` isn't one of the roles listed in
-`development/roles.json`, ask whether to use an existing role or run
+`IAM/roles/roles.json`, ask whether to use an existing role or run
 `/role-add` for `<role>` first. If `<name>`'s `roles` array already
 contains `<role>`, say so and make no change. Otherwise append `<role>` to
 that array and report the result.
 
 When the user enters `/user-list [--role <role>] [--active-only]`, read
-`development/users.json`. If it doesn't exist, say so rather than
+`IAM/users/users.json`. If it doesn't exist, say so rather than
 inventing users. Apply `--role`/`--active-only` filters if given, and
 report the matching entries. If none match, say so rather than inventing
 matches.
 
 When the user enters `/role-add <role> <actions>: ...`, refuse with a
 clear message if `<role>` already has an entry in
-`development/roles.json` (point to `/role-modify`). If
-`development/roles.json` doesn't exist yet, create it from
+`IAM/roles/roles.json` (point to `/role-modify`). If
+`IAM/roles/roles.json` doesn't exist yet, create it from
 `templates/roles.template.json` first. Otherwise append a new entry
 (`name: <role>`, `actions: <actions>`) and report it.
 
 When the user enters `/role-modify <role> <actions>: ...`, refuse with a
-clear message if `<role>` has no entry in `development/roles.json` (point
+clear message if `<role>` has no entry in `IAM/roles/roles.json` (point
 to `/role-add`). Otherwise replace that entry's `actions` and report the
 result. This never retroactively changes a `Signed-off-by` value already
 recorded on an existing artifact.
@@ -470,6 +490,16 @@ When the user enters `/create-epic`, `/create-story`, `/create-task`,
 artifact immediately, register it in the matching index file under the
 appropriate work-items folder, and preserve the required linkage to its parent
 or target artifact.
+
+When the user enters `/create-board`, create a new `BOARD-NNNNNN` with
+`Status: Active`, register it in `boards/boards.md`. Stories/tasks
+reference it in place of sprint membership — never both at once for the
+same item.
+
+When the user enters `/create-workflow`, create a new `WORKFLOW-NNNNNN`
+documenting the procedure described, `Status: Active`, register it in
+`workflows/workflows.md`. It carries no parent epic/story link and is
+never itself "done" — only ever `Active` or `Deprecated`.
 
 When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
 immediately, save it as `tag-<key>-<artefact-id>`, register it in
@@ -533,14 +563,25 @@ activate` loads a plugin into memory (see above). This is a hard rule.
 When the user enters `/thingamabob create <name> <git-info>: ...`: if
 `.catalyst-proj/DEPLOYMENT.md` doesn't yet show `repoed: true`, this is the first-call
 bootstrap — check whether `<git-info>` already exists: if it does,
-register it as-is; if it doesn't, create it there under `<name>` — this
-is an externally-visible, hard-to-reverse action, so confirm with the
-user before creating it, distinct from the general push-assent already
-implied by invoking this command. Write `repoed: true`, `catalyst_repo:
-<name>`, `catalyst_repo_url: <git-info>`, `created_by: <the current
-Signed-off-by actor>` to `.catalyst-proj/DEPLOYMENT.md`, push the current local
-`.catalyst-proj/` state as the first commit on a `thingamabob` branch
-there. Nothing is vetted on this first push. If `.catalyst-proj/DEPLOYMENT.md` **already**
+inspect its content before registering it as-is — if it's genuinely this
+same deployment's own prior state (a real rejoin), proceed; if it holds
+*unrelated* content (a different project's own `.catalyst-proj/`
+deployment), that's not a rejoin, stop and confirm explicitly with the
+user before doing anything, the same tier of confirmation as creating a
+new repo; if `<git-info>` doesn't exist yet, create it there under
+`<name>` — this is an externally-visible, hard-to-reverse action, so
+confirm with the user before creating it, distinct from the general
+push-assent already implied by invoking this command. Write `repoed:
+true`, `catalyst_repo: <name>`, `catalyst_repo_url: <git-info>`,
+`created_by: <the current Signed-off-by actor>` to
+`.catalyst-proj/DEPLOYMENT.md`, **ask which branch this actor will push
+to** — the actor's own `<branch-safe-name>.catalyst-proj` is the
+suggested default, but `thingamabob` itself is a valid choice too (see
+`/thingamabob push` below for what that changes) — and write the answer
+as `thingamabob_branch` in both `.catalyst-proj/DEPLOYMENT.md` and
+`<app-name>.catalyst`. Then push the current local `.catalyst-proj/`
+state as the first commit on a `thingamabob` branch there. Nothing is
+vetted on this first push. If `.catalyst-proj/DEPLOYMENT.md` **already**
 shows `repoed: true`: don't refuse — if `<git-info>` matches the
 registered `catalyst_repo_url`, create a new branch off `thingamabob`'s
 current state named `<name>` in its branch-safe form (§13) and stop
@@ -555,13 +596,16 @@ When the user enters `/thingamabob get <repo> <username>: ...`, validate
 suggested alternative if it doesn't survive sanitization uniquely against
 already-registered users. Download `<repo>`'s `thingamabob` branch content
 and check out `<username>.catalyst-proj` (branch-safe form) from it as
-this user's local `.catalyst-proj/`, creating a `development/users.json`
-entry for them first if one doesn't already exist. Then run the identity
-migration below for this user, and report the result.
+this user's local `.catalyst-proj/`, creating a `IAM/users/users.json`
+entry for them first if one doesn't already exist. **Ask which branch
+this actor will push to**, same as `create` above (the just-created
+`<username>.catalyst-proj` is the default), and record
+`thingamabob_branch`. Then run the identity migration below for this
+user, and report the result.
 
 **Identity migration** (part of both `/thingamabob create`'s first call
 and `/thingamabob get`): set `git_username` on the current user's
-`development/users.json` entry to their resolved git identity (`git
+`IAM/users/users.json` entry to their resolved git identity (`git
 config user.name`, branch-safe form, for `create`; the given `<username>`
 for `get`). Rewrite every existing artifact's `Signed-off-by` field that
 currently names this user's old `name` to their new `git_username` —
@@ -574,10 +618,14 @@ file actually rewritten.
 
 When the user enters `/thingamabob push [--force]`, refuse with a clear
 message if `.catalyst-proj/DEPLOYMENT.md` doesn't show `repoed: true` (point to
-`/thingamabob create`). Resolve the current actor's push branch —
-`<git_username>.catalyst-proj` if they have one, otherwise the
-branch-safe form of `name` — and push local `.catalyst-proj/` there in
-the repoed repository (creating that branch on their first push). If
+`/thingamabob create`). If no `thingamabob_branch` is recorded yet (a
+deployment from before this field existed), ask now — same question as
+`/thingamabob create`'s — and record the answer before continuing.
+
+**If `thingamabob_branch` names a real contributor branch**
+(`<git_username>.catalyst-proj` if the actor has one, otherwise the
+branch-safe form of `name`): push local `.catalyst-proj/` there in the
+repoed repository (creating that branch on their first push). If
 `--force` is given: refuse unless the current actor matches
 `.catalyst-proj/DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
 overwrite `thingamabob` directly from local state and skip everything
@@ -593,7 +641,19 @@ ask the user if a conflict is genuinely irreconcilable rather than
 guessing; (3) update both `thingamabob` (the merge commit) and the
 contributor's own branch (fast-forwarded to match); (4) pull the updated
 `thingamabob` down and overwrite the local `.catalyst-proj/` directory
-and this session's in-memory record of it. Report the result.
+and this session's in-memory record of it.
+
+**If `thingamabob_branch` *is* `thingamabob` itself** (single-maintainer
+mode): push local `.catalyst-proj/` state directly onto `thingamabob`,
+overwriting it — every time, no vetting, no merge, not gated behind
+`--force`. Still refuse unless the current actor matches
+`.catalyst-proj/DEPLOYMENT.md`'s `created_by`. This is the expected mode
+for catalyst's own self-dogfooding, offered as the natural follow-up
+after a `/dogfood` run ends clean or ends with fixes applied and
+reverified — `/dogfood`'s own four-eyes audit is what already vetted the
+state, so repeating that check on push would be redundant.
+
+Report the result either way.
 
 When the user enters `/project create <project name>: ...`, refuse if a
 `<app-name>.catalyst` pointer or an in-project `.catalyst-proj/` already
@@ -731,7 +791,7 @@ not marked `Retired`, rows grouped by roadmap name then Status),
 **overwrite `development/BACKLOG.md` in full** with the result (from
 `templates/backlog.template.md`'s structure, with a refreshed timestamp),
 **also refresh every active `development/roadmaps/<name>.md`** in place —
-for each `RM-NNNN` row, resolve whichever `FEAT-`/`REQ-` its `Linked` field
+for each `RM-NNNNNN` row, resolve whichever `FEAT-`/`REQ-` its `Linked` field
 names (if any) and set `Status` to `Not triaged` / `Triaged` /
 `In progress` / `Done` accordingly, leaving `Title`/`Notes`/`Source`
 untouched — and also report the same summary to the user in this turn. No
@@ -778,17 +838,17 @@ from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
 
 ## 6. Development-artifact IDs
 
-Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNN)`, global per type,
-sequential, zero-padded 4 digits, never reused. Meta-tags use a file-name
+Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNNNN)`, global per type,
+sequential, zero-padded 6 digits, never reused. Meta-tags use a file-name
 pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
 This is a hard requirement for all new artifacts and work items: every item
 name must be more than the bare ID and must follow the format
 **`<artifact-id>-<short-summary>`**. The corresponding markdown filename must
 also follow the same descriptive pattern as
 **`<artifact-id>-<short-summary>.md`**, not simply `<artifact-id>.md`.
-Example: `BUG-0001-login-form-validation` or
-`BUG-0001-login-form-validation.md`, and `REQ-0002-password-reset-flow` or
-`REQ-0002-password-reset-flow.md`. The same rule must be applied
+Example: `BUG-000001-login-form-validation` or
+`BUG-000001-login-form-validation.md`, and `REQ-000002-password-reset-flow` or
+`REQ-000002-password-reset-flow.md`. The same rule must be applied
 retroactively during framework deployment or synchronization to existing
 deployed items whose names or filenames are still only the ID.
 

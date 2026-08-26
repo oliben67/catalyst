@@ -1,5 +1,5 @@
 ---
-description: List registered users from .catalyst-proj/development/users.json, optionally filtered by role or active status
+description: List registered users from .catalyst-proj/IAM/users/users.json, optionally filtered by role or active status
 argument-hint: "[--role <role>] [--active-only]"
 ---
 
@@ -8,7 +8,7 @@ List registered users. Full spec:
 template: `development-framework/templates/users.template.json`.
 Input: $ARGUMENTS
 
-1. If `.catalyst-proj/development/users.json` doesn't exist, say so rather than
+1. If `.catalyst-proj/IAM/users/users.json` doesn't exist, say so rather than
    inventing users.
 2. Read its `users` array.
 3. If `--role <role>` is given, keep only entries whose `roles` array

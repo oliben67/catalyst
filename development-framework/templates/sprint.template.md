@@ -5,7 +5,7 @@
 | **ID** | `SPRINT-NNN` |
 | **Dates** | YYYY-MM-DD – YYYY-MM-DD |
 | **Status** | planning / active / review / closed |
-| **Signed-off-by** | name of the registered user (`development/users.json`) who signed this sprint — see `CODE-OF-CONDUCT.md` §2 |
+| **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this sprint — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Sprint goal
 
@@ -15,13 +15,13 @@ What this sprint is *for*, not just a list of tickets pulled in.
 
 | Item | Title | Points | Status |
 |---|---|---|---|
-| `STORY-NNNN` | … | … | … |
+| `STORY-NNNNNN` | … | … | … |
 
 ## Carried over from previous sprint
 
 | Item | Title | Reason |
 |---|---|---|
-| `STORY-NNNN` | … | … |
+| `STORY-NNNNNN` | … | … |
 
 ## Review notes
 
@@ -32,4 +32,4 @@ What shipped, what didn't, demo notes.
 - **Went well** — …
 - **Didn't go well** — …
 - **Action items** — concrete, owned; if they imply a process change,
-  file as `HK-NNNN`, not left as an untracked bullet.
+  file as `HK-NNNNNN`, not left as an untracked bullet.

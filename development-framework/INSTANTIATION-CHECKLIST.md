@@ -19,8 +19,8 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Decision areas worked with the user: runtime/language, dependency
       policy, code style, testing, CI/CD, local dev environment, repo layout
       (skip/add per project)
-- [ ] Each area's `domains/<prefix>-<CODE>-<short-description>.md` created
-      before its rule bullets (per `Rules-of-Rules.md` §7)
+- [ ] Each area's `rules/domains/<prefix>-<CODE>-<short-description>.md`
+      created before its rule bullets (per `Rules-of-Rules.md` §7)
 - [ ] Each rule implemented in the same pass (real config files created:
       package manifest, linter config, CI workflow, devcontainer, etc.)
 - [ ] Each rule's "tested" bar met — tool/CI runs clean against the scaffold
@@ -38,29 +38,44 @@ from drifting. The guide holds the rationale; this holds the checks.
       storage if available, else the in-project fallback
 - [ ] `CODE-OF-CONDUCT.md` created from `rules-of-development.template.md`
 - [ ] `rules/Rules-of-Rules.md` created from `rules-of-rules.template.md`
-- [ ] Exactly one `rules/TEMPLATE-RULE.md` created; none in rule-type dirs (INV-8)
 - [ ] `work-items/rules-of-work-items.md` created from its template
-- [ ] Per-type templates copied and renamed `TEMPLATE-<TYPE>.md`
-- [ ] Per-type index files created (`bugs.md`, `requirements.md`, `features.md`,
-      `house-keeping.md`, `meta-tags.md`, `epics.md`, `stories.md`, `tasks.md`,
-      `spikes.md`, `sprints.md`)
-- [ ] `domains/` created at root (empty index allowed)
-- [ ] `features/` created at root, alongside `requirements/`
-- [ ] `development/BACKLOG.md` created from `templates/backlog.template.md`
-      (INV-14) — a hard requirement, not one of the optional-per-project
-      artifact templates above
-- [ ] `development/roadmaps/TEMPLATE-ROADMAP.md` created from
-      `templates/roadmap.template.md`, and an empty
-      `development/roadmaps/roadmaps.md` index created (INV-15) — the
-      folder/index are a hard requirement, same tier as `features/`;
-      individual named roadmaps are created later via `/roadmap-add`
-- [ ] `development/roles.json` created from `templates/roles.template.json`,
-      filled in with its default agile-role mapping (INV-16)
-- [ ] `development/users.json` created from `templates/users.template.json`,
-      empty array (INV-16)
+- [ ] For **every** artifact-type folder (INV-20): `templates/` created
+      (`README.md`, `templates-<type>.md` catalog seeded with a `v1` row —
+      Version | File | Timestamp | Notes — and `TEMPLATE-<TYPE>-v1.md`
+      copied in), the folder's own `README.md`, and its `<type>.md`
+      instance catalog:
+      - `rules/` → exactly one current `rules/templates/TEMPLATE-RULE-v1.md`
+        (INV-8); none in rule-type dirs
+      - `rules/domains/` → `domains.md` (empty index allowed)
+      - `requirements/` → `requirements.md`
+      - `features/` → `features.md`
+      - `IAM/users/` → `users.json` (from `templates/users.template.json`,
+        empty array, INV-16) — **no `templates/` here**: one JSON array,
+        nothing to version
+      - `IAM/roles/` → `roles.json` (from `templates/roles.template.json`,
+        default agile-role mapping, INV-16) — **no `templates/` here**,
+        same reason
+      - `development/roadmaps/` → `roadmaps.md` (empty index allowed,
+        INV-15 — individual named roadmaps created later via
+        `/roadmap-add`)
+      - `development/bugs/` → `bugs.md`
+      - `development/house-keeping/` → `house-keeping.md`
+      - `development/meta-tags/` → `meta-tags.md`
+      - `work-items/epics/`, `stories/`, `tasks/`, `spikes/` → their
+        `<type>.md`
+      - `work-items/sprints/` (Scrum flavor) or `work-items/boards/`
+        (Kanban/Scrumban flavor) → `sprints.md`/`boards.md` — skip
+        whichever the chosen agile flavor doesn't use (`INSTANTIATION-GUIDE.md`
+        §2)
+      - `work-items/workflows/` → `workflows.md`
+      - `work-items/tickets/` → `tickets.md` only — no `templates/`, no
+        core template; reserved for plugin population
 - [ ] `/user-add` run for at least one person — deployment is not
       complete with zero active users (INV-16, hard rule, stricter than
       every other on-demand artifact)
+- [ ] `development/BACKLOG.md` created from `templates/backlog.template.md`
+      (INV-14) — a hard requirement, not an artifact type (INV-20 doesn't
+      apply — no `templates/` of its own)
 - [ ] `development/journal.jsonl` created from `templates/journal.template.jsonl`
       (empty) (INV-17) — every command from this point on appends an entry
       as its last step, including the remaining steps of this deploy
@@ -75,8 +90,10 @@ from drifting. The guide holds the rationale; this holds the checks.
 
 ## Discoverability
 - [ ] Root `README.md` written (structure, deploy path, artifact folders)
-- [ ] Per-folder `README.md` written for `rules/`, `requirements/`, `features/`,
-      `development/`, `work-items/`, and `templates/` where present, linked from root
+- [ ] Per-folder `README.md` written for every artifact-type folder and
+      every `templates/` subdirectory (INV-20 — see the Deploy skeleton
+      list above for the full set), plus `development/`, `work-items/`,
+      and `IAM/`, linked from root
 - [ ] One `.claude/commands/<name>.md` created per command in
       `rules-of-development.template.md` §4 (Claude Code), each following
       `templates/slash-command.template.md` — or the documented fallback

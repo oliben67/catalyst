@@ -5,7 +5,7 @@ argument-hint: <name> <file>
 
 Re-ingest a local file as the new full version of an existing named
 roadmap. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md`
-§4, template: `.catalyst-proj/development/roadmaps/TEMPLATE-ROADMAP.md`.
+§4, template: `.catalyst-proj/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`.
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name> <file>`. If either is missing, ask for it.
@@ -15,7 +15,7 @@ Input: $ARGUMENTS
 4. For each item: if it matches an existing row by title/description
    similarity, update that row's `Title`/`Notes` — ask the user rather
    than guessing when a match is ambiguous. If it doesn't match any
-   existing row, add a new row (next global `RM-NNNN`, `Status: Not
+   existing row, add a new row (next global `RM-NNNNNN`, `Status: Not
    triaged`).
 5. For each existing row whose item no longer appears in `<file>`, flag it
    in `Notes` (e.g. "no longer present in latest source as of <date>") —

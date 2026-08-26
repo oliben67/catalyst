@@ -51,7 +51,8 @@ faster and is the first thing a summarizer mangles.
   Bare-ID filenames are invalid.
 - **INV-8 — No orphan rules.** Every rule lives in its type directory, appears in
   its local type index, and appears in the global `rules.md`. Exactly one
-  `TEMPLATE-RULE.md`, in the `rules/` root.
+  *current* `TEMPLATE-RULE-vN.md` (the highest `N`), in `rules/templates/`
+  (INV-20) — never at the `rules/` root directly.
 - **INV-9 — Requirements, not bugs, for new work.** `FEAT-` entries are
   non-rule-linked roadmap. When work on one starts it becomes a `REQ-` (never a
   `BUG-`), which is vetted against every rule, assigned a domain, and measured.
@@ -67,7 +68,7 @@ faster and is the first thing a summarizer mangles.
   `/roadmap-remove` never deletes a roadmap with linked items; it retires
   it in place.
 - **INV-16 — At least one active user; advisory role signing.**
-  `development/users.json` and `development/roles.json` always exist, and
+  `IAM/users/users.json` and `IAM/roles/roles.json` always exist, and
   `users.json` must contain **at least one user with `"active": true`** —
   a hard requirement, not optional-if-empty like `roadmaps.md`. Every
   dev-artifact, feature, roadmap item, and work item carries a
@@ -108,23 +109,42 @@ faster and is the first thing a summarizer mangles.
   recorded as `created_by`. `/thingamabob get <repo> <username>` is the
   join path: download `thingamabob`'s current state and check out a new
   branch for `<username>` from it, for a user who doesn't have a local
-  copy yet. **This never supersedes INV-6**: `.catalyst-proj/` stays the
+  copy yet. Both `create`'s first call and `get` also resolve the
+  actor's `git_username` and rewrite every existing artifact's
+  `Signed-off-by` that named their old registered `name` to it — every
+  `Signed-off-by`/journal `actor` written for them from then on uses
+  `git_username`, never `name`; the journal itself is never rewritten
+  (INV-17), only appended with one new entry describing the migration.
+  **This never supersedes INV-6**: `.catalyst-proj/` stays the
   real working copy (wherever it's rooted — agent-owned space or, on the
   fallback, in-project); the dedicated repo is an additional, synced
-  backing store. Every contributor pushes via `/thingamabob push` to their own
-  fixed branch `<branch-safe-name>.catalyst-proj`, never directly to
-  `thingamabob` — **every git ref name derived from a user's identity
-  (this branch, and `/thingamabob get`'s `<username>`) is that name's
-  branch-safe form** (lowercase, non-alphanumeric runs collapsed to a
-  single `-`, trimmed), since a registered display name like "Olivier
-  Steck" is not itself a valid git ref component; refuse rather than
-  silently colliding if two distinct names would collapse to the same
-  form. Every push is vetted (`/check-rules` plus a four-eyes sub-agent
-  pass) and merged into `thingamabob`; both `thingamabob` and the
-  contributor's branch are updated with the result, and the local
-  `.catalyst-proj/` is refreshed to match. `--force` overwrites
-  `thingamabob` directly, skipping vetting, and is refused for anyone but
-  the repo's recorded `created_by` user.
+  backing store.
+
+  **`create`/`get` always ask which branch the current actor will push
+  to** — recorded as `thingamabob_branch` in `<app-name>.catalyst` so
+  later `push` calls don't ask again. The suggested default is the
+  actor's own fixed branch, `<branch-safe-name>.catalyst-proj` — **every
+  git ref name derived from a user's identity (this branch, and
+  `/thingamabob get`'s `<username>`) is that name's branch-safe form**
+  (lowercase, non-alphanumeric runs collapsed to a single `-`, trimmed),
+  since a registered display name like "Olivier Steck" is not itself a
+  valid git ref component; refuse rather than silently colliding if two
+  distinct names would collapse to the same form. Choosing `thingamabob`
+  itself instead is valid and changes what `push` does:
+
+  - **`thingamabob_branch` names a real contributor branch** (the
+    default case, for multi-contributor deployments): `/thingamabob
+    push` is vetted (`/check-rules` plus a four-eyes sub-agent pass) and
+    merged into `thingamabob`; both branches are updated with the
+    result, and the local `.catalyst-proj/` is refreshed to match.
+    `--force` skips vetting and overwrites `thingamabob` directly
+    anyway, refused for anyone but the repo's recorded `created_by`.
+  - **`thingamabob_branch` is `thingamabob` itself** (single-maintainer
+    mode — e.g. catalyst's own self-dogfooding, where `/dogfood`'s own
+    audit already served as the vetting step): every `push` overwrites
+    `thingamabob` directly, no vetting, no merge — this is the normal
+    behavior in this mode, not something `--force` is needed for — still
+    refused for anyone but `created_by`.
 - **INV-19 — Project lifecycle commands.** `/project create <name>`
   installs a fresh deployment: a working copy in agent-owned space (or
   the in-project fallback) plus its `<app-name>.catalyst` pointer.
@@ -139,6 +159,18 @@ faster and is the first thing a summarizer mangles.
   export. `/project import <file>` installs from a bundle, refusing if a
   deployment already exists here; `/project import <file> force`
   overwrites an existing one instead — confirm explicitly first.
+- **INV-20 — Uniform artifact-type layout.** Every artifact-type
+  directory carries a versioned, catalogued `templates/` subdirectory
+  (`README.md`, `templates-<type>.md` catalog with a Timestamp column,
+  `TEMPLATE-<TYPE>-vN.md` — files only, never a subfolder, never edited
+  in place once a newer version exists) and its own `README.md`; the
+  artifact-type root itself accepts files and folders at any depth for
+  the actual artifacts. Domains nest under `rules/domains/` (they exist
+  only to group rules). `IAM/users/`, `IAM/roles/` replace bare
+  `development/users.json`/`roles.json`. `work-items/` gains `BOARD-`
+  (Kanban's counterpart to `SPRINT-`) and `WORKFLOW-` (a process
+  document, never itself worked) as optional types, plus a `tickets/`
+  slot reserved for plugin population — no core `TICKET-` scheme.
 
 ## Plugins
 

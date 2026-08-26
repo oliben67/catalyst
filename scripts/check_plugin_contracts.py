@@ -14,8 +14,11 @@ plugin's version.txt and the catalog pin:
   - Version matches the plugin's own version.txt
   - Version/Tag in plugins/<type>/catalog.md matches version.txt (catalog pin)
 
-Provenance (INV-11) is left to check_plugins.py + a normalized origin comparison
-here, done defensively so a missing origin never causes a false failure.
+Provenance (INV-11) is only partially covered: check_plugins.py verifies a
+plugin is checked out as a submodule at all. origin_url()/normalize_url()
+below exist to compare a plugin's declared origin against the framework's
+own, but nothing currently wires that comparison into validate_plugin() —
+a plugin sourced from the framework's own repo would still pass today.
 
 Exit 0 = clean (including when no plugins are present), exit 1 = violations.
 UUID *stability* over time and *activation gating* (INV-13 runtime target) are
