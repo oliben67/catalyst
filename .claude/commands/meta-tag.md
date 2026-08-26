@@ -5,7 +5,7 @@ argument-hint: <artifact-id> --key comment|version|link-to --value <value>
 
 Create a new meta-tag artifact. Full spec:
 `.catalyst-proj/CODE-OF-CONDUCT.md` §3/§4, template:
-`.catalyst-proj/development/TEMPLATE-META-TAG.md`.
+`.catalyst-proj/development/meta-tags/templates/TEMPLATE-META-TAG-v1.md`.
 Input: $ARGUMENTS
 
 1. If the key isn't supplied explicitly, prompt for it — one of

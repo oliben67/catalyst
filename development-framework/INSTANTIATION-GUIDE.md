@@ -55,11 +55,27 @@ creates concrete rules for that particular project.
 3. Pick a root layout, e.g.:
    ```
    <project-root>/.catalyst-proj/
+     .ledger/
      CODE-OF-CONDUCT.md
+     DEPLOYMENT.md
+     README.md
+     version.txt
      rules/
+       templates/
+         README.md
+         templates-rule.md
+         TEMPLATE-RULE-v1.md
+       domains/
+         templates/
+           README.md
+           templates-domain.md
+           TEMPLATE-DOMAIN-v1.md
+         README.md
+         domains.md
+         <prefix>-<CODE>-<short-description>.md
+       README.md
        Rules-of-Rules.md
        rules.md
-       TEMPLATE-RULE.md
        business/
          business-rules.md
          <rule-doc-1>.md
@@ -67,55 +83,137 @@ creates concrete rules for that particular project.
          ui-rules.md
          <rule-doc-2>.md
      requirements/
-       TEMPLATE-REQUIREMENT.md
+       templates/
+         README.md
+         templates-requirement.md
+         TEMPLATE-REQUIREMENT-v1.md
+       README.md
        requirements.md
        <requirement-doc-1>.md
        <requirement-doc-2>.md
      features/
-       TEMPLATE-FEATURE.md
+       templates/
+         README.md
+         templates-feature.md
+         TEMPLATE-FEATURE-v1.md
+       README.md
        features.md
-       <FEAT-NNNN-short-summary>.md
-     domains/
-       TEMPLATE-DOMAIN.md
-       domains.md
-       <prefix>-<CODE>-<short-description>.md
+       <FEAT-NNNNNN-short-summary>.md
+     IAM/
+       users/
+         README.md              # no templates/ — one JSON array, not
+         users.json              # a per-instance artifact type
+       roles/
+         README.md              # no templates/ — same reason
+         roles.json
+     plugins/
+       <type>/
+         <name>/            # an activated plugin's own install (its own repo)
      development/
-       TEMPLATE-BUG.md
-       bugs.md
-       bugs/
-       TEMPLATE-HOUSE-KEEPING.md
-       house-keeping.md
-       house-keeping/
-       TEMPLATE-META-TAG.md
-       meta-tags.md
-       meta-tags/
-       BACKLOG.md
        roadmaps/
-         TEMPLATE-ROADMAP.md
+         templates/
+           README.md
+           templates-roadmap.md
+           TEMPLATE-ROADMAP-v1.md
+         README.md
          roadmaps.md
-       users.json
-       roles.json
+       bugs/
+         templates/
+           README.md
+           templates-bug.md
+           TEMPLATE-BUG-v1.md
+         README.md
+         bugs.md
+       house-keeping/
+         templates/
+           README.md
+           templates-house-keeping.md
+           TEMPLATE-HOUSE-KEEPING-v1.md
+         README.md
+         house-keeping.md
+       meta-tags/
+         templates/
+           README.md
+           templates-meta-tag.md
+           TEMPLATE-META-TAG-v1.md
+         README.md
+         meta-tags.md
+       BACKLOG.md
+       README.md
        journal.jsonl
      work-items/
-       rules-of-work-items.md
-       TEMPLATE-EPIC.md
-       epics.md
+       boards/
+         templates/
+           README.md
+           templates-board.md
+           TEMPLATE-BOARD-v1.md
+         README.md
+         boards.md
        epics/
-       TEMPLATE-STORY.md
-       stories.md
-       stories/
-       TEMPLATE-TASK.md
-       tasks.md
-       tasks/
-       TEMPLATE-SPIKE.md
-       spikes.md
+         templates/
+           README.md
+           templates-epic.md
+           TEMPLATE-EPIC-v1.md
+         README.md
+         epics.md
        spikes/
-       TEMPLATE-SPRINT.md
-       sprints.md
+         templates/
+           README.md
+           templates-spike.md
+           TEMPLATE-SPIKE-v1.md
+         README.md
+         spikes.md
        sprints/
-     README.md
-     version.txt
+         templates/
+           README.md
+           templates-sprint.md
+           TEMPLATE-SPRINT-v1.md
+         README.md
+         sprints.md
+       stories/
+         templates/
+           README.md
+           templates-story.md
+           TEMPLATE-STORY-v1.md
+         README.md
+         stories.md
+       tasks/
+         templates/
+           README.md
+           templates-task.md
+           TEMPLATE-TASK-v1.md
+         README.md
+         tasks.md
+       tickets/                 # plugin-populated slot, no core template
+         README.md
+         tickets.md
+       workflows/
+         templates/
+           README.md
+           templates-workflow.md
+           TEMPLATE-WORKFLOW-v1.md
+         README.md
+         workflows.md
+       README.md
+       rules-of-work-items.md
    ```
+   Every artifact-type folder above follows the same shape (`Rules-of-Rules.md`
+   §15, `INVARIANTS.md` INV-20): a `templates/` subdirectory (its own
+   `README.md`, a `templates-<type>.md` catalog — Version | File |
+   Timestamp | Notes — and the current `TEMPLATE-<TYPE>-vN.md`, files
+   only, never a subfolder, never edited in place once a newer version
+   exists), its own `README.md`, the `<type>.md` instance catalog, and
+   free-form space underneath for the actual artifacts (files and
+   folders, any depth — e.g. rule documents nested by domain). Two
+   exceptions: `IAM/users/`, `IAM/roles/` skip `templates/` entirely —
+   each is one JSON array, not a one-file-per-instance document type, so
+   there's nothing to version — and `tickets/` is a reserved slot with no
+   core template, populated by a project-management-type plugin if one
+   is activated, otherwise left empty. `boards/` is optional per agile
+   flavor (§2 below — Kanban/Scrumban only, mutually exclusive with
+   `sprints/`); `workflows/` is optional but flavor-independent — adopt
+   it whenever the project wants process-definition documents, not tied
+   to which agile flavor is chosen.
    (The working-copy directory is always named `.catalyst-proj/`, but it
    is not built inside the target project's own tree: resolve
    **agent-source** first — a location this agent owns (a per-project
@@ -134,15 +232,19 @@ creates concrete rules for that particular project.
    that want the working copy to survive and sync across contributors,
    via a dedicated repository, never by committing it into the product's
    own repo. See `Rules-of-Rules.md` §14 for migrating a deployment that
-   already exists in the old, purely in-project shape. The framework only
-   cares that the chain epic→story→task→REQ/BUG/HK→rule
-   stays intact, not the folder names. The `domains/` folder sits at the root
-   of the deployed framework and holds the domain definition files. The
-   `features/` folder also sits at the root, alongside `requirements/`; it
-   holds descriptive, non-rule-linked feature entries (see
-   `Rules-of-Rules.md` §9) and is never a substitute for `requirements/`. The
-   work-items rule document belongs in the `work-items/` layer and should not
-   be duplicated under `rules/`.)
+   already exists in the old, purely in-project shape, and
+   `migrations/` (this repository) for migrating an existing deployment
+   built under an older layout of this section itself to the current
+   one. The framework only cares that the chain
+   epic→story→task→REQ/BUG/HK→rule stays intact, not the folder names.
+   The `domains/` folder nests under `rules/` (`Rules-of-Rules.md` §7) —
+   domains exist only to group rules, so they live where rules live, not
+   as a top-level sibling. The `features/` folder sits at the root,
+   alongside `requirements/`; it holds descriptive, non-rule-linked
+   feature entries (see `Rules-of-Rules.md` §9) and is never a
+   substitute for `requirements/`. The work-items rule document belongs
+   in the `work-items/` layer and should not be duplicated under
+   `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
    framework exposes **every** documented custom slash command from
    `rules-of-development.template.md` §4 — the canonical list; don't
@@ -155,42 +257,50 @@ creates concrete rules for that particular project.
    needed, pull their content directly from each plugin's own repository;
    no plugin may be sourced from this framework repository, and every
    plugin must have its own repository with no exceptions.
-6. Copy `templates/*.template.md` into the corresponding subfolders, and
-   rename each template file to an uppercase name such as
-   `TEMPLATE-BUG.md`, `TEMPLATE-REQUIREMENT.md`, `TEMPLATE-FEATURE.md`, or
-   `TEMPLATE-META-TAG.md`. For each artifact type, also create an index file
-   next to the template using the pluralized artifact-name form, such as
-   `bugs.md`, `requirements.md`, `features.md`, `house-keeping.md`,
-   `meta-tags.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`, or
-   `sprints.md`.
-   Keep requirements templates in the same `requirements/` directory as the
-   actual requirements documents so the template and the concrete
-   requirement files live together, and likewise keep feature templates in
-   the same `features/` directory as the actual feature entries. For rules,
-   create exactly one `TEMPLATE-RULE.md` file in the `rules/` root and use
-   it to create each concrete rule file in the relevant rule-type directory
-   under `rules/`. Also copy `templates/backlog.template.md` to
-   `development/BACKLOG.md` — a hard requirement (`INVARIANTS.md`
-   INV-14), not optional like the artifact templates above; unlike those,
-   it is not hand-edited afterward. Also copy `templates/roadmap.template.md`
-   to `development/roadmaps/TEMPLATE-ROADMAP.md` and create an empty
-   `development/roadmaps/roadmaps.md` index — also a hard requirement
-   (`INVARIANTS.md` INV-15), the same tier as `features/`: the folder and
-   index always exist, but individual named roadmaps
-   (`development/roadmaps/<name>.md`) are only created later, on demand,
-   via `/roadmap-add`. Also copy `templates/roles.template.json` to
-   `development/roles.json` (filled in with its default agile-role
-   mapping) and `templates/users.template.json` to `development/users.json`
-   (empty array) — both a hard requirement (`INVARIANTS.md` INV-16).
-   **Then immediately run `/user-add` for at least one person** — unlike
-   every other on-demand artifact, deployment is not actually complete
-   with an empty `users.json`: a project must have at least one active
-   user (INV-16). Ask the user who that first registered user should be
-   and what role they hold if it isn't obvious from context. Run
-   `/show-backlog` once immediately after creating `BACKLOG.md` so its
-   sections reflect the real, likely still-empty, indexes from the start,
-   rather than leaving any template's `{{PLACEHOLDER}}` text in place.
-   Also copy `templates/journal.template.jsonl` (empty) to
+6. For **every** artifact-type folder (`Rules-of-Rules.md` §15, INV-20):
+   create its `templates/` subdirectory, copy the matching
+   `templates/*.template.*` from this framework into it as
+   `TEMPLATE-<TYPE>-v1.md` (first version — new versions only ever get
+   added later, never an in-place edit), write that `templates/`
+   folder's own `README.md`, and seed its `templates-<type>.md` catalog
+   with one row for `v1` (Version | File | Timestamp | Notes — today's
+   date, "initial version"). Then write the artifact-type folder's own
+   `README.md` and its `<type>.md` instance catalog (`bugs.md`,
+   `requirements.md`, `features.md`, `house-keeping.md`, `meta-tags.md`,
+   `boards.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`,
+   `sprints.md`, `workflows.md`, `roadmaps.md`, `domains.md`,
+   `tickets.md`). Skip `boards/`/`sprints/` per the chosen agile flavor
+   (§2); `tickets/` gets its `README.md` and empty `tickets.md` but no
+   `templates/` — no core template exists for it (a project-management
+   plugin, if activated, owns that).
+
+   Keep requirements templates in the same `requirements/` directory as
+   the actual requirements documents so the template and the concrete
+   requirement files live together (nested one level deeper now, under
+   `requirements/templates/`, but still co-located), and likewise for
+   every other type. Domain files nest under `rules/domains/`, which
+   gets this same full treatment (its own `templates/`, `README.md`,
+   `domains.md`).
+
+   Also copy `templates/backlog.template.md` to `development/BACKLOG.md`
+   — a hard requirement (`INVARIANTS.md` INV-14), not optional like the
+   artifact templates above; unlike those, it is not hand-edited
+   afterward, and it has no `templates/` treatment of its own (it isn't
+   an artifact type, INV-20 doesn't apply to it). Also copy
+   `templates/roles.template.json` to `IAM/roles/roles.json` (filled in
+   with its default agile-role mapping) and `templates/users.template.json`
+   to `IAM/users/users.json` (empty array) — both a hard requirement
+   (`INVARIANTS.md` INV-16). Neither gets a `templates/` of its own — see
+   the two exceptions noted in step 4 above. **Then immediately run `/user-add` for at least one
+   person** — unlike every other on-demand artifact, deployment is not
+   actually complete with an empty `users.json`: a project must have at
+   least one active user (INV-16). Ask the user who that first
+   registered user should be and what role they hold if it isn't obvious
+   from context. Run `/show-backlog` once immediately after creating
+   `BACKLOG.md` so its sections reflect the real, likely still-empty,
+   indexes from the start, rather than leaving any template's
+   `{{PLACEHOLDER}}` text in place. Also copy
+   `templates/journal.template.jsonl` (empty) to
    `development/journal.jsonl` — a hard requirement (`INVARIANTS.md`
    INV-17). From this point on, every command that creates, modifies,
    closes, or retires a rule-linked artifact, rule, domain, or work item,
@@ -202,10 +312,14 @@ creates concrete rules for that particular project.
    and the main artifact folders. This README should be created during both
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
-   in each major deployed folder (for example `rules/`, `requirements/`,
-   `features/`, `development/`, `work-items/`, and `templates/` when present)
-   that briefly explains that folder's purpose and link to it from the root
-   README so the structure is discoverable and self-documenting.
+   in every major deployed folder (`rules/`, `rules/domains/`,
+   `requirements/`, `features/`, `IAM/users/`, `IAM/roles/`,
+   `development/`, `development/roadmaps/`, `development/bugs/`,
+   `development/house-keeping/`, `development/meta-tags/`, `work-items/`
+   and each of its type folders) and in every `templates/` subdirectory
+   (INV-20) that briefly explains that folder's purpose and link to it
+   from the root README so the structure is discoverable and
+   self-documenting.
 8. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
@@ -225,21 +339,25 @@ creates concrete rules for that particular project.
    **`<id>-<short-summary>`**, and the corresponding markdown filename must
    follow **`<id>-<short-summary>.md`**; bare IDs or bare-ID filenames are no
    longer acceptable. Existing deployed items must be renamed during deployment
-   or synchronization to meet this rule. There must be exactly one
-   `TEMPLATE-RULE.md` file in the `rules/` root and none inside the
-   rule-type directories. No rule may be orphaned by missing a type, a local
-   index entry, or a global index entry. This same descriptive-naming
-   requirement is a hard requirement for domain files: every file under
-   `domains/` must be named `<prefix>-<CODE>-<short-summary>.md` (or
+   or synchronization to meet this rule. There must be exactly one *current*
+   `TEMPLATE-RULE-vN.md` file, in `rules/templates/` (INV-8, INV-20), and
+   none inside the rule-type directories. No rule may be orphaned by
+   missing a type, a local index entry, or a global index entry. This
+   same descriptive-naming requirement is a hard requirement for domain
+   files: every file under `rules/domains/` must be named
+   `<prefix>-<CODE>-<short-summary>.md` (or
    `<prefix>-<PARENT>.<SUB>-<short-summary>.md` for a sub-domain), never the
    bare `<prefix>-<CODE>.md` — see `Rules-of-Rules.md` §7.
 ## 2. Choosing your agile flavor
 
 Nothing below the work-items layer changes. Above it:
 
-- Using Scrum → keep everything as templated (sprints included).
-- Using Kanban → skip `sprints/`; add a WIP-limited `Status` value set to
-  stories/tasks instead.
+- Using Scrum → keep everything as templated (`sprints/` included, skip
+  `boards/`).
+- Using Kanban → skip `sprints/`; use `boards/` (`BOARD-NNNNNN`) instead —
+  a WIP-limited `Status` value set on stories/tasks, referencing the
+  board in place of sprint membership (`Rules-of-Rules.md` §8,
+  `rules-of-work-items.md` §6).
 - Using something else entirely → the framework's hard requirement is
   only §1 of `rules-of-development.md` (no development without a
   targeted rule) — everything above that is replaceable with whatever
@@ -262,7 +380,7 @@ after the fact.
    documents, since these rules govern the toolchain and workflow, not
    product behavior. Add it to the rule document list from §1 step 1.
 2. Work through the foundational decision areas with the user, one
-   domain per area, creating each `domains/<prefix>-<CODE>-<short-description>.md`
+   domain per area, creating each `rules/domains/<prefix>-<CODE>-<short-description>.md`
    file per §7 before writing rule bullets under it. Typical areas
    (skip any that don't apply to the project, add any it needs):
    - **Runtime/language** — language, version, package manager.
@@ -302,7 +420,7 @@ after the fact.
 1. Do **not** try to write every rule up front. Start with
    `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`,
    `rules-of-work-items.md` (or your project's equivalents) and an empty
-   `domains/` directory.
+   `rules/domains/` directory.
 2. Gather rules incrementally — per functional area, as you touch it, or
    via a dedicated audit pass (parallel research agents/subagents
    covering one rule category each, cross-checked against the codebase
@@ -315,7 +433,7 @@ after the fact.
    pause and ask the user questions so the final rule reflects the
    project’s intent rather than an arbitrary choice.
 3. As each functional domain is identified, create its
-   `domains/<prefix>-<CODE>-<short-description>.md` file per §7 before adding rule bullets
+   `rules/domains/<prefix>-<CODE>-<short-description>.md` file per §7 before adding rule bullets
    under it.
 4. Retrofit IDs onto existing prose bullets (if a rules doc already
    exists in some other form) in document order, per §3 — top-level

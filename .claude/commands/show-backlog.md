@@ -15,6 +15,6 @@ Input: $ARGUMENTS
 2. **Overwrite `.catalyst-proj/development/BACKLOG.md` in full** with the
    result and a refreshed timestamp — not optional.
 3. **Also refresh every active roadmap file in place**: for each
-   `RM-NNNN` row, resolve its `Linked` `FEAT-`/`REQ-` (if any) and set
+   `RM-NNNNNN` row, resolve its `Linked` `FEAT-`/`REQ-` (if any) and set
    `Status` accordingly, leaving `Title`/`Notes`/`Source` untouched.
 4. Report the same summary to the user in this turn.

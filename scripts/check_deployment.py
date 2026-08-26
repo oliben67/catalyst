@@ -24,13 +24,16 @@ DEPLOY_DIRNAME = ".catalyst-proj"
 # Its "agent-source" field names where the actual .catalyst-proj/ working
 # copy lives (agent-owned space, not necessarily inside the project tree).
 POINTER_SUFFIX = ".catalyst"
-# <id>-<short-summary>.md ; id like req-0001, bug-0007, rule prefixes, domains, etc.
+# <id>-<short-summary>.md ; id like req-000001, bug-000007, rule prefixes, domains, etc.
 NAME_RE = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*-[a-z0-9][a-z0-9-]*\.md$", re.I)
 # A trailing all-digit segment (e.g. "br-AUTH-002.md") is a bare ID with no
 # descriptive summary — NAME_RE alone can't reject it, since a run of digits
 # satisfies the same character class as a real summary word would.
 BARE_ID_RE = re.compile(r"-\d+\.md$", re.I)
-TEMPLATE_RE = re.compile(r"^TEMPLATE-[A-Z-]+\.md$")
+# TEMPLATE-<TYPE>.md (legacy, pre-INV-20) or TEMPLATE-<TYPE>-vN.md (current).
+TEMPLATE_RE = re.compile(r"^TEMPLATE-[A-Z-]+(?:-v\d+)?\.md$")
+# templates-<type>.md — the per-artifact-type templates catalog (INV-20).
+TEMPLATES_CATALOG_RE = re.compile(r"^templates-[a-z-]+\.md$")
 # git hash-object is a 40-char hex SHA-1.
 HASH_RE = re.compile(r"^[0-9a-f]{40}$")
 JOURNAL_REQUIRED_FIELDS = (
@@ -40,7 +43,8 @@ JOURNAL_REQUIRED_FIELDS = (
 INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
-    "spikes.md", "sprints.md", "README.md", "CODE-OF-CONDUCT.md", "version.txt",
+    "spikes.md", "sprints.md", "boards.md", "workflows.md", "tickets.md",
+    "README.md", "CODE-OF-CONDUCT.md", "version.txt",
     "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md", "BACKLOG.md",
     "roadmaps.md",
 }
@@ -80,7 +84,9 @@ def find_deploy_root(start: Path) -> Path | None:
 def check_naming(root: Path) -> list[str]:
     """INV-7: every rule/domain/artifact file is <id>-<short-summary>.md."""
     errors: list[str] = []
-    checked_dirs = ("rules", "domains", "requirements", "features",
+    # "domains" is no longer top-level (INV-20): it nests under rules/, so
+    # the "rules" walk below already covers rules/domains/**/*.md.
+    checked_dirs = ("rules", "requirements", "features", "IAM",
                     "development", "work-items")
     for sub in checked_dirs:
         d = root / sub
@@ -88,8 +94,13 @@ def check_naming(root: Path) -> list[str]:
             continue
         for f in d.rglob("*.md"):
             name = f.name
-            if name in INDEX_NAMES or TEMPLATE_RE.match(name):
+            if (name in INDEX_NAMES or TEMPLATE_RE.match(name)
+                    or TEMPLATES_CATALOG_RE.match(name)):
                 continue
+            # Every templates/ subdirectory (INV-20) accepts files only —
+            # already covered by the two exemptions above (README.md via
+            # INDEX_NAMES, the catalog, and the TEMPLATE-*-vN.md itself) —
+            # nothing else should ever be there, so no separate skip needed.
             # Named roadmaps (development/roadmaps/<name>.md) are keyed by a
             # free-form name, not a sequential <id>-<summary> scheme — see
             # Rules-of-Rules.md §10.
@@ -101,19 +112,34 @@ def check_naming(root: Path) -> list[str]:
     return errors
 
 
+def _is_under_domains(f: Path, rules: Path) -> bool:
+    """True if f sits under rules/domains/ (INV-20) — domain files are not
+    rule documents and are exempt from rule-specific checks below."""
+    return "domains" in f.relative_to(rules).parts
+
+
 def check_single_rule_template(root: Path) -> list[str]:
-    """INV-8: exactly one TEMPLATE-RULE.md, in rules/ root."""
+    """INV-8: at least one TEMPLATE-RULE(-vN).md, and every copy of it lives
+    in rules/templates/ (never scattered into a rule-type directory).
+    Multiple versions coexisting there is normal — INV-20 versions by
+    adding files, never editing in place — so this does not require
+    exactly one file, only that none strayed from templates/."""
     rules = root / "rules"
     if not rules.is_dir():
         return ["INV-8: rules/ directory is missing"]
-    hits = list(rules.rglob("TEMPLATE-RULE.md"))
+    templates_dir = rules / "templates"
+    hits = [f for f in rules.rglob("TEMPLATE-RULE*.md")
+            if re.match(r"^TEMPLATE-RULE(-v\d+)?\.md$", f.name)]
     errors = []
-    if len(hits) != 1:
-        errors.append(f"INV-8: expected exactly one TEMPLATE-RULE.md, found "
-                      f"{len(hits)}")
-    elif hits[0].parent != rules:
-        errors.append("INV-8: TEMPLATE-RULE.md must live in rules/ root, "
-                      f"found at {hits[0].relative_to(root)}")
+    if not hits:
+        errors.append("INV-8: no TEMPLATE-RULE(-vN).md found")
+        return errors
+    stray = [f for f in hits if f.parent != templates_dir]
+    if stray:
+        errors.append(
+            "INV-8: TEMPLATE-RULE(-vN).md must live in rules/templates/, "
+            f"found at {[str(f.relative_to(root)) for f in stray]}"
+        )
     return errors
 
 
@@ -126,7 +152,9 @@ def check_rule_indexing(root: Path) -> list[str]:
     index_text = global_index.read_text(encoding="utf-8", errors="ignore")
     errors = []
     for f in rules.rglob("*.md"):
-        if f.name in INDEX_NAMES or TEMPLATE_RE.match(f.name):
+        if (f.name in INDEX_NAMES or TEMPLATE_RE.match(f.name)
+                or TEMPLATES_CATALOG_RE.match(f.name)
+                or _is_under_domains(f, rules)):
             continue
         stem = f.stem
         if stem not in index_text and f.name not in index_text:
@@ -140,7 +168,9 @@ def check_required_headings(root: Path) -> list[str]:
     rules = root / "rules"
     errors = []
     for f in rules.rglob("*.md"):
-        if f.name in INDEX_NAMES or TEMPLATE_RE.match(f.name):
+        if (f.name in INDEX_NAMES or TEMPLATE_RE.match(f.name)
+                or TEMPLATES_CATALOG_RE.match(f.name)
+                or _is_under_domains(f, rules)):
             continue
         text = f.read_text(encoding="utf-8", errors="ignore")
         if "## Contents" not in text:
@@ -171,30 +201,30 @@ def check_roadmaps_index_exists(root: Path) -> list[str]:
 
 
 def check_users_and_roles_exist(root: Path) -> list[str]:
-    """INV-16: development/users.json + development/roles.json always
-    exist, and users.json has at least one active user."""
+    """INV-16: IAM/users/users.json + IAM/roles/roles.json always exist,
+    and users.json has at least one active user."""
     errors: list[str] = []
-    users_path = root / "development" / "users.json"
-    roles_path = root / "development" / "roles.json"
+    users_path = root / "IAM" / "users" / "users.json"
+    roles_path = root / "IAM" / "roles" / "roles.json"
 
     if not roles_path.is_file():
-        errors.append("INV-16: development/roles.json is missing — seed it "
+        errors.append("INV-16: IAM/roles/roles.json is missing — seed it "
                       "from templates/roles.template.json")
 
     if not users_path.is_file():
-        errors.append("INV-16: development/users.json is missing — seed it "
+        errors.append("INV-16: IAM/users/users.json is missing — seed it "
                       "from templates/users.template.json")
         return errors
 
     try:
         data = json.loads(users_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as exc:
-        errors.append(f"INV-16: development/users.json is not valid JSON: {exc}")
+        errors.append(f"INV-16: IAM/users/users.json is not valid JSON: {exc}")
         return errors
 
     users = data.get("users", []) if isinstance(data, dict) else []
     if not any(isinstance(u, dict) and u.get("active") for u in users):
-        errors.append("INV-16: development/users.json has no active user — "
+        errors.append("INV-16: IAM/users/users.json has no active user — "
                       "a project must have at least one (/user-add)")
     return errors
 

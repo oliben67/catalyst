@@ -5,7 +5,7 @@ argument-hint: <name> <update file>
 
 Fold a partial delta file into an existing named roadmap. Full spec:
 `.catalyst-proj/CODE-OF-CONDUCT.md` §4, template:
-`.catalyst-proj/development/roadmaps/TEMPLATE-ROADMAP.md`.
+`.catalyst-proj/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`.
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name> <update file>`. If either is missing, ask
@@ -16,7 +16,7 @@ Input: $ARGUMENTS
 4. For each item: if it matches an existing row by title/description
    similarity, update that row's `Title`/`Notes` — ask the user rather
    than guessing when a match is ambiguous. If it doesn't match any
-   existing row, add a new row (next global `RM-NNNN`, `Status: Not
+   existing row, add a new row (next global `RM-NNNNNN`, `Status: Not
    triaged`).
 5. Unlike `/roadmap-update`, do not compare against or flag any existing
    row that `<update file>` doesn't mention — it's a delta, not the full

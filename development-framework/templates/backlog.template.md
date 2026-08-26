@@ -12,11 +12,11 @@
 
 ## Open bugs
 
-{{BUG-NNNN items grouped by Severity (Critical/High/Medium/Low), or "*(none)*" if empty}}
+{{BUG-NNNNNN items grouped by Severity (Critical/High/Medium/Low), or "*(none)*" if empty}}
 
 ## In-progress / proposed requirements
 
-{{REQ-NNNN items with Status proposed/approved/in-progress, or "*(none)*"}}
+{{REQ-NNNNNN items with Status proposed/approved/in-progress, or "*(none)*"}}
 
 ## Work items missing links
 
@@ -28,8 +28,8 @@
 
 ## Feature ideas with no requirement yet
 
-{{FEAT-NNNN entries with an empty Requirement(s) field, or "*(none)*"}}
+{{FEAT-NNNNNN entries with an empty Requirement(s) field, or "*(none)*"}}
 
 ## Roadmap
 
-{{RM-NNNN rows from every non-retired development/roadmaps/<name>.md, grouped by roadmap name then Status (Not triaged / Triaged / In progress), or "*(none)*" if every row is Done or no named roadmap has been added yet}}
+{{RM-NNNNNN rows from every non-retired development/roadmaps/<name>.md, grouped by roadmap name then Status (Not triaged / Triaged / In progress), or "*(none)*" if every row is Done or no named roadmap has been added yet}}

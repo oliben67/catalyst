@@ -162,21 +162,23 @@ rule must be stored as its own markdown file in that directory, and that file
 must be listed in the corresponding local type index and the global
 `{{RULES_DIR}}/rules.md` index. A rule that is not present in its type index
 or the global index is considered invalid until it is added to both. The
-only rule-template file allowed at the rules root is
-`{{RULES_DIR}}/TEMPLATE-RULE.md`; concrete rule files belong under the type
-folders, not under the rules root. Aggregating multiple rules into one file or
-relying on unindexed notes is not permitted.
+only rule-template file is the current
+`{{RULES_DIR}}/templates/TEMPLATE-RULE-vN.md` (§15 — versioned, catalogued,
+nested under `templates/`, never at the rules root directly); concrete
+rule files belong under the type folders, not under `templates/` or the
+rules root. Aggregating multiple rules into one file or relying on
+unindexed notes is not permitted.
 
 ## 6. `rr-META-006` Development artifacts have their own ID scheme
 
 If the deployed framework is missing `version.txt`, or if its version is
-missing or lower than the current framework version (`0.1.10`), the deployed
-framework must be synchronized before further work proceeds. See
+lower than this framework's own `development-framework/version.txt`, the
+deployed framework must be synchronized before further work proceeds. See
 [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
-Format: **`(BUG|REQ|HK)-(NNNN)`** — see
+Format: **`(BUG|REQ|HK)-(NNNNNN)`** — see
 [`rules-of-development.template.md`](rules-of-development.template.md).
-`NNNN` is a zero-padded 4-digit sequence number, global within its own
+`NNNNNN` is a zero-padded 6-digit sequence number, global within its own
 type, assigned in creation order, never reused. See §9 for the separate,
 non-rule-linked `FEAT-` scheme used for feature entries — it is not a
 fourth member of this format.
@@ -188,7 +190,12 @@ propose a new one, but only by following this standard, in every rule
 document.
 
 **Domains are defined in their own directory, not inline in the rule
-document.** Each domain gets one file at
+document.** `{{RULES_DIR}}/domains/` is nested under the rules directory
+(not a top-level sibling — domains exist to group rules, so they live
+where rules live) and follows the same uniform shape as every other
+artifact type (§15): its own `templates/`, `README.md`, `domains.md`
+catalog, and free-form space for the actual domain files. Each domain
+gets one file at
 `{{RULES_DIR}}/domains/{{DOC_PREFIX}}-{{CODE}}-{{short-description}}.md` (e.g.
 `domains/br-REDIS-caching-layer.md`). This is a hard requirement, the same as
 for artifact and work-item filenames (see `INSTANTIATION-GUIDE.md` §1): the
@@ -196,7 +203,8 @@ bare `{{DOC_PREFIX}}-{{CODE}}.md` is not a valid filename, the file must carry
 a short description of what the domain covers as part of its name. The
 `{{CODE}}` used inside rule IDs (`{{DOC_PREFIX}}-{{CODE}}-{{NNN}}`) is
 unaffected by this — only the on-disk filename gains the description suffix.
-See [`templates/domain.template.md`](templates/domain.template.md) for the
+See [`templates/domain.template.md`](templates/domain.template.md) → the
+current `{{RULES_DIR}}/domains/templates/TEMPLATE-DOMAIN-vN.md`, for the
 exact file structure (`Document`, `Defined`, `Parent`, `Sub-domains`,
 `Scope`, `Relationship to other domains`).
 
@@ -268,23 +276,45 @@ unrelated domain even if the original is later emptied out or retired
 
 The framework version is tracked in `version.txt` at the framework root.
 If a deployed framework has no `version.txt`, or its version is lower than
-`0.1.10`, it is considered out of date and must be synchronized using
-[`SYNCHRONIZE.md`](SYNCHRONIZE.md).
+this framework's own `development-framework/version.txt`, it is considered
+out of date and must be synchronized using [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
-Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNN)`** and **`SPRINT-(NNN)`** — see
+Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNNNN)`** and **`SPRINT-(NNN)`** — see
 [`rules-of-work-items.template.md`](rules-of-work-items.template.md).
 Work items are the process layer sitting above `BUG-`/`REQ-`/`HK-` docs.
 
+Two further, optional types share this scheme:
+
+- **`BOARD-(NNNNNN)`** — the Kanban-flavor structural counterpart to
+  `SPRINT-NNN`: a trackable container with its own `Status`
+  (`Active`/`Archived`) that `STORY-`/`TASK-` items reference instead of
+  sprint membership. Used only under the Kanban/Scrumban flavor (§2 of
+  `INSTANTIATION-GUIDE.md`) — a pure-Scrum deployment has no need for it,
+  the same way a pure-Kanban one has no need for `sprints/`.
+- **`WORKFLOW-(NNNNNN)`** — a process-definition document, not a unit of
+  work: it documents a repeatable multi-step procedure (e.g. "how a bug
+  moves from triage to resolution"). It carries `Status`
+  (`Active`/`Deprecated`) reflecting whether the process is currently in
+  use, never a work-tracking lifecycle, and is never itself "done."
+
+**`TICKET-(NNNNNN)` is deliberately not a core-defined type.** The
+`work-items/tickets/` folder (§15) is scaffolded like every other
+artifact type, but its actual population and lifecycle are
+plugin-territory — e.g. a project-management-type plugin syncing from an
+external tracker (INV-13: a plugin operates on the deployed project, its
+own repository, gated behind `/catalyzer`). Core catalyst reserves the
+structural slot and prescribes nothing about ticket semantics beyond it.
+
 ## 9. `rr-META-009` Feature entries have their own, non-rule-linked scheme
 
-Format: **`FEAT-(NNNN)`** — zero-padded 4-digit sequence number, global,
+Format: **`FEAT-(NNNNNN)`** — zero-padded 6-digit sequence number, global,
 assigned in creation order, never reused. Same descriptive-naming
 requirement as every other artifact and work-item ID (`INSTANTIATION-GUIDE.md`
-§1): the name and filename are `FEAT-NNNN-<short-summary>` /
-`FEAT-NNNN-<short-summary>.md`, never the bare ID. Stored one file per
+§1): the name and filename are `FEAT-NNNNNN-<short-summary>` /
+`FEAT-NNNNNN-<short-summary>.md`, never the bare ID. Stored one file per
 entry under `features/`, indexed in `features/features.md`, using
 [`templates/features.template.md`](templates/features.template.md) →
-`features/TEMPLATE-FEATURE.md`.
+the current `features/templates/TEMPLATE-FEATURE-vN.md`.
 
 A feature entry documents a possible future capability — an idea or
 roadmap item, not a claim about current or required behavior. It is
@@ -296,7 +326,7 @@ roadmap item, not a claim about current or required behavior. It is
 - ever carrying a `Targets` or `Domain` field.
 
 It is never "done" against a rule and is never itself implemented. Once
-work on a feature actually starts, open a `REQ-NNNN` requirement (§6)
+work on a feature actually starts, open a `REQ-NNNNNN` requirement (§6)
 that targets or proposes the rule(s) the feature requires — that
 requirement, not the feature entry, is what gets vetted against existing
 rules, assigned a domain, and measured for completion. The feature entry
@@ -305,17 +335,17 @@ the original idea, but that link is informational, not a rule target.
 
 ## 10. `rr-META-010` Roadmap items have their own, source-tracked scheme
 
-Format: **`RM-(NNNN)`** — zero-padded 4-digit sequence number, **global
+Format: **`RM-(NNNNNN)`** — zero-padded 6-digit sequence number, **global
 across every named roadmap**, assigned in the order `/roadmap-add`/
 `/roadmap-update`/`/roadmap-merge` first adds each item, never reused.
-Unlike a rule or a dev-artifact but like `FEAT-NNNN`, an `RM-` item is a
-table row, not its own file — but unlike `FEAT-NNNN` (one flat
+Unlike a rule or a dev-artifact but like `FEAT-NNNNNN`, an `RM-` item is a
+table row, not its own file — but unlike `FEAT-NNNNNN` (one flat
 `features/features.md`), roadmap rows are partitioned across **one file
 per named roadmap**: `development/roadmaps/<name>.md`
 (`templates/roadmap.template.md`), each registered in
 `development/roadmaps/roadmaps.md`. A project may hold several named
 roadmaps at once (e.g. a product roadmap and an infra roadmap, ingested
-and updated independently); an `RM-NNNN` ID stays unique and resolvable
+and updated independently); an `RM-NNNNNN` ID stays unique and resolvable
 regardless of which named roadmap's file it lives in.
 
 A roadmap item records that an external source (a product roadmap, a
@@ -330,8 +360,8 @@ development artifacts in §6. It is exempt from:
 
 A roadmap item is never "done" against a rule and is never itself
 implemented. Once a human decides it's worth tracking inside catalyst,
-`/create-feature` opens a `FEAT-NNNN` for it (§9), citing the `RM-NNNN` ID
-in the feature's `Roadmap` field — that feature entry, and the `REQ-NNNN`
+`/create-feature` opens a `FEAT-NNNNNN` for it (§9), citing the `RM-NNNNNN` ID
+in the feature's `Roadmap` field — that feature entry, and the `REQ-NNNNNN`
 it may later become, are what actually get vetted, assigned a domain, and
 measured. Each roadmap file's `Status`/`Linked` columns mirror whichever
 of those is currently linked, refreshed by `/show-backlog`, so a roadmap
@@ -345,18 +375,20 @@ whenever removing it outright would break a `FEAT-`/`REQ-` cross-reference.
 
 ## 11. `rr-META-011` Users and roles are advisory, not access control
 
-`development/users.json` (`templates/users.template.json`) is the registry
+`IAM/users/users.json` (`templates/users.template.json`) is the registry
 of people who can sign work — a JSON array of `{name, roles, registered,
 active, notes}` objects, kept as data rather than a hand-edited document
 because it is managed exclusively by commands:
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
-— see `rules-of-development.md` §4. `development/roles.json`
+— see `rules-of-development.md` §4. `IAM/roles/roles.json`
 (`templates/roles.template.json`) maps each role to the actions/commands
 it typically performs — a JSON array of `{name, actions}` objects, seeded
 with a default agile-role mapping and then extended via `/role-add`
 (new role) and `/role-modify` (change an existing role's actions).
+`IAM/users/` and `IAM/roles/` each follow the same uniform shape as every
+other artifact type (§15) — their own `templates/` and `README.md`.
 
-**`development/users.json` must contain at least one entry with `"active":
+**`IAM/users/users.json` must contain at least one entry with `"active":
 true`.** This is a hard requirement, unlike `roadmaps.md`'s "empty is
 fine": a project with zero active users has nobody to sign work, so
 deployment is not complete until `/user-add` has registered at least one
@@ -393,14 +425,14 @@ just describable.
 ```json
 {
   "timestamp": "2026-08-23T19:00:00Z",
-  "actor": "<name from development/users.json>",
+  "actor": "<name from IAM/users/users.json>",
   "command": "/create-req",
   "action": "create | update | close | retire | status-change | sync",
-  "artifact": "REQ-0001",
+  "artifact": "REQ-000001",
   "targets": ["fw-STRUCTURE-003"],
   "intent": ["one or more sentences — the goal driving this change, not a label"],
   "files": [
-    {"path": "requirements/REQ-0001-foo.md", "before": null, "after": "a1b2c3...(40 hex)"},
+    {"path": "requirements/REQ-000001-foo.md", "before": null, "after": "a1b2c3...(40 hex)"},
     {"path": "requirements/requirements.md", "before": "d4e5f6...", "after": "g7h8i9..."}
   ]
 }
@@ -475,13 +507,21 @@ opt-in — most deployments never need it.
 dedicated repo. If `<git-info>` doesn't already exist, create it there
 (named `<name>`, conventionally `<project-name>-catalyst-proj` but not
 enforced); if it already exists, register it as-is rather than
-recreating it. Record `repoed: true`, `catalyst_repo: <name>`,
-`catalyst_repo_url: <git-info>`, `created_by: <the current Signed-off-by
-actor>` in `.catalyst-proj/DEPLOYMENT.md`, then push the current local `.catalyst-proj/`
-state as the first commit on a branch named `thingamabob` — the
-**master version**: the canonical branch every subsequent push targets.
-Nothing is vetted on this first push; there's nothing yet to vet it
-against.
+recreating it — but if it already has *unrelated* content (a different
+project's own `.catalyst-proj/` deployment, not this one's), that's not
+a same-deployment rejoin: stop and confirm explicitly with the user
+before doing anything, the same way a second, independent repo for one
+deployment would need confirmation. Record `repoed: true`, `catalyst_repo:
+<name>`, `catalyst_repo_url: <git-info>`, `created_by: <the current
+Signed-off-by actor>` in `.catalyst-proj/DEPLOYMENT.md`, **ask which
+branch this actor will push to** (§"Choosing a branch" below) and record
+it as `thingamabob_branch`, then push the current local
+`.catalyst-proj/` state as the first commit on a branch named
+`thingamabob` — the **master version**: the canonical branch every
+subsequent push targets, and, if the chosen `thingamabob_branch` *is*
+`thingamabob` itself, also the branch this actor will keep pushing to
+going forward. Nothing is vetted on this first push; there's nothing yet
+to vet it against.
 
 **Called again, already repoed:** does not refuse. If `<git-info>`
 matches the already-registered `catalyst_repo_url`, this **branches the
@@ -503,10 +543,26 @@ suggested alternative if it doesn't survive sanitization uniquely.
 Download `<repo>`'s current `thingamabob` branch content and check out a
 new branch for it named `<username>.catalyst-proj` (in its branch-safe
 form) — this materializes as this user's local `.catalyst-proj/`, ready
-for `/thingamabob push` from there on. This is a valid alternative to the
-normal `INSTANTIATION-GUIDE.md` install flow when the project is already
-repoed elsewhere: join what exists rather than re-instantiating from the
-framework templates.
+for `/thingamabob push` from there on. **Ask which branch this actor
+will push to** (§"Choosing a branch" below — the just-created
+`<username>.catalyst-proj` is the natural default, but not the only
+option) and record it as `thingamabob_branch`. This is a valid
+alternative to the normal `INSTANTIATION-GUIDE.md` install flow when the
+project is already repoed elsewhere: join what exists rather than
+re-instantiating from the framework templates.
+
+### Choosing a branch: `thingamabob_branch`
+
+`create`'s first call and `get` both ask which branch the current actor
+will push to, rather than silently deriving one — the answer is recorded
+as `thingamabob_branch` in `<app-name>.catalyst` so later `/thingamabob
+push` calls don't need to ask again (a deployment created before this
+field existed asks once, on its next push, then remembers). The
+suggested default is the actor's own fixed branch,
+`<branch-safe-name>.catalyst-proj`, but choosing `thingamabob` itself
+instead is valid and changes what `push` does — see "Sync" below.
+Re-running `create`/`get` later (e.g. to switch modes) asks again and
+updates the recorded value.
 
 ### Branch-safe names
 
@@ -530,7 +586,7 @@ current actor running `/thingamabob create` (resolved from `git config
 user.name`, branch-safe form applied), or a joining user via
 `/thingamabob get <repo> <username>` (`<username>` *is* their git
 identity, given explicitly) — that value is written as `git_username` on
-their `development/users.json` entry, alongside (not replacing) `name`.
+their `IAM/users/users.json` entry, alongside (not replacing) `name`.
 **From that point on, every `Signed-off-by` field and every journal
 `actor` field this framework writes for that user uses `git_username`
 instead of `name`.**
@@ -558,11 +614,14 @@ Existing artifacts are handled differently from the journal, deliberately:
 ### Sync: `/thingamabob push`
 
 Refuses if this deployment isn't repoed yet (point to `/thingamabob
-create`). Push the local `.catalyst-proj/` state to the current actor's
-branch — `<git_username>.catalyst-proj` once they have one, otherwise the
-branch-safe form of `name` — in the dedicated repo (creating that branch
-if it's this user's first push, the same branch `/thingamabob get` would
-have created for them if they joined that way instead). Then:
+create`). If no `thingamabob_branch` is recorded yet (a deployment from
+before this field existed), ask now (§"Choosing a branch" above) and
+record it before proceeding. What happens next depends on that value:
+
+**`thingamabob_branch` is a real contributor branch** (the default —
+`<git_username>.catalyst-proj` once the actor has one, otherwise the
+branch-safe form of `name`): push the local `.catalyst-proj/` state
+there (creating the branch on this actor's first push), then:
 
 1. **Vet** the incoming branch against `thingamabob`: run `/check-rules`
    against the merged-in state, plus an independent four-eyes sub-agent
@@ -581,7 +640,7 @@ have created for them if they joined that way instead). Then:
    rule-compliant intent, and if the conflict is genuinely irreconcilable,
    stop and prompt the user rather than guessing which side wins.
 3. **Update both branches** with the merged result: `thingamabob` gets
-   the merge commit, and the contributor's own push branch (above) is
+   the merge commit, and the contributor's own push branch is
    fast-forwarded to match, so their next push starts from the
    already-merged state instead of re-triggering the same merge.
 4. **Refresh the local copy**: pull the updated `thingamabob` down and
@@ -589,14 +648,30 @@ have created for them if they joined that way instead). Then:
    in-memory record of it) to match — the local copy never silently drifts
    from what was just agreed upon remotely.
 
+**`thingamabob_branch` is `thingamabob` itself** (single-maintainer
+mode): push the local `.catalyst-proj/` state directly onto
+`thingamabob`, overwriting it — no vetting, no merge, every time, not
+just under `--force`. This is the normal behavior in this mode, not a
+shortcut: it's appropriate when there's exactly one actor keeping the
+canonical state current (catalyst's own self-dogfooding is the
+motivating case, where `/dogfood`'s own four-eyes audit already served
+as the vetting step before the push happens at all) — refused for anyone
+other than the repo's recorded `created_by`, same gate as `--force`
+below. A repo intended to stay in this mode should only ever grow the
+one `thingamabob` branch — no per-contributor branches ever get created
+against it.
+
 ### `--force`
 
-`/thingamabob push --force` skips vetting and merging entirely and
-overwrites `thingamabob` directly with the local state — the same
-destructive-shortcut shape as `/sync-framework --force`, and gated the
-same way access to anything destructive is gated in this framework:
-**refused for anyone other than the repo's recorded `created_by` user.**
-Every other contributor only ever gets the vetted-and-merged path.
+`/thingamabob push --force`, on a contributor branch, skips vetting and
+merging for *this one push* and overwrites `thingamabob` directly with
+the local state anyway — the same destructive-shortcut shape as
+`/sync-framework --force`, and gated the same way access to anything
+destructive is gated in this framework: **refused for anyone other than
+the repo's recorded `created_by` user.** Every other contributor only
+ever gets the vetted-and-merged path. Meaningless (and unnecessary) in
+single-maintainer mode, where every push already behaves this way by
+default.
 
 ### What this is not
 
@@ -617,6 +692,17 @@ exposes. It isn't listed in `CODE-OF-CONDUCT.md` §4 and
 catalyst's own repository, for verifying catalyst's own rules against
 catalyst's own actual state. `/commands list` (§4) surfaces it when
 running in that context, and stays silent about it everywhere else.
+
+**After every `/dogfood` run that ends clean, or ends with fixes applied
+and reverified**, offer to sync — `/thingamabob push` if this deployment
+is already repoed, `/thingamabob create` if it isn't. Never run either
+automatically (INV-4: no push without explicit assent) — offer it, the
+same way any other next step gets offered, and proceed only once the
+user says to. This is what makes single-maintainer mode (above) coherent
+for catalyst's own repo specifically: `/dogfood` is the vetting step,
+already run standalone before the offer even appears, so the push it
+leads to can safely overwrite `thingamabob` directly without repeating
+that check.
 
 ## 14. `rr-META-014` Agent-owned working copy, the tracked pointer, and project lifecycle
 
@@ -723,3 +809,83 @@ The lifecycle commands for this model (full command spec:
   a deployment already exists here — it overwrites it. Warn what's about
   to be replaced and confirm explicitly first, same tier of
   destructiveness as `remove ... force`.
+
+## 15. `rr-META-015` Every artifact type has the same directory shape
+
+Hard rule, no exception: **every artifact-type directory carries a
+versioned, catalogued `templates/` subdirectory**, and both it and the
+artifact-type directory itself always have a `README.md`.
+
+```
+<artifact-type>/
+  templates/
+    README.md
+    templates-<type>.md      # catalog: Version | File | Timestamp | Notes
+    TEMPLATE-<TYPE>-v1.md
+    TEMPLATE-<TYPE>-v2.md    # a new version when the template's content
+    ...                      # changes meaningfully — never overwritten in place
+  README.md
+  <type>.md                  # catalog of actual artifact instances
+  [...]                      # actual artifact files/folders — free-form,
+                              # any depth, this artifact type's own choice
+                              # of sub-organization
+```
+
+`templates/` accepts **files only** — a new template version is a new
+file (`TEMPLATE-<TYPE>-v2.md`, never an edit to `v1`), never a
+subdirectory. The artifact-type root above it accepts files *and*
+folders at arbitrary depth, precisely because different artifact types
+need different sub-organization (e.g. rule documents nested by domain,
+roadmap files one per named roadmap) — this rule fixes the *shape*
+`templates/` + `README.md` + `<type>.md` provide, not how the actual
+artifacts underneath are arranged.
+
+**Versioned and timestamped**, per the hard rule this section exists to
+satisfy: `TEMPLATE-<TYPE>-vN.md`'s `N` is the version; the *timestamp*
+lives in `templates-<type>.md`'s catalog table — one row per version,
+recording when it was introduced and what changed, so template history
+is inspectable without diffing file content. The **current** version is
+always the highest `N` present; nothing below `templates/` ever gets
+edited in place once a newer version exists — that would defeat the
+point of versioning it at all.
+
+**Exactly one exception to "everything nests under an artifact-type
+folder": documents that govern the artifact type itself** —
+`Rules-of-Rules.md`, `rules-of-work-items.md`, and each artifact type's
+own `templates-<type>.md` catalog — sit flat alongside `README.md` and
+the instance catalog, siblings to `templates/`, not inside it and not
+inside the free-form `[...]` area. This is already the existing shape of
+`rules/Rules-of-Rules.md` and `work-items/rules-of-work-items.md`; §15
+generalizes it, it doesn't change it.
+
+### Where every artifact type actually sits
+
+- `rules/` — `templates/`, `domains/` (itself shaped exactly like an
+  artifact type: `templates/`, `README.md`, `domains.md` catalog,
+  free-form domain files — nested here because a domain exists only to
+  group rules, never as a top-level sibling), `README.md`,
+  `Rules-of-Rules.md`, `rules.md`, free-form rule documents (`[...]`,
+  typically nested by domain, e.g. `business/business-rules.md`).
+- `requirements/`, `features/` — unchanged position (top-level, siblings
+  of `rules/`), each gains the `templates/` treatment.
+- `IAM/` — new top-level folder replacing bare
+  `development/users.json`/`roles.json`; holds `users/` and `roles/`,
+  each shaped like an artifact type (§11) except for `templates/` — each
+  is one JSON array, not a one-file-per-instance document type, so
+  there's nothing to version.
+- `plugins/` — unchanged (INV-10..13): `<type>/<name>/`, each activated
+  plugin's own install, sourced from its own repository. Not subject to
+  the `templates/`+catalog shape — a plugin owns its own internal
+  structure.
+- `development/` — `roadmaps/`, `bugs/`, `house-keeping/`, `meta-tags/`
+  each promoted to a full artifact-type folder (previously bugs/
+  house-keeping/meta-tags lived as loose files directly under
+  `development/`); `BACKLOG.md`, `README.md`, `journal.jsonl` stay flat,
+  cross-cutting, not artifact types themselves.
+- `work-items/` — `boards/`, `epics/`, `spikes/`, `sprints/`, `stories/`,
+  `tasks/`, `tickets/`, `workflows/` (§8's two new optional types plus
+  the plugin-territory `tickets/` slot); `README.md` and
+  `rules-of-work-items.md` stay flat.
+
+See `INSTANTIATION-GUIDE.md` §1 for the full deployed layout tree and
+`INSTANTIATION-CHECKLIST.md` for the tickable deploy-skeleton steps.

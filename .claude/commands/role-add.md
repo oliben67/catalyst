@@ -1,5 +1,5 @@
 ---
-description: Add a new role definition to .catalyst-proj/development/roles.json
+description: Add a new role definition to .catalyst-proj/IAM/roles/roles.json
 argument-hint: <role> <actions>
 ---
 
@@ -11,8 +11,8 @@ Input: $ARGUMENTS
 1. Parse `$ARGUMENTS` as `<role> <actions>` (`<actions>` is a list of
    commands/actions this role typically performs — comma-separated is
    fine, matching the shape of the existing entries in
-   `.catalyst-proj/development/roles.json`). If either is missing, ask for it.
-2. If `.catalyst-proj/development/roles.json` doesn't exist yet, create it from
+   `.catalyst-proj/IAM/roles/roles.json`). If either is missing, ask for it.
+2. If `.catalyst-proj/IAM/roles/roles.json` doesn't exist yet, create it from
    `development-framework/templates/roles.template.json` (filled in with
    its default agile-role mapping) first.
 3. If `<role>` already has an entry, refuse and point to `/role-modify`

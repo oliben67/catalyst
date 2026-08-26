@@ -23,13 +23,15 @@ immediately.
 
 ## Version rule
 
-- Current framework version: `0.1.10`
+- Current framework version: see this repository's own
+  `development-framework/version.txt`.
 - The source of truth for the latest framework version is the `release`
   branch of `git@github.com:oliben67/catalyst.git` (or
   `https://github.com/oliben67/catalyst.git`).
 - The deployed framework must have a `version.txt` file.
-- If `version.txt` is missing or contains a version lower than `0.1.10`,
-  treat the deployment as out of date and synchronize it.
+- If `version.txt` is missing or contains a version lower than this
+  framework's own `development-framework/version.txt`, treat the
+  deployment as out of date and synchronize it.
 
 ## Slash-command behavior for `/sync-framework`
 
@@ -67,7 +69,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    **`<id>-<short-summary>.md`** using their existing title/description
    content, then update every index entry, link, and reference that points to
    the old name or old filename. The same normalization is a hard requirement
-   for domain files under `domains/`: any file still named only
+   for domain files under `rules/domains/`: any file still named only
    `<prefix>-<CODE>.md` (or `<prefix>-<PARENT>.<SUB>.md` for a sub-domain)
    must be renamed to `<prefix>-<CODE>-<short-summary>.md` (or
    `<prefix>-<PARENT>.<SUB>-<short-summary>.md`), using the domain's own
@@ -143,7 +145,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      predates this requirement and has no `development/BACKLOG.md`,
      synchronizing to a version that includes it creates it from the
      template rather than skipping it as "already deployed."
-   - `development/roadmaps/TEMPLATE-ROADMAP.md` and an empty
+   - `development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md` and an empty
      `development/roadmaps/roadmaps.md` index (from
      `templates/roadmap.template.md` on first deploy — see
      `INVARIANTS.md` INV-15). Individual `development/roadmaps/<name>.md`
@@ -154,11 +156,11 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      plugin directory. A deployed project that predates this requirement
      gets the folder/index created from the template on its next sync,
      not silently skipped.
-   - `development/roles.json` (from `templates/roles.template.json` on
+   - `IAM/roles/roles.json` (from `templates/roles.template.json` on
      first deploy; entries added/changed by `/role-add`/`/role-modify` —
      never overwritten by synchronization once it exists, same
      project-owned-state treatment as an installed plugin directory) and
-     `development/users.json` (from `templates/users.template.json` on
+     `IAM/users/users.json` (from `templates/users.template.json` on
      first deploy; entries added/updated by
      `/user-add`/`-remove`/`-modify`/`-assign-role` — see `INVARIANTS.md`
      INV-16). A deployed project that predates this requirement gets both
@@ -176,7 +178,7 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      the journal's own existence.
    - `version.txt`
    - every documented slash command from `rules-of-development.template.md`
-     §3 — the canonical list; this file must never re-enumerate a subset of
+     §4 — the canonical list; this file must never re-enumerate a subset of
      it — must be available in the deployed environment after
      synchronization. Under Claude Code: create any
      `.claude/commands/<name>.md` missing relative to that list (following
@@ -200,8 +202,8 @@ project re-syncs to a still-later version afterward.
 ### From `0.3.1`: audit `BUG-` items that were actually feature requests
 
 This framework version introduces `features/` (`Rules-of-Rules.md` §9) and
-makes explicit that new feature work belongs in a `REQ-NNNN` requirement,
-never a `BUG-NNNN` bug (`rules-of-development.md` §3). A project synchronized
+makes explicit that new feature work belongs in a `REQ-NNNNNN` requirement,
+never a `BUG-NNNNNN` bug (`rules-of-development.md` §3). A project synchronized
 from a framework version at or below `0.3.1` may already contain `BUG-`
 items that were filed for what was actually new/desired behavior rather
 than an existing rule failing to hold.
@@ -217,14 +219,29 @@ section, perform this audit once, as part of that same synchronization run:
    implemented" rather than a regression from a previously ✅ rule.
 3. Report every flagged item to the user rather than silently
    reclassifying it. For each one the user confirms, convert it to a
-   `REQ-NNNN` using `templates/requirements.template.md`, preserving its
-   original content and `Opened` date, then retire the `BUG-NNNN` in place
-   per `Rules-of-Rules.md` §4 with a note pointing at the new `REQ-NNNN`.
+   `REQ-NNNNNN` using `templates/requirements.template.md`, preserving its
+   original content and `Opened` date, then retire the `BUG-NNNNNN` in place
+   per `Rules-of-Rules.md` §4 with a note pointing at the new `REQ-NNNNNN`.
 4. Do not repeat this audit on later syncs once the deployed project's
    `version.txt` already reflects a version that includes this section.
+
+### From `0.10.1`: agent-owned working copy + `<app-name>.catalyst` pointer
+
+Target version `0.11.0`. Full procedure:
+`migrations/0.11.0/agent-owned-working-copy.md` (this repository) — not
+duplicated here.
+
+### From `0.11.0`: uniform artifact-type layout
+
+Target version `0.12.0`. Full procedure:
+`migrations/0.12.0/uniform-artifact-layout.md` (this repository) — not
+duplicated here. Touches most of the deployed tree (nested `templates/`,
+`domains/` relocation, `IAM/`, new `work-items/` types, 6-digit IDs), so
+treat it as its own careful pass rather than folding it into an ordinary
+template/rule sync.
 
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current
 framework's rules, templates, and file structure, and its version should be
-at least `0.1.10`.
+at least this framework's own `development-framework/version.txt`.

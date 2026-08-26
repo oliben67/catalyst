@@ -1,5 +1,10 @@
 # `{{CODE}}` — {{Domain name}}
 
+> Copy this file to `{{RULES_DIR}}/domains/templates/TEMPLATE-DOMAIN-v1.md`
+> and resolve every `{{PLACEHOLDER}}` (INV-20) — domains nest under
+> `rules/`, not a top-level sibling; see `Rules-of-Rules.md` §7. See
+> [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
+
 **Document:** {{RULE_DOC}}
 **Defined:** {{DATE}}
 **Parent:** {{PARENT_CODE or "none"}}
