@@ -432,9 +432,10 @@ what was added/updated.
 When the user enters `/user-add <name> <role>: ...`, refuse with a clear
 message if `<name>` already has an entry in `IAM/users/users.json`
 (point to `/user-modify`/`/user-assign-role`). If `IAM/users/users.json`
-or `IAM/roles/roles.json` doesn't exist yet, create them from
-`templates/users.template.json` and `templates/roles.template.json`
-first. If `<role>` isn't one of the roles listed in
+or `IAM/roles/roles.json` doesn't exist yet, create them from the
+deployment's own current `IAM/users/templates/TEMPLATE-USERS-vN.json`
+and `IAM/roles/templates/TEMPLATE-ROLES-vN.json` (the highest `N`
+present). If `<role>` isn't one of the roles listed in
 `IAM/roles/roles.json`, ask whether to use an existing role or run
 `/role-add` for `<role>` first. Otherwise append a new entry (`registered`:
 today, `active: true`, `roles: [<role>]`) and report it. If this is the
@@ -475,8 +476,9 @@ matches.
 When the user enters `/role-add <role> <actions>: ...`, refuse with a
 clear message if `<role>` already has an entry in
 `IAM/roles/roles.json` (point to `/role-modify`). If
-`IAM/roles/roles.json` doesn't exist yet, create it from
-`templates/roles.template.json` first. Otherwise append a new entry
+`IAM/roles/roles.json` doesn't exist yet, create it from the
+deployment's own current `IAM/roles/templates/TEMPLATE-ROLES-vN.json`
+first. Otherwise append a new entry
 (`name: <role>`, `actions: <actions>`) and report it.
 
 When the user enters `/role-modify <role> <actions>: ...`, refuse with a

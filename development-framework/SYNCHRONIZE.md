@@ -240,6 +240,15 @@ duplicated here. Touches most of the deployed tree (nested `templates/`,
 treat it as its own careful pass rather than folding it into an ordinary
 template/rule sync.
 
+### From `0.12.1`: IAM registry templates
+
+Target version `0.13.0`. Full procedure:
+`migrations/0.13.0/iam-registry-templates.md` (this repository) — not
+duplicated here. Adds `templates/` under `IAM/users/` and `IAM/roles/`
+(reversing the exception `0.12.0` carved out for them); additive only,
+no existing file's content changes except the two `README.md`
+explanatory paragraphs.
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current

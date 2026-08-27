@@ -49,12 +49,12 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `rules/domains/` → `domains.md` (empty index allowed)
       - `requirements/` → `requirements.md`
       - `features/` → `features.md`
-      - `IAM/users/` → `users.json` (from `templates/users.template.json`,
-        empty array, INV-16) — **no `templates/` here**: one JSON array,
-        nothing to version
-      - `IAM/roles/` → `roles.json` (from `templates/roles.template.json`,
-        default agile-role mapping, INV-16) — **no `templates/` here**,
-        same reason
+      - `IAM/users/` → `templates/` (`TEMPLATE-USERS-v1.json` from
+        `templates/users.template.json`) then `users.json` seeded from
+        it (empty array, INV-16)
+      - `IAM/roles/` → `templates/` (`TEMPLATE-ROLES-v1.json` from
+        `templates/roles.template.json`) then `roles.json` seeded from
+        it (default agile-role mapping, INV-16)
       - `development/roadmaps/` → `roadmaps.md` (empty index allowed,
         INV-15 — individual named roadmaps created later via
         `/roadmap-add`)
