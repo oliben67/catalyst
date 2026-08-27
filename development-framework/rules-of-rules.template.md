@@ -893,9 +893,13 @@ generalizes it, it doesn't change it.
   of `rules/`), each gains the `templates/` treatment.
 - `IAM/` — new top-level folder replacing bare
   `development/users.json`/`roles.json`; holds `users/` and `roles/`,
-  each shaped like an artifact type (§11) except for `templates/` — each
-  is one JSON array, not a one-file-per-instance document type, so
-  there's nothing to version.
+  each shaped exactly like any other artifact type (§11), including the
+  `templates/` treatment. `TEMPLATE-USERS-v1.json`/`TEMPLATE-ROLES-v1.json`
+  version the registry's *seed shape* (the array a fresh deployment
+  starts from), not a per-instance document — `users.json`/`roles.json`
+  are each one JSON array, not one-file-per-instance, so there is
+  exactly one live instance per type, versioned the same way any other
+  type's template is.
 - `plugins/` — unchanged (INV-10..13): `<type>/<name>/`, each activated
   plugin's own install, sourced from its own repository. Not subject to
   the `templates/`+catalog shape — a plugin owns its own internal

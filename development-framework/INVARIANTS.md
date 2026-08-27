@@ -173,7 +173,11 @@ faster and is the first thing a summarizer mangles.
   artifact-type root itself accepts files and folders at any depth for
   the actual artifacts. Domains nest under `rules/domains/` (they exist
   only to group rules). `IAM/users/`, `IAM/roles/` replace bare
-  `development/users.json`/`roles.json`. `work-items/` gains `BOARD-`
+  `development/users.json`/`roles.json`, and carry the same `templates/`
+  treatment as every other type — `TEMPLATE-USERS-vN.json`/
+  `TEMPLATE-ROLES-vN.json` version the registry's seed shape, since each
+  registry is one JSON array rather than one-file-per-instance.
+  `work-items/` gains `BOARD-`
   (Kanban's counterpart to `SPRINT-`) and `WORKFLOW-` (a process
   document, never itself worked) as optional types, plus a `tickets/`
   slot reserved for plugin population — no core `TICKET-` scheme.

@@ -101,10 +101,18 @@ creates concrete rules for that particular project.
        <FEAT-NNNNNN-short-summary>.md
      IAM/
        users/
-         README.md              # no templates/ — one JSON array, not
-         users.json              # a per-instance artifact type
+         templates/
+           README.md
+           templates-users.md
+           TEMPLATE-USERS-v1.json
+         README.md
+         users.json
        roles/
-         README.md              # no templates/ — same reason
+         templates/
+           README.md
+           templates-roles.md
+           TEMPLATE-ROLES-v1.json
+         README.md
          roles.json
      plugins/
        <type>/
@@ -204,12 +212,15 @@ creates concrete rules for that particular project.
    only, never a subfolder, never edited in place once a newer version
    exists), its own `README.md`, the `<type>.md` instance catalog, and
    free-form space underneath for the actual artifacts (files and
-   folders, any depth — e.g. rule documents nested by domain). Two
-   exceptions: `IAM/users/`, `IAM/roles/` skip `templates/` entirely —
-   each is one JSON array, not a one-file-per-instance document type, so
-   there's nothing to version — and `tickets/` is a reserved slot with no
-   core template, populated by a project-management-type plugin if one
-   is activated, otherwise left empty. `boards/` is optional per agile
+   folders, any depth — e.g. rule documents nested by domain). `IAM/users/`
+   and `IAM/roles/` get the same `templates/` treatment as every other
+   type, except the versioned file is the registry's *seed shape*
+   (`TEMPLATE-USERS-vN.json`/`TEMPLATE-ROLES-vN.json`) rather than a
+   per-instance document, since each registry is one JSON array, not
+   one-file-per-instance. One exception remains: `tickets/` is a
+   reserved slot with no core template, populated by a
+   project-management-type plugin if one is activated, otherwise left
+   empty. `boards/` is optional per agile
    flavor (§2 below — Kanban/Scrumban only, mutually exclusive with
    `sprints/`); `workflows/` is optional but flavor-independent — adopt
    it whenever the project wants process-definition documents, not tied
@@ -286,12 +297,16 @@ creates concrete rules for that particular project.
    — a hard requirement (`INVARIANTS.md` INV-14), not optional like the
    artifact templates above; unlike those, it is not hand-edited
    afterward, and it has no `templates/` treatment of its own (it isn't
-   an artifact type, INV-20 doesn't apply to it). Also copy
-   `templates/roles.template.json` to `IAM/roles/roles.json` (filled in
-   with its default agile-role mapping) and `templates/users.template.json`
-   to `IAM/users/users.json` (empty array) — both a hard requirement
-   (`INVARIANTS.md` INV-16). Neither gets a `templates/` of its own — see
-   the two exceptions noted in step 4 above. **Then immediately run `/user-add` for at least one
+   an artifact type, INV-20 doesn't apply to it). Also create
+   `IAM/users/templates/` and `IAM/roles/templates/` the same way as any
+   other type in this loop: copy `templates/users.template.json` in as
+   `TEMPLATE-USERS-v1.json` and `templates/roles.template.json` in as
+   `TEMPLATE-ROLES-v1.json`, each with its own `README.md` and a
+   `templates-users.md`/`templates-roles.md` catalog seeded with a `v1`
+   row. Then seed `IAM/roles/roles.json` from `TEMPLATE-ROLES-v1.json`
+   (its default agile-role mapping) and `IAM/users/users.json` from
+   `TEMPLATE-USERS-v1.json` (empty array) — both a hard requirement
+   (`INVARIANTS.md` INV-16). **Then immediately run `/user-add` for at least one
    person** — unlike every other on-demand artifact, deployment is not
    actually complete with an empty `users.json`: a project must have at
    least one active user (INV-16). Ask the user who that first

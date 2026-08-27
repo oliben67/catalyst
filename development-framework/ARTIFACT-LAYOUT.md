@@ -65,11 +65,21 @@ the surrounding deploy-procedure text.
         [...]
     IAM/
         users/
-            README.md                    # no templates/ here — one JSON array,
-            users.json                   # users catalog        not a per-instance artifact type
+            templates/
+                README.md
+                templates-users.md       # templates catalog: Version | File | Timestamp | Notes
+                TEMPLATE-USERS-v1.json   # versions the registry's seed shape, not a per-instance doc
+                ...
+            README.md
+            users.json                   # users registry (one JSON array)
         roles/
-            README.md                    # no templates/ here — same reason
-            roles.json                   # roles catalog
+            templates/
+                README.md
+                templates-roles.md
+                TEMPLATE-ROLES-v1.json
+                ...
+            README.md
+            roles.json                   # roles registry (one JSON array)
     plugins/                             # unaffected by INV-20 — a plugin owns its own layout
         <type>/
             [...]
@@ -202,9 +212,6 @@ that has one:
 - `work-items/tickets/` — scaffolded like every other type (`README.md`,
   `tickets.md`) but with no `templates/`: no core template exists,
   since population is plugin-territory (`Rules-of-Rules.md` §8).
-- `IAM/users/`, `IAM/roles/` — each is one JSON array (`users.json`,
-  `roles.json`), not a one-file-per-instance document type, so there is
-  no per-instance template to version.
 - `plugins/` — a plugin's own repository owns its internal structure;
   INV-20 does not reach into it.
 
