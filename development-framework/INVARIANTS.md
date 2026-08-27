@@ -133,12 +133,18 @@ faster and is the first thing a summarizer mangles.
   itself instead is valid and changes what `push` does:
 
   - **`thingamabob_branch` names a real contributor branch** (the
-    default case, for multi-contributor deployments): `/thingamabob
-    push` is vetted (`/check-rules` plus a four-eyes sub-agent pass) and
-    merged into `thingamabob`; both branches are updated with the
-    result, and the local `.catalyst-proj/` is refreshed to match.
-    `--force` skips vetting and overwrites `thingamabob` directly
-    anyway, refused for anyone but the repo's recorded `created_by`.
+    default case, for multi-contributor deployments): the push itself is
+    scoped to artifact files whose `Signed-off-by` names the current
+    actor — not their full local state — unless they hold the `Admin`
+    role (`IAM/roles/roles.json`), in which case everything pushes
+    unfiltered. Shared registries/indexes and the journal aren't signed
+    by one person and are never filtered; excluded files are reported,
+    never silently dropped. What's pushed is then vetted (`/check-rules`
+    plus a four-eyes sub-agent pass) and merged into `thingamabob`; both
+    branches are updated with the result, and the local
+    `.catalyst-proj/` is refreshed to match. `--force` skips vetting and
+    scoping and overwrites `thingamabob` directly anyway, refused for
+    anyone but the repo's recorded `created_by`.
   - **`thingamabob_branch` is `thingamabob` itself** (single-maintainer
     mode — e.g. catalyst's own self-dogfooding, where `/dogfood`'s own
     audit already served as the vetting step): every `push` overwrites
