@@ -3,10 +3,14 @@ description: Create a new time-boxed spike work item and register it in spikes/s
 argument-hint: <question> --timebox <duration> [--parent <STORY-NNNNNN|EPIC-NNNNNN>]
 ---
 
-Create a new spike work item. Full spec:
-`.criterion/CODE-OF-CONDUCT.md` §4,
-`.criterion/work-items/rules-of-work-items.md`, template:
-`.criterion/work-items/spikes/templates/TEMPLATE-SPIKE-v1.md`.
+> **Prototype — not implemented.** Part of the agile schema at
+> `plugins/_prototyping/project-management/agile/`, not a deployed
+> command. No concrete project-management plugin exists yet to activate
+> this; kept here as the spec a future one implements against.
+
+Create a new spike work item. Full spec: this plugin's schema, `rules-of-work-items.template.md`
+(this directory), template:
+`templates/TEMPLATE-SPIKE-v1.md` (this directory).
 Input: $ARGUMENTS
 
 1. Resolve the next `SPIKE-NNNNNN` ID from `spikes/spikes.md` + a

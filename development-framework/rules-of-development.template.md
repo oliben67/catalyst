@@ -213,22 +213,15 @@ The framework exposes the following custom slash commands:
   `/role-modify` instead.
 - `/role-modify <role> <actions>` — replace an existing role's `actions`.
   Refuses if `<role>` doesn't exist — use `/role-add` instead.
-- `/create-epic` — create a new epic work item and register it in
-  `epics/epics.md`.
-- `/create-story` — create a new story work item and register it in
-  `stories/stories.md`.
-- `/create-task` — create a new task work item and register it in
-  `tasks/tasks.md`.
-- `/create-spike` — create a new spike work item and register it in
-  `spikes/spikes.md`.
-- `/create-sprint` — create a new sprint container and register it in
-  `sprints/sprints.md`. Scrum flavor only (`rules-of-work-items.md` §2).
-- `/create-board` — create a new board container and register it in
-  `boards/boards.md`. Kanban/Scrumban flavor only — the structural
-  counterpart to `/create-sprint`.
-- `/create-workflow` — create a new process-definition document and
-  register it in `workflows/workflows.md`. Not a unit of work: no parent
-  epic/story link, `Status` is `Active`/`Deprecated`.
+**`/create-epic`, `/create-story`, `/create-task`, `/create-spike`,
+`/create-sprint`, `/create-board`, `/create-workflow` are not core
+commands.** `work-items/` and its seven artifact types are
+plugin-territory (`Rules-of-Rules.md` §8, INV-22) — these commands only
+exist in a deployment once a project-management-type plugin extending
+`plugins/_prototyping/project-management/agile/`'s schema is activated;
+that plugin's own `working-contract.md` `## Contributes` section is
+their spec, not this document. No concrete plugin exists yet, so none of
+the seven currently exist anywhere.
 - `/meta-tag` — create a new meta-tag artifact, save it as
   `tag-<key>-<artefact-id>`, register it in `meta-tags/meta-tags.md`, and
   link it to the specified artifact.
@@ -495,21 +488,9 @@ to `/role-add`). Otherwise replace that entry's `actions` and report the
 result. This never retroactively changes a `Signed-off-by` value already
 recorded on an existing artifact.
 
-When the user enters `/create-epic`, `/create-story`, `/create-task`,
-`/create-spike`, or `/create-sprint`, create the corresponding work-item
-artifact immediately, register it in the matching index file under the
-appropriate work-items folder, and preserve the required linkage to its parent
-or target artifact.
-
-When the user enters `/create-board`, create a new `BOARD-NNNNNN` with
-`Status: Active`, register it in `boards/boards.md`. Stories/tasks
-reference it in place of sprint membership — never both at once for the
-same item.
-
-When the user enters `/create-workflow`, create a new `WORKFLOW-NNNNNN`
-documenting the procedure described, `Status: Active`, register it in
-`workflows/workflows.md`. It carries no parent epic/story link and is
-never itself "done" — only ever `Active` or `Deprecated`.
+The seven work-item creation commands (§4) have no procedure here —
+they're plugin-contributed, not core; see whichever
+project-management-type plugin's own `working-contract.md` is active.
 
 When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
 immediately, save it as `tag-<key>-<artefact-id>`, register it in

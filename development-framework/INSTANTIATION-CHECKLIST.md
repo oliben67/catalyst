@@ -38,7 +38,6 @@ from drifting. The guide holds the rationale; this holds the checks.
       storage if available, else the in-project fallback
 - [ ] `CODE-OF-CONDUCT.md` created from `rules-of-development.template.md`
 - [ ] `rules/Rules-of-Rules.md` created from `rules-of-rules.template.md`
-- [ ] `work-items/rules-of-work-items.md` created from its template
 - [ ] For **every** artifact-type folder (INV-20): `templates/` created
       (`README.md`, `templates-<type>.md` catalog seeded with a `v1` row —
       Version | File | Timestamp | Notes — and `TEMPLATE-<TYPE>-v1.md`
@@ -63,15 +62,12 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `development/bugs/` → `bugs.md`
       - `development/house-keeping/` → `house-keeping.md`
       - `development/meta-tags/` → `meta-tags.md`
-      - `work-items/epics/`, `stories/`, `tasks/`, `spikes/` → their
-        `<type>.md`
-      - `work-items/sprints/` (Scrum flavor) or `work-items/boards/`
-        (Kanban/Scrumban flavor) → `sprints.md`/`boards.md` — skip
-        whichever the chosen agile flavor doesn't use (`INSTANTIATION-GUIDE.md`
-        §2)
-      - `work-items/workflows/` → `workflows.md`
-      - `work-items/tickets/` → `tickets.md` only — no `templates/`, no
-        core template; reserved for plugin population
+
+      `work-items/` is **not** in this list — it's plugin-only
+      (`Rules-of-Rules.md` §8, INV-22), not part of core instantiation.
+      See `ARTIFACT-LAYOUT.md`'s "Optional, plugin-provided: `work-items/`"
+      for what a project-management-type plugin deploys if/when one is
+      activated.
 - [ ] `/user-add` run for at least one person — deployment is not
       complete with zero active users (INV-16, hard rule, stricter than
       every other on-demand artifact)
@@ -94,8 +90,8 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Root `README.md` written (structure, deploy path, artifact folders)
 - [ ] Per-folder `README.md` written for every artifact-type folder and
       every `templates/` subdirectory (INV-20 — see the Deploy skeleton
-      list above for the full set), plus `development/`, `work-items/`,
-      and `IAM/`, linked from root
+      list above for the full set), plus `development/` and `IAM/`,
+      linked from root
 - [ ] One `.claude/commands/<name>.md` created per command in
       `rules-of-development.template.md` §4 (Claude Code), each following
       `templates/slash-command.template.md` — or the documented fallback

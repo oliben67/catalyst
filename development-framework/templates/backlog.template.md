@@ -20,7 +20,7 @@
 
 ## Work items missing links
 
-{{any STORY-/TASK- with no linked REQ-/BUG- doc, per rules-of-work-items.template.md §1 — a real violation to flag, not routine backlog, or "*(none)*"}}
+{{if a project-management-type plugin is active: any STORY-/TASK- with no linked REQ-/BUG- doc, per that plugin's rules-of-work-items.md §1 — a real violation to flag, not routine backlog; otherwise "*(no work-items layer active)*"}}
 
 ## Rules with no open work
 

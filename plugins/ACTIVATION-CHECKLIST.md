@@ -30,6 +30,16 @@ step and the machine checks below.
 - [ ] Resolved runtime target = the deployed project's repository root — never the
       catalyst framework repo, never `plugins/<type>/<name>/` (INV-13); target
       recorded in the ledger
+- [ ] If `working-contract.md` has a `## Contributes` section (a
+      content-contributing plugin, INV-22): materialize the named
+      artifact-type folder(s) (full INV-20 `templates/`+catalog
+      treatment, templates resolved from the plugin's own repository or
+      the named `plugins/_prototyping/` schema) and command file(s)
+      (into `.claude/commands/`) — same mechanism first-load
+      instantiation uses for core templates. Two content-contributing
+      plugins of the same category must not both be active if they'd
+      deploy the same artifact-type folder — refuse the second, point
+      at deactivating the first.
 
 ## Re-ground (anti-drift)
 - [ ] Re-read `working-contract.md` + `INVARIANTS.md` after any context compaction
