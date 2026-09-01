@@ -24,8 +24,14 @@ faster and is the first thing a summarizer mangles.
 ## Structural
 
 - **INV-5 — Chain invariant.** No work without a traceable link down to a
-  documented rule: epic → story → task → REQ/BUG/HK → rule → domain. Every
-  document, domain, and rule has a stable, permanent, never-reused ID.
+  documented rule: `REQ`/`BUG`/`HK` → rule → domain. Every document,
+  domain, and rule has a stable, permanent, never-reused ID. Extended
+  upward through `epic → story → task →` when an agile
+  project-management plugin is active (INV-22) — `work-items/` doesn't
+  exist otherwise, so the chain can't reach through it; without one
+  active, `REQ`/`BUG`/`HK` chains directly to rule → domain, the same
+  way house-keeping's "no rule applies" is already a legitimate,
+  explicit answer.
 - **INV-6 — Working copy in agent-owned space; one tracked pointer.** The
   deployment's real working copy is a directory named `.criterion/`,
   living in **agent-owned space** resolved per the running agent
@@ -177,10 +183,7 @@ faster and is the first thing a summarizer mangles.
   treatment as every other type — `TEMPLATE-USERS-vN.json`/
   `TEMPLATE-ROLES-vN.json` version the registry's seed shape, since each
   registry is one JSON array rather than one-file-per-instance.
-  `work-items/` gains `BOARD-`
-  (Kanban's counterpart to `SPRINT-`) and `WORKFLOW-` (a process
-  document, never itself worked) as optional types, plus a `tickets/`
-  slot reserved for plugin population — no core `TICKET-` scheme.
+  `work-items/` is not part of this core set — see INV-22.
 - **INV-21 — Reconciliation entity for diverging versions.** A
   `RECON-NNNNNN` (`reconciliations/`, top-level, full INV-20 template
   treatment) is the durable record of two entity versions that
@@ -197,6 +200,24 @@ faster and is the first thing a summarizer mangles.
   one stays advisory (INV-16), but the `Resolver` field and its journal
   entry make an unauthorized resolution a visible record rather than a
   silent gap.
+- **INV-22 — Content-contributing plugins.** A plugin's
+  `working-contract.md` may carry an optional `## Contributes` section
+  naming artifact-type folder(s) (full INV-20 treatment) and/or
+  slash-command file(s) it deploys into the target project.
+  `/catalyzer activate` materializes this content — the same mechanism
+  first-load instantiation uses to copy core templates in;
+  `/catalyzer deactivate` removes exactly what was added, never
+  artifact instances the deployment already created with it. Two
+  content-contributing plugins that would deploy the same artifact-type
+  folder must not both be active. `work-items/` (`BOARD-`/`EPIC-`/
+  `SPRINT-`/`STORY-`/`TASK-`/`SPIKE-`/`TICKET-`/`WORKFLOW-`) is the
+  first type moved to this model — no longer core (INV-20), it only
+  exists once a project-management-type plugin extending the schema at
+  `plugins/_prototyping/project-management/agile/` is activated; none
+  exists yet. The chain invariant (INV-5) is conditional on this: the
+  `epic → story → task →` prefix applies only when such a plugin is
+  active. Plugins under `plugins/_prototyping/` are exempt from INV-11's
+  separate-repository requirement until they graduate out of it.
 
 ## Plugins
 

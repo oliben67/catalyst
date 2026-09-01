@@ -156,62 +156,12 @@ creates concrete rules for that particular project.
        BACKLOG.md
        README.md
        journal.jsonl
-     work-items/
-       boards/
-         templates/
-           README.md
-           templates-board.md
-           TEMPLATE-BOARD-v1.md
-         README.md
-         boards.md
-       epics/
-         templates/
-           README.md
-           templates-epic.md
-           TEMPLATE-EPIC-v1.md
-         README.md
-         epics.md
-       spikes/
-         templates/
-           README.md
-           templates-spike.md
-           TEMPLATE-SPIKE-v1.md
-         README.md
-         spikes.md
-       sprints/
-         templates/
-           README.md
-           templates-sprint.md
-           TEMPLATE-SPRINT-v1.md
-         README.md
-         sprints.md
-       stories/
-         templates/
-           README.md
-           templates-story.md
-           TEMPLATE-STORY-v1.md
-         README.md
-         stories.md
-       tasks/
-         templates/
-           README.md
-           templates-task.md
-           TEMPLATE-TASK-v1.md
-         README.md
-         tasks.md
-       tickets/                 # plugin-populated slot, no core template
-         README.md
-         tickets.md
-       workflows/
-         templates/
-           README.md
-           templates-workflow.md
-           TEMPLATE-WORKFLOW-v1.md
-         README.md
-         workflows.md
-       README.md
-       rules-of-work-items.md
    ```
+   `work-items/` is **not** built here — it's not part of the core
+   layout (`Rules-of-Rules.md` §8, INV-22). It only comes into being if
+   and when a project-management-type plugin is activated later; see
+   `ARTIFACT-LAYOUT.md`'s "Optional, plugin-provided: `work-items/`" for
+   the shape it deploys when one is.
    Every artifact-type folder above follows the same shape (`Rules-of-Rules.md`
    §15, `INVARIANTS.md` INV-20): a `templates/` subdirectory (its own
    `README.md`, a `templates-<type>.md` catalog — Version | File |
@@ -224,14 +174,7 @@ creates concrete rules for that particular project.
    type, except the versioned file is the registry's *seed shape*
    (`TEMPLATE-USERS-vN.json`/`TEMPLATE-ROLES-vN.json`) rather than a
    per-instance document, since each registry is one JSON array, not
-   one-file-per-instance. One exception remains: `tickets/` is a
-   reserved slot with no core template, populated by a
-   project-management-type plugin if one is activated, otherwise left
-   empty. `boards/` is optional per agile
-   flavor (§2 below — Kanban/Scrumban only, mutually exclusive with
-   `sprints/`); `workflows/` is optional but flavor-independent — adopt
-   it whenever the project wants process-definition documents, not tied
-   to which agile flavor is chosen.
+   one-file-per-instance.
    (The working-copy directory is always named `.criterion/`, but it
    is not built inside the target project's own tree: resolve
    **agent-source** first — a location this agent owns (a per-project
@@ -253,8 +196,10 @@ creates concrete rules for that particular project.
    already exists in the old, purely in-project shape, and
    `migrations/` (this repository) for migrating an existing deployment
    built under an older layout of this section itself to the current
-   one. The framework only cares that the chain
-   epic→story→task→REQ/BUG/HK→rule stays intact, not the folder names.
+   one. The framework only cares that the chain REQ/BUG/HK→rule stays
+   intact — extended upward through epic→story→task only when an agile
+   project-management plugin is active (INV-5, INV-22) — not the folder
+   names.
    The `domains/` folder nests under `rules/` (`Rules-of-Rules.md` §7) —
    domains exist only to group rules, so they live where rules live, not
    as a top-level sibling. The `features/` folder sits at the root,
@@ -264,10 +209,10 @@ creates concrete rules for that particular project.
    sits at the root, alongside `requirements/`/`features/` — not nested
    under `work-items/` — and holds `RECON-NNNNNN` cases opened by
    `/criterion push`'s merge step or manually (`Rules-of-Rules.md` §16).
-   The work-items rule document belongs
-   in the `work-items/` layer and should not be duplicated under
-   `rules/`.)
-5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
+   `work-items/` itself is not built at all here — it's plugin-only
+   (`Rules-of-Rules.md` §8, INV-22); skip it entirely for a core
+   instantiation.)
+5. Ensure the deployed
    framework exposes **every** documented custom slash command from
    `rules-of-development.template.md` §4 — the canonical list; don't
    re-enumerate a subset of it here or anywhere else, that's exactly how it
@@ -289,13 +234,12 @@ creates concrete rules for that particular project.
    date, "initial version"). Then write the artifact-type folder's own
    `README.md` and its `<type>.md` instance catalog (`bugs.md`,
    `requirements.md`, `features.md`, `reconciliations.md`,
-   `house-keeping.md`, `meta-tags.md`,
-   `boards.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`,
-   `sprints.md`, `workflows.md`, `roadmaps.md`, `domains.md`,
-   `tickets.md`). Skip `boards/`/`sprints/` per the chosen agile flavor
-   (§2); `tickets/` gets its `README.md` and empty `tickets.md` but no
-   `templates/` — no core template exists for it (a project-management
-   plugin, if activated, owns that).
+   `house-keeping.md`, `meta-tags.md`, `roadmaps.md`, `domains.md`).
+   This loop does not include `work-items/` or any of its subtypes
+   (`boards.md`/`epics.md`/`stories.md`/`tasks.md`/`spikes.md`/
+   `sprints.md`/`workflows.md`/`tickets.md`) — that folder is
+   plugin-only (step 4's note above) and isn't built during core
+   instantiation at all.
 
    Keep requirements templates in the same `requirements/` directory as
    the actual requirements documents so the template and the concrete
@@ -340,10 +284,10 @@ creates concrete rules for that particular project.
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
    in every major deployed folder (`rules/`, `rules/domains/`,
-   `requirements/`, `features/`, `IAM/users/`, `IAM/roles/`,
-   `development/`, `development/roadmaps/`, `development/bugs/`,
-   `development/house-keeping/`, `development/meta-tags/`, `work-items/`
-   and each of its type folders) and in every `templates/` subdirectory
+   `requirements/`, `features/`, `reconciliations/`, `IAM/users/`,
+   `IAM/roles/`, `development/`, `development/roadmaps/`,
+   `development/bugs/`, `development/house-keeping/`,
+   `development/meta-tags/`) and in every `templates/` subdirectory
    (INV-20) that briefly explains that folder's purpose and link to it
    from the root README so the structure is discoverable and
    self-documenting.
@@ -377,19 +321,24 @@ creates concrete rules for that particular project.
    bare `<prefix>-<CODE>.md` — see `Rules-of-Rules.md` §7.
 ## 2. Choosing your agile flavor
 
-Nothing below the work-items layer changes. Above it:
+`work-items/` is plugin-only (§1 step 4, `Rules-of-Rules.md` §8) — this
+choice only matters if and when a project-management-type plugin is
+activated. Nothing below the work-items layer changes regardless.
+Above it, once such a plugin is active:
 
 - Using Scrum → keep everything as templated (`sprints/` included, skip
   `boards/`).
 - Using Kanban → skip `sprints/`; use `boards/` (`BOARD-NNNNNN`) instead —
   a WIP-limited `Status` value set on stories/tasks, referencing the
-  board in place of sprint membership (`Rules-of-Rules.md` §8,
-  `rules-of-work-items.md` §6).
+  board in place of sprint membership (the schema's own
+  `rules-of-work-items.template.md` §6).
 - Using something else entirely → the framework's hard requirement is
   only §1 of `rules-of-development.md` (no development without a
   targeted rule) — everything above that is replaceable with whatever
   process vocabulary your team actually uses, as long as it still
-  bottoms out in `REQ-`/`BUG-`/`HK-` docs.
+  bottoms out in `REQ-`/`BUG-`/`HK-` docs. Without any
+  project-management plugin active, this is the default — the chain
+  simply starts at `REQ-`/`BUG-`/`HK-` (INV-5).
 
 ## 3. Greenfield path — no existing code or practices
 
@@ -433,8 +382,8 @@ after the fact.
    CI workflow runs green — not a unit test.
 4. Once the dev-environment rule document has its first pass of domains
    and rules, continue with §1 steps 2 onward to deploy the rest of the
-   framework skeleton (work-items, requirements, features) around it.
-   That rule document stands in for the starter requirements doc in §1
+   framework skeleton (requirements, features, reconciliations) around
+   it. That rule document stands in for the starter requirements doc in §1
    step 8 — there is no product behavior yet to write requirements
    against.
 5. As soon as real application code starts, that work is a normal `REQ-`
@@ -445,9 +394,8 @@ after the fact.
 ## 4. Retrofitting an existing project
 
 1. Do **not** try to write every rule up front. Start with
-   `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`,
-   `rules-of-work-items.md` (or your project's equivalents) and an empty
-   `rules/domains/` directory.
+   `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md` (or your project's
+   equivalents) and an empty `rules/domains/` directory.
 2. Gather rules incrementally — per functional area, as you touch it, or
    via a dedicated audit pass (parallel research agents/subagents
    covering one rule category each, cross-checked against the codebase

@@ -24,6 +24,23 @@ UUID once, when the plugin is first defined, and never change it afterward.
 
 - List the functional area(s) this plugin covers.
 
+## Contributes
+
+Optional — only for a **content-contributing plugin** (`Rules-of-Rules.md`
+§17, INV-22): one that deploys artifact-type folders and/or slash
+commands into the target project on activation, rather than only
+running a background service. Omit this section entirely for a plugin
+that doesn't contribute deployable content.
+
+- Artifact-type folder(s): `<name>` — templates resolve from
+  `<this plugin's own repository, or a named prototype schema under
+  plugins/_prototyping/ while this plugin hasn't graduated out of it>`.
+- Command file(s): `<name>.md`, ... — deployed into the target
+  project's `.claude/commands/`.
+
+Deactivation removes exactly this content; it never touches artifact
+instances the deployment already created with it.
+
 ## Responsibilities
 
 - Describe what the plugin is responsible for.

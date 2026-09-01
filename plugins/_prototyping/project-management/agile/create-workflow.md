@@ -3,10 +3,14 @@ description: Create a new process-definition document and register it in workflo
 argument-hint: <process-name>
 ---
 
-Create a new process-definition document. Full spec:
-`.criterion/CODE-OF-CONDUCT.md` §4,
-`.criterion/work-items/rules-of-work-items.md`, template:
-`.criterion/work-items/workflows/templates/TEMPLATE-WORKFLOW-v1.md`.
+> **Prototype — not implemented.** Part of the agile schema at
+> `plugins/_prototyping/project-management/agile/`, not a deployed
+> command. No concrete project-management plugin exists yet to activate
+> this; kept here as the spec a future one implements against.
+
+Create a new process-definition document. Full spec: this plugin's schema, `rules-of-work-items.template.md`
+(this directory), template:
+`templates/TEMPLATE-WORKFLOW-v1.md` (this directory).
 Input: $ARGUMENTS
 
 **Not a unit of work** — no parent epic/story link, never itself "done."

@@ -14,3 +14,7 @@ This folder contains optional extension modules for the catalyst workspace.
 
 - Global index: [plugins.md](plugins.md)
 - Repository plugins: [repository/README.md](repository/README.md)
+- Project-management plugins: [project-management/README.md](project-management/README.md)
+  (empty type slot — active development happens in
+  [`_prototyping/README.md`](_prototyping/README.md) until something
+  graduates here)

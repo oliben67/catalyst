@@ -132,77 +132,10 @@ the surrounding deploy-procedure text.
         BACKLOG.md                       # not an artifact type (INV-14) — no templates/ of its own
         README.md
         journal.jsonl                    # not an artifact type (INV-17) — no templates/ of its own
-    work-items/
-        boards/                          # Kanban/Scrumban flavor only
-            templates/
-                README.md
-                templates-board.md
-                TEMPLATE-BOARD-v1.md
-                ...
-            README.md
-            boards.md
-            [...]
-        epics/
-            templates/
-                README.md
-                templates-epic.md
-                TEMPLATE-EPIC-v1.md
-                ...
-            README.md
-            epics.md
-            [...]
-        spikes/
-            templates/
-                README.md
-                templates-spike.md
-                TEMPLATE-SPIKE-v1.md
-                ...
-            README.md
-            spikes.md
-            [...]
-        sprints/                         # Scrum flavor only
-            templates/
-                README.md
-                templates-sprint.md
-                TEMPLATE-SPRINT-v1.md
-                ...
-            README.md
-            sprints.md
-            [...]
-        stories/
-            templates/
-                README.md
-                templates-story.md
-                TEMPLATE-STORY-v1.md
-                ...
-            README.md
-            stories.md
-            [...]
-        tasks/
-            templates/
-                README.md
-                templates-task.md
-                TEMPLATE-TASK-v1.md
-                ...
-            README.md
-            tasks.md
-            [...]
-        tickets/                         # reserved for plugin population — no core template
-            README.md
-            tickets.md
-            [...]
-        workflows/
-            templates/
-                README.md
-                templates-workflow.md
-                TEMPLATE-WORKFLOW-v1.md
-                ...
-            README.md
-            workflows.md
-            [...]
-        README.md
-        rules-of-work-items.md
 ```
+
+`work-items/` is **not** part of this core tree — see "Optional,
+plugin-provided: `work-items/`" below.
 
 ## Exceptions to the pattern
 
@@ -215,14 +148,53 @@ that has one:
   template.
 - `development/journal.jsonl` (INV-17) — an append-only log, not a
   document type with versions.
-- `rules/Rules-of-Rules.md`, `work-items/rules-of-work-items.md` — the
-  documents that *govern* an artifact type, siblings to its `templates/`
-  and instance catalog, not instances themselves.
-- `work-items/tickets/` — scaffolded like every other type (`README.md`,
-  `tickets.md`) but with no `templates/`: no core template exists,
-  since population is plugin-territory (`Rules-of-Rules.md` §8).
+- `rules/Rules-of-Rules.md` — the document that *governs* an artifact
+  type, sibling to its `templates/` and instance catalog, not an
+  instance itself.
 - `plugins/` — a plugin's own repository owns its internal structure;
   INV-20 does not reach into it.
+
+## Optional, plugin-provided: `work-items/`
+
+Unlike everything above, `work-items/` is never part of a fresh
+deployment by default (`Rules-of-Rules.md` §8, INV-22) — it only exists
+once a project-management-type plugin extending
+`plugins/_prototyping/project-management/agile/`'s schema is activated.
+When one is, the shape it deploys is the same INV-20 pattern as every
+core type:
+
+```
+    work-items/
+        boards/                          # Kanban/Scrumban flavor only
+            templates/
+                README.md
+                templates-board.md
+                TEMPLATE-BOARD-v1.md
+                ...
+            README.md
+            boards.md
+            [...]
+        epics/
+            templates/ ...
+            README.md
+            epics.md
+            [...]
+        spikes/, sprints/ (Scrum flavor only), stories/, tasks/  # same shape
+        tickets/                         # no templates/ — no core semantics (§8)
+        workflows/
+            templates/ ...
+            README.md
+            workflows.md
+            [...]
+        README.md
+        rules-of-work-items.md           # governs this type, siblings to its templates/
+```
+
+Exactly which of `boards/`/`epics/`/`spikes/`/`sprints/`/`stories/`/
+`tasks/`/`tickets/`/`workflows/` actually deploys, and their template
+content, is that plugin's own `working-contract.md` `## Contributes`
+section — this tree is illustrative of the shape, not a guarantee any
+given plugin deploys all of it. No concrete plugin exists yet.
 
 ## See also
 

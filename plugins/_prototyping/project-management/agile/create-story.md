@@ -3,10 +3,14 @@ description: Create a new story work item, linked to a REQ-/BUG- doc, and regist
 argument-hint: <story> --req <REQ-NNNNNN|BUG-NNNNNN> [--epic <EPIC-NNNNNN>]
 ---
 
-Create a new story work item. Full spec:
-`.criterion/CODE-OF-CONDUCT.md` §4,
-`.criterion/work-items/rules-of-work-items.md`, template:
-`.criterion/work-items/stories/templates/TEMPLATE-STORY-v1.md`.
+> **Prototype — not implemented.** Part of the agile schema at
+> `plugins/_prototyping/project-management/agile/`, not a deployed
+> command. No concrete project-management plugin exists yet to activate
+> this; kept here as the spec a future one implements against.
+
+Create a new story work item. Full spec: this plugin's schema, `rules-of-work-items.template.md`
+(this directory), template:
+`templates/TEMPLATE-STORY-v1.md` (this directory).
 Input: $ARGUMENTS
 
 1. Resolve the next `STORY-NNNNNN` ID from `stories/stories.md` + a
