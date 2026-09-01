@@ -91,8 +91,7 @@ project carries. See `Rules-of-Rules.md` §13.
 |---|---|
 | [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/rules/Rules-of-Rules.md` and fill in placeholders. |
 | [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
-| [`rules-of-work-items.template.md`](rules-of-work-items.template.md) | Generic Scrum/agile process layer sitting above dev artifacts. Copy to `<project>/<work-items-dir>/rules-of-work-items.md`. |
-| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, feature, house-keeping, meta-tag, epic, story, task, spike, sprint, domain, slash-command, backlog, roadmap, roles, users, journal). |
+| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, feature, reconciliation, house-keeping, meta-tag, domain, slash-command, backlog, roadmap, roles, users, journal). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version. |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
@@ -103,11 +102,14 @@ project carries. See `Rules-of-Rules.md` §13.
 
 - [`templates/README.md`](templates/README.md) — explains the purpose of the reusable template library and how the templates map to the framework's artifact and workflow layers.
 
-## Agile-methodology agnostic
+## Agile-methodology agnostic (plugin-territory)
 
-The work-items layer defaults to Scrum vocabulary (epic/story/task/spike/
-sprint) because it's the most widely recognized, but nothing below the
-work-items layer cares which agile flavor sits on top of it:
+`work-items/` isn't core anymore (`Rules-of-Rules.md` §8, INV-22) — it
+only exists once a project-management-type plugin extending the schema
+at `plugins/_prototyping/project-management/agile/` (this repository)
+is activated. That schema defaults to Scrum vocabulary (epic/story/task/
+spike/sprint) because it's the most widely recognized, but nothing below
+the work-items layer cares which agile flavor sits on top of it:
 
 - **Scrum**: use `SPRINT-NNN` as written — time-boxed, committed items,
   retro.
@@ -119,7 +121,8 @@ work-items layer cares which agile flavor sits on top of it:
 
 The rules layer and the dev-artifacts layer never change based on this
 choice — "no development without a targeted rule" is a project-wide
-invariant regardless of how work is scheduled above it.
+invariant regardless of how work is scheduled above it, or whether any
+work-items layer exists at all.
 
 ## Greenfield projects (no code yet)
 
@@ -135,7 +138,7 @@ governed after the fact.
 
 See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §4. This repo's own
 [`.criterion/`](../.criterion/) was retrofitted this way — its
-`Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and `rules-of-work-items.md`
+`Rules-of-Rules.md` and `CODE-OF-CONDUCT.md`
 each carry a header noting they are this project's instantiation of the
 corresponding template here, so the two stay traceable to each other as
 this framework evolves. Its one rule document

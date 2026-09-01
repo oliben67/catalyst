@@ -28,8 +28,10 @@ These are non-negotiable and apply for the entire session. They are restated in
 4. **Never push without explicit assent.** Never push anything in this project
    (or catalyst) without the user's explicit go-ahead.
 5. **The chain invariant.** No work happens without a traceable link down to a
-   documented rule: epic → story → task → REQ/BUG/HK → rule → domain, every one
-   carrying a stable, permanent, never-reused ID.
+   documented rule: `REQ`/`BUG`/`HK` → rule → domain, every one carrying a
+   stable, permanent, never-reused ID — extended upward through
+   `epic → story → task →` only when an agile project-management plugin
+   is active (`work-items/` doesn't exist otherwise).
 6. **Working copy in agent-owned space; one tracked pointer.** The
    working-copy directory is always named `.criterion/`, but it
    builds in **agent-owned space** you resolve at install time (§1), not

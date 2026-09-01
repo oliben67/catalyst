@@ -13,13 +13,10 @@ This folder contains the reusable document templates that seed the deployed cata
   `Rules-of-Rules.md` §9. Opening actual development work for a feature
   still means opening a requirement (`requirements.template.md`), not
   editing the feature entry.
-- Work-item templates for epics, stories, tasks, spikes, sprints,
-  [`board.template.md`](board.template.md) (Kanban/Scrumban's counterpart
-  to sprints — `BOARD-NNNNNN`), and
-  [`workflow.template.md`](workflow.template.md) (a process-definition
-  document, not a unit of work — `WORKFLOW-NNNNNN`). No `ticket.template.md`
-  exists: `tickets/` is a reserved slot a project-management-type plugin
-  populates, not a core template — see `Rules-of-Rules.md` §8.
+- **Work-item templates are not here anymore.** They moved to
+  `plugins/_prototyping/project-management/agile/templates/` — `work-items/`
+  is plugin-territory, not core (`Rules-of-Rules.md` §8, INV-22); see
+  that directory's own `README.md`.
 - Rule and domain scaffolding templates used when a project is instantiated
   — `domain.template.md` deploys nested under `rules/domains/`, not as a
   top-level sibling (domains exist only to group rules).

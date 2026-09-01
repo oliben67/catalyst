@@ -3,10 +3,14 @@ description: Create a new epic work item and register it in epics/epics.md
 argument-hint: <goal> [--domains <CODE>...]
 ---
 
-Create a new epic work item. Full spec:
-`.criterion/CODE-OF-CONDUCT.md` §4,
-`.criterion/work-items/rules-of-work-items.md`, template:
-`.criterion/work-items/epics/templates/TEMPLATE-EPIC-v1.md`.
+> **Prototype — not implemented.** Part of the agile schema at
+> `plugins/_prototyping/project-management/agile/`, not a deployed
+> command. No concrete project-management plugin exists yet to activate
+> this; kept here as the spec a future one implements against.
+
+Create a new epic work item. Full spec: this plugin's schema, `rules-of-work-items.template.md`
+(this directory), template:
+`templates/TEMPLATE-EPIC-v1.md` (this directory).
 Input: $ARGUMENTS
 
 1. Resolve the next `EPIC-NNNNNN` ID from `epics/epics.md` + a

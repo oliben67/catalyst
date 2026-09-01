@@ -272,38 +272,44 @@ A domain's code is permanent, same as a rule ID — never reused for an
 unrelated domain even if the original is later emptied out or retired
 (its `domains/` file gets the same 🗑 retired treatment as a rule, §4).
 
-## 8. `rr-META-008` Scrum/agile work items have their own ID scheme
+## 8. `rr-META-008` Scrum/agile work items are plugin-territory, not core
 
 The framework version is tracked in `version.txt` at the framework root.
 If a deployed framework has no `version.txt`, or its version is lower than
 this framework's own `development-framework/version.txt`, it is considered
 out of date and must be synchronized using [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
-Format: **`(EPIC|STORY|TASK|SPIKE)-(NNNNNN)`** and **`SPRINT-(NNN)`** — see
-[`rules-of-work-items.template.md`](rules-of-work-items.template.md).
-Work items are the process layer sitting above `BUG-`/`REQ-`/`HK-` docs.
+**`work-items/` is not part of the core deployed layout.** Unlike
+`rules/`/`requirements/`/`features/`/`reconciliations/`/`IAM/`, no
+deployment gets it by default. It only exists once a
+project-management-type plugin extending the agile schema at
+`plugins/_prototyping/project-management/agile/` (framework repository)
+is activated (INV-13, INV-22) — that schema defines
+`(EPIC|STORY|TASK|SPIKE)-(NNNNNN)`, `SPRINT-(NNN)`, and the two further
+optional types below, but defines them as *what a plugin deploys*, not
+as content core instantiation writes. See `INVARIANTS.md` INV-22 for the
+activation mechanism (§17 below defines it here) and INV-5 for the
+chain invariant's plugin-conditional wording. No concrete plugin extends
+this schema yet — it exists so the shape is ready to build against.
 
-Two further, optional types share this scheme:
+The schema's two further, optional types:
 
 - **`BOARD-(NNNNNN)`** — the Kanban-flavor structural counterpart to
   `SPRINT-NNN`: a trackable container with its own `Status`
   (`Active`/`Archived`) that `STORY-`/`TASK-` items reference instead of
-  sprint membership. Used only under the Kanban/Scrumban flavor (§2 of
-  `INSTANTIATION-GUIDE.md`) — a pure-Scrum deployment has no need for it,
-  the same way a pure-Kanban one has no need for `sprints/`.
+  sprint membership. Relevant only under the Kanban/Scrumban flavor (§2
+  of `INSTANTIATION-GUIDE.md`) — a pure-Scrum deployment has no need for
+  it, the same way a pure-Kanban one has no need for `sprints/`.
 - **`WORKFLOW-(NNNNNN)`** — a process-definition document, not a unit of
   work: it documents a repeatable multi-step procedure (e.g. "how a bug
   moves from triage to resolution"). It carries `Status`
   (`Active`/`Deprecated`) reflecting whether the process is currently in
   use, never a work-tracking lifecycle, and is never itself "done."
 
-**`TICKET-(NNNNNN)` is deliberately not a core-defined type.** The
-`work-items/tickets/` folder (§15) is scaffolded like every other
-artifact type, but its actual population and lifecycle are
-plugin-territory — e.g. a project-management-type plugin syncing from an
-external tracker (INV-13: a plugin operates on the deployed project, its
-own repository, gated behind `/catalyzer`). Core catalyst reserves the
-structural slot and prescribes nothing about ticket semantics beyond it.
+**`TICKET-(NNNNNN)` is deliberately not a defined type even within the
+schema.** A `work-items/tickets/` folder, if a plugin deploys one,
+carries no prescribed semantics — its actual population and lifecycle
+(e.g. syncing from an external tracker) is that plugin's own concern.
 
 ## 9. `rr-META-009` Feature entries have their own, non-rule-linked scheme
 
@@ -921,10 +927,13 @@ generalizes it, it doesn't change it.
   house-keeping/meta-tags lived as loose files directly under
   `development/`); `BACKLOG.md`, `README.md`, `journal.jsonl` stay flat,
   cross-cutting, not artifact types themselves.
-- `work-items/` — `boards/`, `epics/`, `spikes/`, `sprints/`, `stories/`,
-  `tasks/`, `tickets/`, `workflows/` (§8's two new optional types plus
-  the plugin-territory `tickets/` slot); `README.md` and
-  `rules-of-work-items.md` stay flat.
+- `work-items/` — **not part of the core layout** (§8, INV-22). Only
+  exists once a project-management-type plugin extending
+  `plugins/_prototyping/project-management/agile/`'s schema is
+  activated; that plugin's own `## Contributes` section then defines
+  which of `boards/`/`epics/`/`spikes/`/`sprints/`/`stories/`/`tasks/`/
+  `tickets/`/`workflows/` it deploys, alongside `README.md` and
+  `rules-of-work-items.md`.
 
 See `INSTANTIATION-GUIDE.md` §1 for the full deployed layout tree and
 `INSTANTIATION-CHECKLIST.md` for the tickable deploy-skeleton steps.
@@ -980,3 +989,50 @@ gap the way an unreconciled rights-mismatch would otherwise be.
 sits"), full `templates/`+catalog treatment (INV-20). ID format
 `RECON-(NNNNNN)`, 6 digits, its own global sequence, never reused —
 same scheme as every other numbered type (§3).
+
+## 17. `rr-META-017` Content-contributing plugins
+
+Every `repository`-type plugin only *observes* the deployed project —
+it reads the project's own repository and writes its own output (e.g.
+an audit trail), but never adds a core artifact type or a slash
+command (INV-13). A **content-contributing plugin** is the other shape:
+on activation, it
+materializes deployable content — an artifact-type folder (with the
+standard `templates/`+catalog treatment, INV-20) and/or slash-command
+files — into the target project; on deactivation, it removes exactly
+that same content.
+
+**Declared via `## Contributes`**, a new optional section in
+`working-contract.md` (`TEMPLATE-WORKING-CONTRACT.md`), naming:
+
+- the artifact-type folder(s) it deploys, and where their templates
+  resolve from (its own repository, or — while still under
+  `plugins/_prototyping/` — a shared prototype schema there, never
+  vendored as a stale local copy);
+- the slash-command file(s) it deploys into `.claude/commands/`.
+
+**`/catalyzer activate <name> <version>` materializes this content**,
+the same mechanism first-load instantiation already uses to copy core
+templates into a fresh deployment (`INSTANTIATION-GUIDE.md` §1): create
+the named artifact-type folder(s) with their `templates/`+catalog+
+`README.md`, and copy the named command file(s) into `.claude/commands/`.
+**`/catalyzer deactivate <name>` removes exactly what activation
+added** — the templates/ scaffolding and the command files — and
+**never touches artifact instances the deployment already created**
+with them (real `EPIC-NNNNNN`/etc. files, and their index entries, are
+deployment content, not plugin content, the same non-destructive
+posture `/project remove` already uses for the working copy, §14). A
+deployment with existing instances but no active plugin simply can't
+create *more* until reactivated.
+
+**Two or more content-contributing plugins of the same category must
+not both be active** if their `## Contributes` sections would deploy
+the same artifact-type folder — that's a content conflict, not
+additive; refuse the second activation and point at deactivating the
+first.
+
+**Plugins under `plugins/_prototyping/`** are exempt from INV-11's
+"every plugin has its own repository" — a prototyping plugin's content
+lives in catalyst's own repository until it graduates into a top-level
+plugin-type directory (e.g. `repository/`, `project-management/`), at
+which point INV-11 applies to it like any other plugin.

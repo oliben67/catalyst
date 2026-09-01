@@ -269,6 +269,17 @@ type and `/reconcile` command; revises `/criterion push`'s
 merge-conflict step to open a `RECON-` instead of an ephemeral,
 unrecorded sub-agent proposal.
 
+### From `0.15.0`: `work-items/` moves from core to plugin-territory
+
+Target version `0.16.0`. Full procedure:
+`migrations/0.16.0/work-items-to-plugin.md` (this repository) — not
+duplicated here. Removes `work-items/` from the core layout — it only
+deploys via an activated project-management-type content-contributing
+plugin now (new capability, INV-22). **Requires an explicit decision
+about any existing `work-items/` content before proceeding** — this is
+not a purely mechanical sync, since no concrete plugin currently exists
+to take over managing it.
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current
