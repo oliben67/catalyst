@@ -4,7 +4,7 @@ argument-hint: <file-name>
 ---
 
 Analyze change-impact of a file. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. If the file cannot be resolved, report that and do not invent a

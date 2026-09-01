@@ -66,15 +66,15 @@ This folder contains the reusable document templates that seed the deployed cata
 - [`catalyst-pointer.template.json`](catalyst-pointer.template.json) —
   copy to `<app-name>.catalyst` **at the target project's own root**
   (`INVARIANTS.md` INV-6), the one exception to "everything else deploys
-  under `.catalyst-proj/`": this file is the only catalyst artifact the
+  under `.criterion/`": this file is the only catalyst artifact the
   target project's own repo ever tracks. Its `agent-source` field names
   where the real working copy actually lives — agent-owned space if the
-  running agent has one, the in-project `.catalyst-proj/` (gitignored)
+  running agent has one, the in-project `.criterion/` (gitignored)
   otherwise. Managed by `/project create`/`remove`/`export`/`import` and
-  kept in sync with `.catalyst-proj/DEPLOYMENT.md`'s `repoed`/
+  kept in sync with `.criterion/DEPLOYMENT.md`'s `repoed`/
   `catalyst_repo`/`catalyst_repo_url`/`created_by` — see
-  `Rules-of-Rules.md` §14. `thingamabob_branch` names the current actor's
-  chosen push branch once `/thingamabob create`/`get` asks for one (§13)
+  `Rules-of-Rules.md` §14. `criterion_branch` names the current actor's
+  chosen push branch once `/criterion create`/`get` asks for one (§13)
   — `null` until then, or once repoed again after `/project remove`.
 
 ## How to use this folder

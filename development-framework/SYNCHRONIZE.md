@@ -249,6 +249,17 @@ duplicated here. Adds `templates/` under `IAM/users/` and `IAM/roles/`
 no existing file's content changes except the two `README.md`
 explanatory paragraphs.
 
+### From `0.13.0`: rename to "criterion"
+
+Target version `0.14.0`. Full procedure:
+`migrations/0.14.0/rename-catalyst-proj-to-criterion.md` (this
+repository) — not duplicated here. Renames the working-copy directory
+and the whole repoed-sync mechanism (`.catalyst-proj/` → `.criterion/`,
+`thingamabob` command/branch/field → `criterion`); if the deployment is
+repoed, also renames the backing repository and its canonical branch —
+externally-visible and hard-to-reverse, confirm with the user before
+that part.
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current

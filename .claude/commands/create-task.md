@@ -4,9 +4,9 @@ argument-hint: <task> --story <STORY-NNNNNN>
 ---
 
 Create a new task work item. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/tasks/templates/TEMPLATE-TASK-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/tasks/templates/TEMPLATE-TASK-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `TASK-NNNNNN` ID from `tasks/tasks.md` + a

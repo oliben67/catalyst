@@ -3,7 +3,7 @@ description: List supported commands and artifact types, or show detailed help f
 argument-hint: "[<command>]"
 ---
 
-Show help. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+Show help. Full spec: `.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. With no argument: list every supported slash command and its

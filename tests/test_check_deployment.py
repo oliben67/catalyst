@@ -6,10 +6,10 @@ import check_deployment as cd
 
 
 def make_valid_deployment(tmp_path: Path) -> Path:
-    """A minimal `.catalyst-proj/` tree that satisfies every check in
+    """A minimal `.criterion/` tree that satisfies every check in
     check_deployment.py, so each test can start from a known-good baseline
     and break exactly one thing."""
-    root = tmp_path / ".catalyst-proj"
+    root = tmp_path / ".criterion"
     rules = root / "rules"
     business = rules / "business"
     business.mkdir(parents=True)
@@ -78,7 +78,7 @@ def test_find_deploy_root_returns_none_when_absent(tmp_path: Path):
 def test_find_deploy_root_follows_pointer_file(tmp_path: Path):
     project = tmp_path / "project"
     project.mkdir()
-    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned = tmp_path / "agent-space" / ".criterion"
     agent_owned.mkdir(parents=True)
     (project / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -91,7 +91,7 @@ def test_find_deploy_root_pointer_resolved_from_nested_dir(tmp_path: Path):
     project = tmp_path / "project"
     nested = project / "some" / "nested" / "dir"
     nested.mkdir(parents=True)
-    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned = tmp_path / "agent-space" / ".criterion"
     agent_owned.mkdir(parents=True)
     (project / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -102,7 +102,7 @@ def test_find_deploy_root_pointer_resolved_from_nested_dir(tmp_path: Path):
 
 def test_find_deploy_root_falls_back_to_legacy_dir_on_stale_pointer(tmp_path: Path):
     """A pointer whose agent-source no longer exists (moved/deleted) must not
-    mask a legacy in-tree .catalyst-proj/ that's actually still there."""
+    mask a legacy in-tree .criterion/ that's actually still there."""
     root = make_valid_deployment(tmp_path)
     (tmp_path / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -179,7 +179,7 @@ def test_check_single_rule_template_wrong_location(tmp_path: Path):
 
 
 def test_check_single_rule_template_missing_rules_dir(tmp_path: Path):
-    root = tmp_path / ".catalyst-proj"
+    root = tmp_path / ".criterion"
     root.mkdir()
     errors = cd.check_single_rule_template(root)
     assert errors == ["INV-8: rules/ directory is missing"]

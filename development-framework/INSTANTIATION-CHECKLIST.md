@@ -33,7 +33,7 @@ from drifting. The guide holds the rationale; this holds the checks.
 - [ ] Optional `layout` override read, or default layout selected
 - [ ] Rule document(s) and short lowercase prefixes chosen per project seams
 
-## Deploy skeleton (into `.catalyst-proj/` at the resolved `agent-source`, INV-6)
+## Deploy skeleton (into `.criterion/` at the resolved `agent-source`, INV-6)
 - [ ] `agent-source` resolved (`BOOTSTRAP.md §1`) — agent-owned per-project
       storage if available, else the in-project fallback
 - [ ] `CODE-OF-CONDUCT.md` created from `rules-of-development.template.md`
@@ -106,17 +106,17 @@ from drifting. The guide holds the rationale; this holds the checks.
       `templates/catalyst-pointer.template.json`, `agent-source` set
       (INV-6) — the only catalyst artifact the target project's own repo
       ever carries
-- [ ] On the no-owned-space fallback only: `.catalyst-proj/` added to the
+- [ ] On the no-owned-space fallback only: `.criterion/` added to the
       target project's own `.gitignore` — not needed if already there
       from a prior instantiation
 - [ ] Deployment target cached in the memory tool if one is available
-      (optional — `<app-name>.catalyst` and `.catalyst-proj/DEPLOYMENT.md`
+      (optional — `<app-name>.catalyst` and `.criterion/DEPLOYMENT.md`
       are read fresh regardless, `INSTANTIATION-GUIDE.md §6`)
 - [ ] `version.txt` written to match framework `version.txt`
 
 ## Definition of done
 - [ ] Every item above `[x]` in the ledger; no silent skips
-- [ ] `scripts/check_deployment.py` passes (resolves `.catalyst-proj/` via
+- [ ] `scripts/check_deployment.py` passes (resolves `.criterion/` via
       `<app-name>.catalyst`'s `agent-source`, or the in-project fallback)
 - [ ] Deployed tree presented to user; **no commit/push yet** (INV-4)
 - [ ] On the retrofit path, if no work items exist yet, offered to run

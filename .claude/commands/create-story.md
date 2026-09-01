@@ -4,9 +4,9 @@ argument-hint: <story> --req <REQ-NNNNNN|BUG-NNNNNN> [--epic <EPIC-NNNNNN>]
 ---
 
 Create a new story work item. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/stories/templates/TEMPLATE-STORY-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/stories/templates/TEMPLATE-STORY-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `STORY-NNNNNN` ID from `stories/stories.md` + a

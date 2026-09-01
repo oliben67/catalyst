@@ -4,9 +4,9 @@ argument-hint: <board-name>
 ---
 
 Create a new board container. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/boards/templates/TEMPLATE-BOARD-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/boards/templates/TEMPLATE-BOARD-v1.md`.
 Input: $ARGUMENTS
 
 **Kanban/Scrumban flavor only** — the structural counterpart to

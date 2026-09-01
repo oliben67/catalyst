@@ -4,9 +4,9 @@ argument-hint: <process-name>
 ---
 
 Create a new process-definition document. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/workflows/templates/TEMPLATE-WORKFLOW-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/workflows/templates/TEMPLATE-WORKFLOW-v1.md`.
 Input: $ARGUMENTS
 
 **Not a unit of work** — no parent epic/story link, never itself "done."

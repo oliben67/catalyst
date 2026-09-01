@@ -4,7 +4,7 @@ argument-hint: <item-id|item-path|type|template-name>
 ---
 
 Freeze an item against synchronization. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. Resolve the argument to a backing file path — accepts an item ID, an

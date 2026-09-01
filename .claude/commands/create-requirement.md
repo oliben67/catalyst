@@ -4,8 +4,8 @@ argument-hint: <description> [--targets <rule-id>...] [--domain <CODE>]
 ---
 
 Create a new requirement artifact. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §3/§4, template:
-`.catalyst-proj/requirements/templates/TEMPLATE-REQUIREMENT-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §3/§4, template:
+`.criterion/requirements/templates/TEMPLATE-REQUIREMENT-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `REQ-NNNNNN` ID from `requirements/requirements.md` + a

@@ -61,18 +61,18 @@ as it stood at any point into a side directory for inspection — a real
 point-in-time reconstruction, never a guess, and never applied to the live
 tree automatically. `/journal` is the read-only query side.
 
-## Multi-user sync: thingamabob
+## Multi-user sync: criterion
 
 A deployment stays local by default, but can opt into being **repoed**:
-`.catalyst-proj/` mirrored through a dedicated repository so multiple
+`.criterion/` mirrored through a dedicated repository so multiple
 people working on the same project converge instead of silently diverging.
-`/thingamabob create`/`get` bootstrap or join it, and run an **identity
+`/criterion create`/`get` bootstrap or join it, and run an **identity
 migration** on first contact: once a contributor's real git identity is
 resolved, every existing `Signed-off-by` that named their old, unresolved
 identity gets rewritten to match it going forward. The journal itself is
 never rewritten — immutability is the harder invariant, so the migration
 is recorded as a new journal entry instead, not a silent edit to old ones.
-Every contributor pushes to their own branch via `/thingamabob push`,
+Every contributor pushes to their own branch via `/criterion push`,
 which vets the incoming change against the framework's own rules and
 merges it — using AI-assisted resolution only where a plain merge can't —
 into the shared canonical branch, then syncs the result back down locally.
@@ -81,7 +81,7 @@ into the shared canonical branch, then syncs the result back down locally.
 
 The same vetting procedure — `/check-rules` plus an independent four-eyes
 sub-agent pass checking whether the actual state still matches what the
-rules claim — backs both `/thingamabob push`'s incoming-change check and a
+rules claim — backs both `/criterion push`'s incoming-change check and a
 standalone command, `/dogfood`, that runs it on demand against catalyst's
 own repository. `/dogfood` is deliberately **not** part of what gets
 deployed into other projects: it only ever exists in catalyst's own repo,
@@ -117,20 +117,20 @@ time.
 catalyst is built to run under **any** capable coding agent — Claude Code, a
 generic tool-using agent, or a system-prompted model — by detecting what the
 running agent can do and falling back when a capability is absent. It installs
-itself into a fixed deploy target (`.catalyst-proj/`) on first load, and stays
+itself into a fixed deploy target (`.criterion/`) on first load, and stays
 grounded across long runs through explicit anti-drift mechanisms (an invariants
 file, deployment ledgers, and a re-ground cadence) rather than trusting the
 agent to simply remember.
 
-`.catalyst-proj/` itself is the agent's own governance context for the
+`.criterion/` itself is the agent's own governance context for the
 project — not part of the developed code structure, so it doesn't build
 inside the project's own tree at all. It builds in **agent-owned space**
 instead, and the target project tracks exactly one small, committed file
 for it, `<app-name>.catalyst`, whose `agent-source` field points at where
 the real working copy lives; `/project create`/`remove`/`export`/`import`
 manage that lifecycle. An agent with no owned-space concept falls back to
-building `.catalyst-proj/` directly in the project, gitignored there
-instead. Either way, `/thingamabob` is the opt-in mechanism for a team
+building `.criterion/` directly in the project, gitignored there
+instead. Either way, `/criterion` is the opt-in mechanism for a team
 that wants the working copy to persist and sync across contributors,
 through a dedicated repository rather than a commit into the product's
 own history.

@@ -29,7 +29,7 @@ argument-hint: {{expected arguments, e.g. "<short description> [--flag value]"}}
 ---
 
 {{One-line restating the command's purpose.}} Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4{{, template: .catalyst-proj/<dir>/TEMPLATE-<TYPE>.md — only if this command creates an artifact}}.
+`.criterion/CODE-OF-CONDUCT.md` §4{{, template: .criterion/<dir>/TEMPLATE-<TYPE>.md — only if this command creates an artifact}}.
 Input: $ARGUMENTS
 
 1. {{If this command creates a numbered artifact: resolve the next

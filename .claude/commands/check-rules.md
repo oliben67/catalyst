@@ -4,7 +4,7 @@ argument-hint: (no arguments)
 ---
 
 Check rule/domain/link consistency. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. Inspect the deployed framework for missing rule targets, conflicting
