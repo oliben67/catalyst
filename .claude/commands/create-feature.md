@@ -3,8 +3,8 @@ description: Create a new feature entry and register it in features/features.md 
 argument-hint: <description> [--roadmap <RM-NNNNNN>]
 ---
 
-Create a new feature entry. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md`
-§3/§4, template: `.catalyst-proj/features/templates/TEMPLATE-FEATURE-v1.md`.
+Create a new feature entry. Full spec: `.criterion/CODE-OF-CONDUCT.md`
+§3/§4, template: `.criterion/features/templates/TEMPLATE-FEATURE-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `FEAT-NNNNNN` ID from `features/features.md` + a

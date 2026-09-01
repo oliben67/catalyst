@@ -2,7 +2,7 @@
 
 A recipe for bootstrapping this framework's rules/domains/bugs against an
 **existing** codebase that has no prior rules documentation — the process
-used to build this project's own [`.catalyst-proj/rules/`](../.catalyst-proj/rules/)
+used to build this project's own [`.criterion/rules/`](../.criterion/rules/)
 directory. Reusable on any project once you've picked your rule
 document(s) and prefixes per
 [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).

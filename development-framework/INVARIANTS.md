@@ -27,20 +27,20 @@ faster and is the first thing a summarizer mangles.
   documented rule: epic → story → task → REQ/BUG/HK → rule → domain. Every
   document, domain, and rule has a stable, permanent, never-reused ID.
 - **INV-6 — Working copy in agent-owned space; one tracked pointer.** The
-  deployment's real working copy is a directory named `.catalyst-proj/`,
+  deployment's real working copy is a directory named `.criterion/`,
   living in **agent-owned space** resolved per the running agent
   (`BOOTSTRAP.md` §1) — never inside the developed project's own tree.
   The target project tracks exactly one file for this: `<app-name>.catalyst`
   (JSON, project root, committed — the only catalyst artifact the
   project's own repo ever carries), whose `agent-source` field names
-  where the real working copy actually is. `.catalyst-proj/DEPLOYMENT.md`
+  where the real working copy actually is. `.criterion/DEPLOYMENT.md`
   stays the source of record for deployment/repo metadata, inside the
   working copy wherever it's now rooted (unchanged in role — only its
   location moved); `<app-name>.catalyst` mirrors the same `repoed`/
   `catalyst_repo`/`catalyst_repo_url`/`created_by` fields for project-root
   visibility without resolving `agent-source` first. Fallback for an agent with no
-  owned-space concept: keep `.catalyst-proj/` directly in the project
-  instead, gitignored, never committed. `/thingamabob` (INV-18) is the
+  owned-space concept: keep `.criterion/` directly in the project
+  instead, gitignored, never committed. `/criterion` (INV-18) is the
   opt-in, repo-backed persistence/sync layer on top of either shape —
   never a commit into the product's own repo. `/project
   create`/`remove`/`export`/`import` (INV-19) manage the lifecycle;
@@ -96,18 +96,18 @@ faster and is the first thing a summarizer mangles.
   core, applies to catalyst's own deployment too, and records history
   rather than flagging violations.
 - **INV-18 — Repoed deployments sync through a dedicated repo.** A
-  deployment with `repoed: true` (`.catalyst-proj/DEPLOYMENT.md` — the
-  source of record, wherever `.catalyst-proj/` is now rooted; mirrored
+  deployment with `repoed: true` (`.criterion/DEPLOYMENT.md` — the
+  source of record, wherever `.criterion/` is now rooted; mirrored
   into `<app-name>.catalyst` at the project root per INV-6) mirrors
-  `.catalyst-proj/` through a dedicated repository. `/thingamabob create
+  `.criterion/` through a dedicated repository. `/criterion create
   <name> <git-info>` establishes it the first time (creates it if it
   doesn't exist, registers it as-is if it does; pushes local
-  `.catalyst-proj/` as the `thingamabob` branch — the canonical, master
+  `.criterion/` as the `criterion` branch — the canonical, master
   version). Run again against the same repo with a different `<name>`, it
   doesn't refuse — it branches: a new branch named `<name>` off the
-  current `thingamabob`, without touching `thingamabob` itself or who's
-  recorded as `created_by`. `/thingamabob get <repo> <username>` is the
-  join path: download `thingamabob`'s current state and check out a new
+  current `criterion`, without touching `criterion` itself or who's
+  recorded as `created_by`. `/criterion get <repo> <username>` is the
+  join path: download `criterion`'s current state and check out a new
   branch for `<username>` from it, for a user who doesn't have a local
   copy yet. Both `create`'s first call and `get` also resolve the
   actor's `git_username` and rewrite every existing artifact's
@@ -115,24 +115,24 @@ faster and is the first thing a summarizer mangles.
   `Signed-off-by`/journal `actor` written for them from then on uses
   `git_username`, never `name`; the journal itself is never rewritten
   (INV-17), only appended with one new entry describing the migration.
-  **This never supersedes INV-6**: `.catalyst-proj/` stays the
+  **This never supersedes INV-6**: `.criterion/` stays the
   real working copy (wherever it's rooted — agent-owned space or, on the
   fallback, in-project); the dedicated repo is an additional, synced
   backing store.
 
   **`create`/`get` always ask which branch the current actor will push
-  to** — recorded as `thingamabob_branch` in `<app-name>.catalyst` so
+  to** — recorded as `criterion_branch` in `<app-name>.catalyst` so
   later `push` calls don't ask again. The suggested default is the
-  actor's own fixed branch, `<branch-safe-name>.catalyst-proj` — **every
+  actor's own fixed branch, `<branch-safe-name>.criterion` — **every
   git ref name derived from a user's identity (this branch, and
-  `/thingamabob get`'s `<username>`) is that name's branch-safe form**
+  `/criterion get`'s `<username>`) is that name's branch-safe form**
   (lowercase, non-alphanumeric runs collapsed to a single `-`, trimmed),
   since a registered display name like "Olivier Steck" is not itself a
   valid git ref component; refuse rather than silently colliding if two
-  distinct names would collapse to the same form. Choosing `thingamabob`
+  distinct names would collapse to the same form. Choosing `criterion`
   itself instead is valid and changes what `push` does:
 
-  - **`thingamabob_branch` names a real contributor branch** (the
+  - **`criterion_branch` names a real contributor branch** (the
     default case, for multi-contributor deployments): the push itself is
     scoped to artifact files whose `Signed-off-by` names the current
     actor — not their full local state — unless they hold the `Admin`
@@ -140,26 +140,26 @@ faster and is the first thing a summarizer mangles.
     unfiltered. Shared registries/indexes and the journal aren't signed
     by one person and are never filtered; excluded files are reported,
     never silently dropped. What's pushed is then vetted (`/check-rules`
-    plus a four-eyes sub-agent pass) and merged into `thingamabob`; both
+    plus a four-eyes sub-agent pass) and merged into `criterion`; both
     branches are updated with the result, and the local
-    `.catalyst-proj/` is refreshed to match. `--force` skips vetting and
-    scoping and overwrites `thingamabob` directly anyway, refused for
+    `.criterion/` is refreshed to match. `--force` skips vetting and
+    scoping and overwrites `criterion` directly anyway, refused for
     anyone but the repo's recorded `created_by`.
-  - **`thingamabob_branch` is `thingamabob` itself** (single-maintainer
+  - **`criterion_branch` is `criterion` itself** (single-maintainer
     mode — e.g. catalyst's own self-dogfooding, where `/dogfood`'s own
     audit already served as the vetting step): every `push` overwrites
-    `thingamabob` directly, no vetting, no merge — this is the normal
+    `criterion` directly, no vetting, no merge — this is the normal
     behavior in this mode, not something `--force` is needed for — still
     refused for anyone but `created_by`.
 - **INV-19 — Project lifecycle commands.** `/project create <name>`
   installs a fresh deployment: a working copy in agent-owned space (or
   the in-project fallback) plus its `<app-name>.catalyst` pointer.
   `/project remove <name>` un-links the pointer locally only — the
-  working copy, this agent's memory note, and any `thingamabob` repo are
+  working copy, this agent's memory note, and any `criterion` repo are
   all left untouched (never delete, retire in place). `/project remove
   <name> force` additionally deletes the local working copy and this
   agent's memory note for the project — confirm explicitly first; never
-  touches a `thingamabob` repo, which is a separate, externally-hosted
+  touches a `criterion` repo, which is a separate, externally-hosted
   artifact out of scope for a local removal. `/project export <name>
   [file]` bundles every file under the working copy into one JSON
   export. `/project import <file>` installs from a bundle, refusing if a
@@ -181,6 +181,22 @@ faster and is the first thing a summarizer mangles.
   (Kanban's counterpart to `SPRINT-`) and `WORKFLOW-` (a process
   document, never itself worked) as optional types, plus a `tickets/`
   slot reserved for plugin population — no core `TICKET-` scheme.
+- **INV-21 — Reconciliation entity for diverging versions.** A
+  `RECON-NNNNNN` (`reconciliations/`, top-level, full INV-20 template
+  treatment) is the durable record of two entity versions that
+  `/criterion push`'s merge step (INV-18) couldn't cleanly reconcile —
+  a git-level conflict, a vetting-flagged semantic clash, or a
+  rights-mismatch against `IAM/roles/roles.json` — or a manually opened
+  one. Like `WORKFLOW-`, it is never itself work: no `Targets` rule
+  field; its chain runs sideways via an `Entity` field naming the
+  disputed artifact. Never file-versioned per round — each round of
+  back-and-forth is a new row in the same file's `Revisions` section,
+  edited in place and journaled like `BUG-`/`REQ-` (INV-17). Resolved
+  via `/reconcile <id> accept|accept-with-edits|reject`, moving `Status`
+  through `Open`/`Under Review`/`Resolved-*`/`Closed` — who can resolve
+  one stays advisory (INV-16), but the `Resolver` field and its journal
+  entry make an unauthorized resolution a visible record rather than a
+  silent gap.
 
 ## Plugins
 

@@ -4,10 +4,10 @@ argument-hint: "list [--filter ...]"
 ---
 
 List available commands. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
-1. List every slash command documented in `.catalyst-proj/CODE-OF-CONDUCT.md`
+1. List every slash command documented in `.criterion/CODE-OF-CONDUCT.md`
    §4 — name, one-line purpose — sourced from there, never re-enumerated
    as a hand-maintained subset.
 2. Apply `--filter` the same way `/list` does, if given.

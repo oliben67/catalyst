@@ -3,13 +3,13 @@
 A project-agnostic, portable specification for how any codebase organizes
 its rules, its development work, its agile process, its roadmap, its
 accountability, and its own change history — extrapolated from the
-concrete system built in this repo's own [`.catalyst-proj/`](../.catalyst-proj/)
+concrete system built in this repo's own [`.criterion/`](../.criterion/)
 deployment. That folder is **one instantiation** of this framework, for
 this project, built via the retrofit path (§4 below); this folder is the
 generic template for standing the same system up in any project so it
 can create rules that fit that project's reality.
 
-(`thingamabob` is a different thing entirely as of INV-18 — the
+(`criterion` is a different thing entirely as of INV-18 — the
 canonical branch name in a *repoed* deployment's dedicated sync
 repository, not a folder. See §13 of `rules-of-rules.template.md`.)
 
@@ -75,12 +75,12 @@ rule(s) it served, and the actual intent behind it. Precise enough that
 any point into a side directory — real reconstruction, not narrative.
 See `Rules-of-Rules.md` §12.
 
-A deployment can additionally opt into being **repoed**: `.catalyst-proj/`
+A deployment can additionally opt into being **repoed**: `.criterion/`
 mirrored through a dedicated repository so multiple contributors converge
 on one agreed-upon state instead of silently diverging.
-`/thingamabob create`/`get`/`push` manage it; every push is vetted against
+`/criterion create`/`get`/`push` manage it; every push is vetted against
 the framework's own rules (`/check-rules` plus a four-eyes drift check)
-before an AI-assisted merge lands it on the canonical `thingamabob`
+before an AI-assisted merge lands it on the canonical `criterion`
 branch. `/dogfood` runs that same vetting procedure standalone, but only
 against catalyst's own repository — it's never part of what a deployed
 project carries. See `Rules-of-Rules.md` §13.
@@ -134,7 +134,7 @@ governed after the fact.
 ## Retrofitting an existing project
 
 See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) §4. This repo's own
-[`.catalyst-proj/`](../.catalyst-proj/) was retrofitted this way — its
+[`.criterion/`](../.criterion/) was retrofitted this way — its
 `Rules-of-Rules.md`, `CODE-OF-CONDUCT.md`, and `rules-of-work-items.md`
 each carry a header noting they are this project's instantiation of the
 corresponding template here, so the two stay traceable to each other as
@@ -146,5 +146,5 @@ it's behavioural (agent conduct during a session) rather than
 machine-checkable from a tree snapshot.
 
 The instantiation guide also now includes a persistent-memory step so the
-project path and `.catalyst-proj/` location used for deployment are
+project path and `.criterion/` location used for deployment are
 remembered across sessions.

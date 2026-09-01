@@ -3,12 +3,12 @@
 State file for a catalyst install/analysis run. The agent reads this before each
 unit of work and writes it after, so progress survives context loss and any
 drift is visible against a written record. Deploy to
-`.catalyst-proj/.ledger/<task>.todo.md` in the target repo.
+`.criterion/.ledger/<task>.todo.md` in the target repo.
 
 ## Resolved mode (from BOOTSTRAP.md §1)
 - Sub-agents: <parallel | sequential-fallback>
 - Agent-source: <resolved agent-owned path | in-project fallback>
-- Memory: <memory-tool cache | .catalyst-proj/DEPLOYMENT.md + <app-name>.catalyst read fresh>
+- Memory: <memory-tool cache | .criterion/DEPLOYMENT.md + <app-name>.catalyst read fresh>
 - Slash commands: <native | named-procedure-fallback>
 
 ## Items
