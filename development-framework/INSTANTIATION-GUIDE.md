@@ -99,6 +99,13 @@ creates concrete rules for that particular project.
        README.md
        features.md
        <FEAT-NNNNNN-short-summary>.md
+     reconciliations/
+       templates/
+         README.md
+         templates-reconciliation.md
+         TEMPLATE-RECONCILIATION-v1.md
+       README.md
+       reconciliations.md
      IAM/
        users/
          templates/
@@ -253,7 +260,11 @@ creates concrete rules for that particular project.
    as a top-level sibling. The `features/` folder sits at the root,
    alongside `requirements/`; it holds descriptive, non-rule-linked
    feature entries (see `Rules-of-Rules.md` §9) and is never a
-   substitute for `requirements/`. The work-items rule document belongs
+   substitute for `requirements/`. The `reconciliations/` folder also
+   sits at the root, alongside `requirements/`/`features/` — not nested
+   under `work-items/` — and holds `RECON-NNNNNN` cases opened by
+   `/criterion push`'s merge step or manually (`Rules-of-Rules.md` §16).
+   The work-items rule document belongs
    in the `work-items/` layer and should not be duplicated under
    `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
@@ -277,7 +288,8 @@ creates concrete rules for that particular project.
    with one row for `v1` (Version | File | Timestamp | Notes — today's
    date, "initial version"). Then write the artifact-type folder's own
    `README.md` and its `<type>.md` instance catalog (`bugs.md`,
-   `requirements.md`, `features.md`, `house-keeping.md`, `meta-tags.md`,
+   `requirements.md`, `features.md`, `reconciliations.md`,
+   `house-keeping.md`, `meta-tags.md`,
    `boards.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`,
    `sprints.md`, `workflows.md`, `roadmaps.md`, `domains.md`,
    `tickets.md`). Skip `boards/`/`sprints/` per the chosen agile flavor

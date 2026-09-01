@@ -49,6 +49,8 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `rules/domains/` → `domains.md` (empty index allowed)
       - `requirements/` → `requirements.md`
       - `features/` → `features.md`
+      - `reconciliations/` → `reconciliations.md` (empty index allowed
+        — no `RECON-` yet on a fresh deployment)
       - `IAM/users/` → `templates/` (`TEMPLATE-USERS-v1.json` from
         `templates/users.template.json`) then `users.json` seeded from
         it (empty array, INV-16)

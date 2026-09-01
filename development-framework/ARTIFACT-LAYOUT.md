@@ -63,6 +63,15 @@ the surrounding deploy-procedure text.
         README.md
         features.md
         [...]
+    reconciliations/
+        templates/
+            README.md
+            templates-reconciliation.md
+            TEMPLATE-RECONCILIATION-v1.md
+            ...
+        README.md
+        reconciliations.md            # reconciliations catalog
+        [...]
     IAM/
         users/
             templates/

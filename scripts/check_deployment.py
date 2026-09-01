@@ -44,6 +44,7 @@ INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
     "spikes.md", "sprints.md", "boards.md", "workflows.md", "tickets.md",
+    "reconciliations.md",
     "README.md", "CODE-OF-CONDUCT.md", "version.txt",
     "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md", "BACKLOG.md",
     "roadmaps.md",
@@ -86,8 +87,8 @@ def check_naming(root: Path) -> list[str]:
     errors: list[str] = []
     # "domains" is no longer top-level (INV-20): it nests under rules/, so
     # the "rules" walk below already covers rules/domains/**/*.md.
-    checked_dirs = ("rules", "requirements", "features", "IAM",
-                    "development", "work-items")
+    checked_dirs = ("rules", "requirements", "features", "reconciliations",
+                    "IAM", "development", "work-items")
     for sub in checked_dirs:
         d = root / sub
         if not d.is_dir():

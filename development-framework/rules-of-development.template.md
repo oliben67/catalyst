@@ -316,6 +316,14 @@ The framework exposes the following custom slash commands:
   ends clean or ends with fixes applied and reverified, offer this
   command (`create` if not yet repoed, `push` otherwise) as the natural
   next step — never run it automatically.
+- `/reconcile <RECON-id> accept|accept-with-edits|reject` — resolve an
+  open reconciliation case (`Rules-of-Rules.md` §16, `INVARIANTS.md`
+  INV-21): `accept` merges its `Proposed` content into the `Entity` it
+  names as-is, `accept-with-edits` appends a new `Revisions` row first
+  and merges that instead, `reject` leaves `criterion` unchanged and
+  flags the proposer's local copy for reverting. Sets `Status` to the
+  matching `Resolved-*` value, fills `Resolved`/`Resolver`, and
+  registers the outcome in `reconciliations/reconciliations.md`.
 - `/project create <project name>` — install a fresh catalyst deployment
   here (`Rules-of-Rules.md` §14): resolve `agent-source`, build the
   working copy there, and write `<app-name>.catalyst` at this project's
@@ -646,11 +654,15 @@ below. Otherwise: (1) vet the incoming branch against `criterion` —
 whether the incoming state still matches what its own rules claim;
 disagreement between the two sub-agents, or a flagged violation, stops
 here rather than proceeding silently; (2) merge —
-attempt a normal merge first, and only where that leaves conflicts
-(git-level or vetting-flagged), have a sub-agent propose a resolution
-guided by `Rules-of-Rules.md` §1's conflict-check principle, stopping to
-ask the user if a conflict is genuinely irreconcilable rather than
-guessing; (3) update both `criterion` (the merge commit) and the
+attempt a normal merge first, and only where that leaves a conflict
+(git-level, vetting-flagged, or a rights-mismatch against the actor's
+role in `IAM/roles/roles.json`), have a sub-agent propose a resolution
+guided by `Rules-of-Rules.md` §1's conflict-check principle. Where
+that's itself contested, or genuinely irreconcilable, open a
+`RECON-NNNNNN` instead of guessing which side wins (`Rules-of-Rules.md`
+§16, resolved later via `/reconcile`) — that one entity stays unmerged,
+everything else in the push proceeds; (3) update both `criterion` (the
+merge commit) and the
 contributor's own branch (fast-forwarded to match); (4) pull the updated
 `criterion` down and overwrite the local `.criterion/` directory
 and this session's in-memory record of it.

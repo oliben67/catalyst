@@ -181,6 +181,22 @@ faster and is the first thing a summarizer mangles.
   (Kanban's counterpart to `SPRINT-`) and `WORKFLOW-` (a process
   document, never itself worked) as optional types, plus a `tickets/`
   slot reserved for plugin population — no core `TICKET-` scheme.
+- **INV-21 — Reconciliation entity for diverging versions.** A
+  `RECON-NNNNNN` (`reconciliations/`, top-level, full INV-20 template
+  treatment) is the durable record of two entity versions that
+  `/criterion push`'s merge step (INV-18) couldn't cleanly reconcile —
+  a git-level conflict, a vetting-flagged semantic clash, or a
+  rights-mismatch against `IAM/roles/roles.json` — or a manually opened
+  one. Like `WORKFLOW-`, it is never itself work: no `Targets` rule
+  field; its chain runs sideways via an `Entity` field naming the
+  disputed artifact. Never file-versioned per round — each round of
+  back-and-forth is a new row in the same file's `Revisions` section,
+  edited in place and journaled like `BUG-`/`REQ-` (INV-17). Resolved
+  via `/reconcile <id> accept|accept-with-edits|reject`, moving `Status`
+  through `Open`/`Under Review`/`Resolved-*`/`Closed` — who can resolve
+  one stays advisory (INV-16), but the `Resolver` field and its journal
+  entry make an unauthorized resolution a visible record rather than a
+  silent gap.
 
 ## Plugins
 

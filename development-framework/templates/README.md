@@ -23,6 +23,11 @@ This folder contains the reusable document templates that seed the deployed cata
 - Rule and domain scaffolding templates used when a project is instantiated
   — `domain.template.md` deploys nested under `rules/domains/`, not as a
   top-level sibling (domains exist only to group rules).
+- [`reconciliation.template.md`](reconciliation.template.md) — a
+  top-level, non-rule-linked type for `RECON-NNNNNN` cases: two
+  diverging versions of some other entity that `/criterion push`'s
+  vet+merge step (or a manual open) couldn't cleanly reconcile. Never a
+  unit of work; see `Rules-of-Rules.md` §16.
 - [`templates-catalog.template.md`](templates-catalog.template.md) — the
   generic catalog every artifact type's `templates/templates-<type>.md`
   is seeded from (`INVARIANTS.md` INV-20): Version | File | Timestamp |

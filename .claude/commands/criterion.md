@@ -110,11 +110,15 @@ every artifact file actually rewritten.
         catalyst itself — not available here, so described directly
         instead.)
       - **Merge**: attempt a normal merge first. Only where that leaves
-        conflicts (git-level or vetting-flagged), have a sub-agent
-        propose a resolution guided by `Rules-of-Rules.md` §1's
-        conflict-check principle — never silently drop either side's
-        rule-compliant intent, and stop to ask if a conflict is
-        genuinely irreconcilable.
+        a conflict — git-level, vetting-flagged, or a rights-mismatch
+        (the actor's role doesn't cover this entity per
+        `IAM/roles/roles.json`) — have a sub-agent propose a resolution
+        guided by `Rules-of-Rules.md` §1's conflict-check principle —
+        never silently drop either side's rule-compliant intent. If
+        that's itself contested, or genuinely irreconcilable, open a
+        `RECON-NNNNNN` instead of guessing which side wins
+        (`Rules-of-Rules.md` §16, `/reconcile` to resolve it later) —
+        that one entity stays unmerged; everything else proceeds.
       - **Update both branches**: `criterion` gets the merge commit;
         the contributor's own branch is fast-forwarded to match.
       - **Refresh locally**: pull the updated `criterion` and

@@ -636,11 +636,19 @@ scoping" below) — then:
    than depending on that command existing.)
 2. **Merge** using AI where a plain merge can't resolve it: attempt a
    normal merge of the branch into `criterion` first; only where that
-   leaves conflicts (git-level, or a vetting-flagged semantic clash), a
-   sub-agent proposes a resolution guided by `rr-META-001`'s own
-   conflict-check principle — never silently drop either side's
-   rule-compliant intent, and if the conflict is genuinely irreconcilable,
-   stop and prompt the user rather than guessing which side wins.
+   leaves a conflict — git-level, a vetting-flagged semantic clash, or a
+   **rights-mismatch** (the actor's role doesn't cover this entity's
+   type/action per `rr-META-011`'s advisory mapping in
+   `IAM/roles/roles.json`) — does a sub-agent propose a resolution
+   guided by `rr-META-001`'s own conflict-check principle, never
+   silently dropping either side's rule-compliant intent. Where that
+   proposal is itself contested, or the conflict is genuinely
+   irreconcilable, open a `RECON-NNNNNN` instead of guessing which side
+   wins (`rr-META-016`): `Trigger` records which of the three kinds it
+   was, `Baseline` = `criterion`'s current content for that entity,
+   `Proposed` = the incoming branch's content. That one entity stays
+   unmerged pending resolution (`/reconcile`); everything else in the
+   push proceeds normally.
 3. **Update both branches** with the merged result: `criterion` gets
    the merge commit, and the contributor's own push branch is
    fast-forwarded to match, so their next push starts from the
@@ -891,6 +899,10 @@ generalizes it, it doesn't change it.
   typically nested by domain, e.g. `business/business-rules.md`).
 - `requirements/`, `features/` — unchanged position (top-level, siblings
   of `rules/`), each gains the `templates/` treatment.
+- `reconciliations/` — new top-level folder, sibling of `requirements/`/
+  `features/`, not nested under `work-items/`: `RECON-NNNNNN` cases are
+  triggered by `/criterion push`'s own mechanism (§13), not agile
+  process (§8), and are never themselves work (§16).
 - `IAM/` — new top-level folder replacing bare
   `development/users.json`/`roles.json`; holds `users/` and `roles/`,
   each shaped exactly like any other artifact type (§11), including the
@@ -916,3 +928,55 @@ generalizes it, it doesn't change it.
 
 See `INSTANTIATION-GUIDE.md` §1 for the full deployed layout tree and
 `INSTANTIATION-CHECKLIST.md` for the tickable deploy-skeleton steps.
+
+## 16. `rr-META-016` Reconciliation of diverging entity versions
+
+`/criterion push`'s merge step (§13) already has to handle two versions
+of the same entity disagreeing — a git-level conflict, a
+vetting-flagged semantic clash, or a rights-mismatch against
+`rr-META-011`'s advisory role mapping. `RECON-NNNNNN` is the durable,
+chainable record of that disagreement and how it got settled, instead
+of the resolution living only in an ephemeral sub-agent proposal.
+
+**Never itself work.** Like `WORKFLOW-` (§8), a `RECON-` carries no
+`Targets` rule field and is exempt from the chain invariant's
+epic→story→task→REQ/BUG/HK→rule requirement — its chain runs sideways,
+via an `Entity` field naming the artifact actually in dispute, not
+downward to a rule.
+
+**Opened** by `/criterion push` itself (automatically, when its merge
+step hits one of the three trigger kinds above) or manually by any
+actor who wants a second opinion recorded before landing a change.
+`Trigger` records which: `rights-mismatch`, `merge-conflict`, or
+`manual`. `Baseline` captures `criterion`'s current content for the
+entity at open time; `Proposed` captures the version being contested.
+Opening one never blocks the rest of the push — only the disputed
+entity stays unmerged; everything else proceeds.
+
+**Revised, not re-filed.** Each round of back-and-forth (a counter-edit,
+a clarifying question, a revised proposal) is a new row appended to the
+same file's `## Revisions` section — never a new file per round, unlike
+`templates/`'s own `TEMPLATE-<TYPE>-vN.md` versioning. The file is
+edited in place across its lifecycle the same way `BUG-`/`REQ-` already
+are, and every edit is journaled with its before/after content hash
+(INV-17) — that already gives the audit trail; no second versioning
+scheme is needed on top.
+
+**Resolved** via `/reconcile <id> accept|accept-with-edits|reject`:
+`accept` merges `Proposed` into the `Entity` as-is; `accept-with-edits`
+merges the latest `## Revisions` row's content instead; `reject` leaves
+`criterion` unchanged and flags the proposer's local copy as needing to
+pull the rejection down. `Status` moves `Open` → `Under Review` (once
+someone starts working it) → one of `Resolved-Accepted` /
+`Resolved-Accepted-with-Edits` / `Resolved-Rejected` → `Closed`. Who
+*can* resolve one is advisory, same as every other role check
+(`rr-META-011`) — catalyst still can't verify who's typing — but the
+`Resolver` field and the journal entry it produces mean an
+unauthorized resolution is a visible, permanent record, not a silent
+gap the way an unreconciled rights-mismatch would otherwise be.
+
+**Layout and ID**: `reconciliations/`, top-level, sibling to
+`requirements/`/`features/` (§15's "Where every artifact type actually
+sits"), full `templates/`+catalog treatment (INV-20). ID format
+`RECON-(NNNNNN)`, 6 digits, its own global sequence, never reused —
+same scheme as every other numbered type (§3).

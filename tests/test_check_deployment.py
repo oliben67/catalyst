@@ -228,6 +228,27 @@ def test_check_naming_ignores_tickets_boards_workflows_indexes(tmp_path: Path):
     assert cd.check_naming(root) == []
 
 
+def test_check_naming_ignores_reconciliations_index(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    reconciliations = root / "reconciliations"
+    reconciliations.mkdir(parents=True)
+    (reconciliations / "reconciliations.md").write_text("# Reconciliations index\n")
+    (reconciliations / "RECON-000001-rights-mismatch-on-br-auth.md").write_text(
+        "# RECON-000001-rights-mismatch-on-br-auth\n"
+    )
+    assert cd.check_naming(root) == []
+
+
+def test_check_naming_rejects_bare_id_reconciliation_filename(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    reconciliations = root / "reconciliations"
+    reconciliations.mkdir(parents=True)
+    bad = reconciliations / "RECON-000002.md"
+    bad.write_text("# bare id, no summary\n")
+    errors = cd.check_naming(root)
+    assert any("RECON-000002.md" in e for e in errors)
+
+
 def test_check_rule_indexing_missing_global_index(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
     (root / "rules" / "rules.md").unlink()
