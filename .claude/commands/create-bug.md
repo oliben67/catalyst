@@ -3,8 +3,8 @@ description: Create a new bug artifact and register it in bugs/bugs.md
 argument-hint: <description> [--targets <rule-id>...] [--severity Critical|High|Medium|Low]
 ---
 
-Create a new bug artifact. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md`
-§3/§4, template: `.catalyst-proj/development/bugs/templates/TEMPLATE-BUG-v1.md`.
+Create a new bug artifact. Full spec: `.criterion/CODE-OF-CONDUCT.md`
+§3/§4, template: `.criterion/development/bugs/templates/TEMPLATE-BUG-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `BUG-NNNNNN` ID from `bugs/bugs.md` + a directory

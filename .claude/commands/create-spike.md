@@ -4,9 +4,9 @@ argument-hint: <question> --timebox <duration> [--parent <STORY-NNNNNN|EPIC-NNNN
 ---
 
 Create a new spike work item. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/spikes/templates/TEMPLATE-SPIKE-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/spikes/templates/TEMPLATE-SPIKE-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `SPIKE-NNNNNN` ID from `spikes/spikes.md` + a

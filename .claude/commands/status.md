@@ -4,7 +4,7 @@ argument-hint: <artefact-id> <status> [force]
 ---
 
 Update an artifact's `Status` field. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. If the artifact ID doesn't resolve, say it cannot be found.

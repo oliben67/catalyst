@@ -4,7 +4,7 @@ argument-hint: <type|all> [--filter key=value ...] [--type <template-type>]
 ---
 
 List items of the requested type. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 1. Resolve what's being asked for and read the relevant index/rule

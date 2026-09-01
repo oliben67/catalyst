@@ -1,6 +1,6 @@
 # Artifact Layout Reference
 
-The canonical, illustrative tree for a deployed `.catalyst-proj/` under
+The canonical, illustrative tree for a deployed `.criterion/` under
 the uniform artifact-type layout (`Rules-of-Rules.md` §15, `INVARIANTS.md`
 INV-20). `INSTANTIATION-GUIDE.md` §1 is the authoritative prose — this
 file exists as a clean, standalone reference to the shape alone, without
@@ -62,6 +62,15 @@ the surrounding deploy-procedure text.
             ...
         README.md
         features.md
+        [...]
+    reconciliations/
+        templates/
+            README.md
+            templates-reconciliation.md
+            TEMPLATE-RECONCILIATION-v1.md
+            ...
+        README.md
+        reconciliations.md            # reconciliations catalog
         [...]
     IAM/
         users/

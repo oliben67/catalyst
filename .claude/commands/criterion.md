@@ -1,10 +1,10 @@
 ---
-description: Bootstrap/branch (create), join (get), or sync (push) a repoed .catalyst-proj/ deployment through a dedicated repository
+description: Bootstrap/branch (create), join (get), or sync (push) a repoed .criterion/ deployment through a dedicated repository
 argument-hint: create <name> <git-info> | get <repo> <username> | push [--force]
 ---
 
-Manage a repoed deployment. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md`
-§4, mechanism: `.catalyst-proj/rules/Rules-of-Rules.md` §13.
+Manage a repoed deployment. Full spec: `.criterion/CODE-OF-CONDUCT.md`
+§4, mechanism: `.criterion/rules/Rules-of-Rules.md` §13.
 Input: $ARGUMENTS
 
 **Creating a repo, or force-pushing, is externally-visible and
@@ -13,7 +13,7 @@ invoking this command already implies intent to push.**
 
 ## `create <name> <git-info>`
 
-**First call for this deployment** (`.catalyst-proj/DEPLOYMENT.md` doesn't
+**First call for this deployment** (`.criterion/DEPLOYMENT.md` doesn't
 show `repoed: true` yet):
 1. Check whether `<git-info>` already exists.
    - If it doesn't, confirm with the user, then create it there under
@@ -21,45 +21,45 @@ show `repoed: true` yet):
    - If it does, inspect its content before registering it as-is: if
      it's genuinely this same deployment's own prior state, proceed; if
      it holds *unrelated* content (a different project's own
-     `.catalyst-proj/` deployment, not a rejoin of this one), stop and
+     `.criterion/` deployment, not a rejoin of this one), stop and
      confirm explicitly with the user before doing anything — same tier
      of confirmation as creating a new repo.
 2. Write `repoed: true`, `catalyst_repo: <name>`, `catalyst_repo_url:
    <git-info>`, `created_by: <current Signed-off-by actor>` to
-   `.catalyst-proj/DEPLOYMENT.md`.
+   `.criterion/DEPLOYMENT.md`.
 3. **Ask which branch this actor will push to** — the suggested default
-   is their own `<branch-safe-name>.catalyst-proj`, but `thingamabob`
+   is their own `<branch-safe-name>.criterion`, but `criterion`
    itself is a valid choice (see `push` below for what that changes).
-   Write the answer as `thingamabob_branch` in both
-   `.catalyst-proj/DEPLOYMENT.md` and `<app-name>.catalyst`.
-4. Push the current local `.catalyst-proj/` state as the first commit on
-   a branch named `thingamabob` — the canonical, master version. Nothing
+   Write the answer as `criterion_branch` in both
+   `.criterion/DEPLOYMENT.md` and `<app-name>.catalyst`.
+4. Push the current local `.criterion/` state as the first commit on
+   a branch named `criterion` — the canonical, master version. Nothing
    is vetted on this first push.
 5. Run the **identity migration** (below) for the current actor.
 6. Report the result.
 
 **Called again, already repoed:** don't refuse.
 - If `<git-info>` matches the already-registered `catalyst_repo_url`,
-  this branches: create a new branch off `thingamabob`'s current state,
-  named `<name>` in its branch-safe form. No `.catalyst-proj/DEPLOYMENT.md` change.
+  this branches: create a new branch off `criterion`'s current state,
+  named `<name>` in its branch-safe form. No `.criterion/DEPLOYMENT.md` change.
 - If `<git-info>` names a *different* repo, confirm explicitly with the
   user first — this is an unusual second-repo scenario, not ordinary
   branching.
 
 ## `get <repo> <username>`
 
-For a user with no local `.catalyst-proj/` copy of an already-repoed
+For a user with no local `.criterion/` copy of an already-repoed
 deployment yet — the join path.
 1. Validate `<username>` against the branch-safe-name rule (below);
    refuse with a suggested alternative if it doesn't survive
    sanitization uniquely against already-registered users.
-2. Download `<repo>`'s `thingamabob` branch content and check out
-   `<username>.catalyst-proj` (branch-safe form) from it as this user's
-   local `.catalyst-proj/`. Create a `IAM/users/users.json` entry for
+2. Download `<repo>`'s `criterion` branch content and check out
+   `<username>.criterion` (branch-safe form) from it as this user's
+   local `.criterion/`. Create a `IAM/users/users.json` entry for
    them first if one doesn't exist yet.
 3. **Ask which branch this actor will push to**, same as `create` above
-   — the just-created `<username>.catalyst-proj` is the default. Record
-   `thingamabob_branch`.
+   — the just-created `<username>.criterion` is the default. Record
+   `criterion_branch`.
 4. Run the identity migration (below) for this user.
 5. Report the result.
 
@@ -88,18 +88,18 @@ every artifact file actually rewritten.
 
 ## `push [--force]`
 
-1. Refuse if `.catalyst-proj/DEPLOYMENT.md` doesn't show `repoed: true` (point to
-   `/thingamabob create`). If no `thingamabob_branch` is recorded yet (a
+1. Refuse if `.criterion/DEPLOYMENT.md` doesn't show `repoed: true` (point to
+   `/criterion create`). If no `criterion_branch` is recorded yet (a
    deployment from before this field existed), ask now — same question
    as `create`'s — and record the answer before continuing.
-2. **If `thingamabob_branch` names a real contributor branch**
-   (`<git_username>.catalyst-proj` if the actor has one, otherwise the
+2. **If `criterion_branch` names a real contributor branch**
+   (`<git_username>.criterion` if the actor has one, otherwise the
    branch-safe form of `name`):
-   a. Push local `.catalyst-proj/` there (creating the branch on their
+   a. Push local `.criterion/` there (creating the branch on their
       first push).
    b. If `--force`: refuse unless the current actor matches
-      `.catalyst-proj/DEPLOYMENT.md`'s `created_by`. Otherwise confirm
-      with the user, then overwrite `thingamabob` directly from local
+      `.criterion/DEPLOYMENT.md`'s `created_by`. Otherwise confirm
+      with the user, then overwrite `criterion` directly from local
       state and skip everything below.
    c. Otherwise:
       - **Vet**: run `/check-rules` against the merged-in state, plus an
@@ -110,21 +110,25 @@ every artifact file actually rewritten.
         catalyst itself — not available here, so described directly
         instead.)
       - **Merge**: attempt a normal merge first. Only where that leaves
-        conflicts (git-level or vetting-flagged), have a sub-agent
-        propose a resolution guided by `Rules-of-Rules.md` §1's
-        conflict-check principle — never silently drop either side's
-        rule-compliant intent, and stop to ask if a conflict is
-        genuinely irreconcilable.
-      - **Update both branches**: `thingamabob` gets the merge commit;
+        a conflict — git-level, vetting-flagged, or a rights-mismatch
+        (the actor's role doesn't cover this entity per
+        `IAM/roles/roles.json`) — have a sub-agent propose a resolution
+        guided by `Rules-of-Rules.md` §1's conflict-check principle —
+        never silently drop either side's rule-compliant intent. If
+        that's itself contested, or genuinely irreconcilable, open a
+        `RECON-NNNNNN` instead of guessing which side wins
+        (`Rules-of-Rules.md` §16, `/reconcile` to resolve it later) —
+        that one entity stays unmerged; everything else proceeds.
+      - **Update both branches**: `criterion` gets the merge commit;
         the contributor's own branch is fast-forwarded to match.
-      - **Refresh locally**: pull the updated `thingamabob` and
-        overwrite the local `.catalyst-proj/` directory and this
+      - **Refresh locally**: pull the updated `criterion` and
+        overwrite the local `.criterion/` directory and this
         session's in-memory record of it.
-3. **If `thingamabob_branch` *is* `thingamabob` itself**
-   (single-maintainer mode): push local `.catalyst-proj/` state directly
-   onto `thingamabob`, overwriting it — every time, no vetting, no
+3. **If `criterion_branch` *is* `criterion` itself**
+   (single-maintainer mode): push local `.criterion/` state directly
+   onto `criterion`, overwriting it — every time, no vetting, no
    merge, not gated behind `--force`. Still refuse unless the current
-   actor matches `.catalyst-proj/DEPLOYMENT.md`'s `created_by`. This is
+   actor matches `.criterion/DEPLOYMENT.md`'s `created_by`. This is
    catalyst's own repo's expected mode — offered as the natural
    follow-up after `/dogfood` ends clean or ends with fixes applied and
    reverified, since that audit already served as the vetting step.
@@ -133,5 +137,5 @@ every artifact file actually rewritten.
 Not a replacement for `/sync-framework` (that syncs the framework
 *template* into a deployment; this syncs one deployment's *own state*
 across contributors), and not a substitute for the journal — a
-`thingamabob` merge is itself journaled like any other change once it
+`criterion` merge is itself journaled like any other change once it
 lands locally.

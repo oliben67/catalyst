@@ -3,11 +3,11 @@ description: Read-only filter/report over development/journal.jsonl (never appen
 argument-hint: "[--since <date>] [--artifact <id>] [--actor <name>] [--rule <id>]"
 ---
 
-Query the journal. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md` §9,
-schema: `.catalyst-proj/rules/Rules-of-Rules.md` §12.
+Query the journal. Full spec: `.criterion/CODE-OF-CONDUCT.md` §9,
+schema: `.criterion/rules/Rules-of-Rules.md` §12.
 Input: $ARGUMENTS
 
-1. If `.catalyst-proj/development/journal.jsonl` doesn't exist or is
+1. If `.criterion/development/journal.jsonl` doesn't exist or is
    empty, say so rather than inventing history.
 2. Read it as one JSON object per line.
 3. Apply whichever filters were given: `--since` on `timestamp`,

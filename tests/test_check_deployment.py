@@ -6,10 +6,10 @@ import check_deployment as cd
 
 
 def make_valid_deployment(tmp_path: Path) -> Path:
-    """A minimal `.catalyst-proj/` tree that satisfies every check in
+    """A minimal `.criterion/` tree that satisfies every check in
     check_deployment.py, so each test can start from a known-good baseline
     and break exactly one thing."""
-    root = tmp_path / ".catalyst-proj"
+    root = tmp_path / ".criterion"
     rules = root / "rules"
     business = rules / "business"
     business.mkdir(parents=True)
@@ -78,7 +78,7 @@ def test_find_deploy_root_returns_none_when_absent(tmp_path: Path):
 def test_find_deploy_root_follows_pointer_file(tmp_path: Path):
     project = tmp_path / "project"
     project.mkdir()
-    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned = tmp_path / "agent-space" / ".criterion"
     agent_owned.mkdir(parents=True)
     (project / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -91,7 +91,7 @@ def test_find_deploy_root_pointer_resolved_from_nested_dir(tmp_path: Path):
     project = tmp_path / "project"
     nested = project / "some" / "nested" / "dir"
     nested.mkdir(parents=True)
-    agent_owned = tmp_path / "agent-space" / ".catalyst-proj"
+    agent_owned = tmp_path / "agent-space" / ".criterion"
     agent_owned.mkdir(parents=True)
     (project / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -102,7 +102,7 @@ def test_find_deploy_root_pointer_resolved_from_nested_dir(tmp_path: Path):
 
 def test_find_deploy_root_falls_back_to_legacy_dir_on_stale_pointer(tmp_path: Path):
     """A pointer whose agent-source no longer exists (moved/deleted) must not
-    mask a legacy in-tree .catalyst-proj/ that's actually still there."""
+    mask a legacy in-tree .criterion/ that's actually still there."""
     root = make_valid_deployment(tmp_path)
     (tmp_path / "myapp.catalyst").write_text(json.dumps({
         "project_name": "myapp",
@@ -179,7 +179,7 @@ def test_check_single_rule_template_wrong_location(tmp_path: Path):
 
 
 def test_check_single_rule_template_missing_rules_dir(tmp_path: Path):
-    root = tmp_path / ".catalyst-proj"
+    root = tmp_path / ".criterion"
     root.mkdir()
     errors = cd.check_single_rule_template(root)
     assert errors == ["INV-8: rules/ directory is missing"]
@@ -226,6 +226,27 @@ def test_check_naming_ignores_tickets_boards_workflows_indexes(tmp_path: Path):
     (work_items / "workflows").mkdir(parents=True)
     (work_items / "workflows" / "workflows.md").write_text("# Workflows index\n")
     assert cd.check_naming(root) == []
+
+
+def test_check_naming_ignores_reconciliations_index(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    reconciliations = root / "reconciliations"
+    reconciliations.mkdir(parents=True)
+    (reconciliations / "reconciliations.md").write_text("# Reconciliations index\n")
+    (reconciliations / "RECON-000001-rights-mismatch-on-br-auth.md").write_text(
+        "# RECON-000001-rights-mismatch-on-br-auth\n"
+    )
+    assert cd.check_naming(root) == []
+
+
+def test_check_naming_rejects_bare_id_reconciliation_filename(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    reconciliations = root / "reconciliations"
+    reconciliations.mkdir(parents=True)
+    bad = reconciliations / "RECON-000002.md"
+    bad.write_text("# bare id, no summary\n")
+    errors = cd.check_naming(root)
+    assert any("RECON-000002.md" in e for e in errors)
 
 
 def test_check_rule_indexing_missing_global_index(tmp_path: Path):

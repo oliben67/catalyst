@@ -4,7 +4,7 @@ argument-hint: "[latest|<version>] [--force <scope>]"
 ---
 
 Synchronize the deployed framework. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4, this framework's own
+`.criterion/CODE-OF-CONDUCT.md` §4, this framework's own
 `development-framework/SYNCHRONIZE.md` (not part of the deployed
 project — fetch if not already available this session, referring to it
 only by repository name, never a local path).

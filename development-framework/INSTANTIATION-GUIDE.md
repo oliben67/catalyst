@@ -54,7 +54,7 @@ creates concrete rules for that particular project.
    been deployed.
 3. Pick a root layout, e.g.:
    ```
-   <project-root>/.catalyst-proj/
+   <project-root>/.criterion/
      .ledger/
      CODE-OF-CONDUCT.md
      DEPLOYMENT.md
@@ -99,6 +99,13 @@ creates concrete rules for that particular project.
        README.md
        features.md
        <FEAT-NNNNNN-short-summary>.md
+     reconciliations/
+       templates/
+         README.md
+         templates-reconciliation.md
+         TEMPLATE-RECONCILIATION-v1.md
+       README.md
+       reconciliations.md
      IAM/
        users/
          templates/
@@ -225,7 +232,7 @@ creates concrete rules for that particular project.
    `sprints/`); `workflows/` is optional but flavor-independent — adopt
    it whenever the project wants process-definition documents, not tied
    to which agile flavor is chosen.
-   (The working-copy directory is always named `.catalyst-proj/`, but it
+   (The working-copy directory is always named `.criterion/`, but it
    is not built inside the target project's own tree: resolve
    **agent-source** first — a location this agent owns (a per-project
    data directory the running agent already maintains, if it has one),
@@ -235,10 +242,10 @@ creates concrete rules for that particular project.
    own root, tracked normally, with its `agent-source` field pointing at
    that location — this pointer file is the *only* catalyst artifact the
    target project's own repo ever carries. If the running agent has no
-   such owned-space concept, fall back to building `.catalyst-proj/`
+   such owned-space concept, fall back to building `.criterion/`
    directly inside the target project instead, and add it to that
    project's own `.gitignore` — still not committed, but no relocation
-   possible without agent support. Either way, `/thingamabob` (§13,
+   possible without agent support. Either way, `/criterion` (§13,
    opt-in) remains the durable, shareable persistence layer for teams
    that want the working copy to survive and sync across contributors,
    via a dedicated repository, never by committing it into the product's
@@ -253,7 +260,11 @@ creates concrete rules for that particular project.
    as a top-level sibling. The `features/` folder sits at the root,
    alongside `requirements/`; it holds descriptive, non-rule-linked
    feature entries (see `Rules-of-Rules.md` §9) and is never a
-   substitute for `requirements/`. The work-items rule document belongs
+   substitute for `requirements/`. The `reconciliations/` folder also
+   sits at the root, alongside `requirements/`/`features/` — not nested
+   under `work-items/` — and holds `RECON-NNNNNN` cases opened by
+   `/criterion push`'s merge step or manually (`Rules-of-Rules.md` §16).
+   The work-items rule document belongs
    in the `work-items/` layer and should not be duplicated under
    `rules/`.)
 5. Copy `rules-of-work-items.template.md` similarly. Ensure the deployed
@@ -277,7 +288,8 @@ creates concrete rules for that particular project.
    with one row for `v1` (Version | File | Timestamp | Notes — today's
    date, "initial version"). Then write the artifact-type folder's own
    `README.md` and its `<type>.md` instance catalog (`bugs.md`,
-   `requirements.md`, `features.md`, `house-keeping.md`, `meta-tags.md`,
+   `requirements.md`, `features.md`, `reconciliations.md`,
+   `house-keeping.md`, `meta-tags.md`,
    `boards.md`, `epics.md`, `stories.md`, `tasks.md`, `spikes.md`,
    `sprints.md`, `workflows.md`, `roadmaps.md`, `domains.md`,
    `tickets.md`). Skip `boards/`/`sprints/` per the chosen agile flavor
@@ -485,7 +497,7 @@ available, so later sessions can recover which project this framework was
 deployed into without having to rediscover it. This is a convenience
 cache, not the source of truth: `<app-name>.catalyst` at the project root
 is always tracked and always present regardless of memory-tool
-availability, and `.catalyst-proj/DEPLOYMENT.md` inside the working copy
+availability, and `.criterion/DEPLOYMENT.md` inside the working copy
 carries the fuller deployment/repo record — either can be read fresh each
 session with no memory tool at all.
 
@@ -493,7 +505,7 @@ Keep a compact note with at least:
 
 - the framework name (`catalyst framework`)
 - the deployed project path
-- the resolved `agent-source` path (where `.catalyst-proj/` actually lives)
+- the resolved `agent-source` path (where `.criterion/` actually lives)
 - the date or context of the instantiation
 - any short notes that help identify the project later
 

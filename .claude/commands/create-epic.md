@@ -4,9 +4,9 @@ argument-hint: <goal> [--domains <CODE>...]
 ---
 
 Create a new epic work item. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/epics/templates/TEMPLATE-EPIC-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/epics/templates/TEMPLATE-EPIC-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `EPIC-NNNNNN` ID from `epics/epics.md` + a

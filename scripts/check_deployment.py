@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a deployed .catalyst-proj/ against catalyst's structural invariants.
+"""Validate a deployed .criterion/ against catalyst's structural invariants.
 
 This is the enforcement layer of the anti-drift architecture: the invariants an
 agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16, INV-17) are re-checked here deterministically, so
@@ -19,9 +19,9 @@ import re
 import sys
 from pathlib import Path
 
-DEPLOY_DIRNAME = ".catalyst-proj"
+DEPLOY_DIRNAME = ".criterion"
 # <app-name>.catalyst — the tracked pointer file at a target project's root.
-# Its "agent-source" field names where the actual .catalyst-proj/ working
+# Its "agent-source" field names where the actual .criterion/ working
 # copy lives (agent-owned space, not necessarily inside the project tree).
 POINTER_SUFFIX = ".catalyst"
 # <id>-<short-summary>.md ; id like req-000001, bug-000007, rule prefixes, domains, etc.
@@ -44,6 +44,7 @@ INDEX_NAMES = {
     "rules.md", "domains.md", "requirements.md", "features.md", "bugs.md",
     "house-keeping.md", "meta-tags.md", "epics.md", "stories.md", "tasks.md",
     "spikes.md", "sprints.md", "boards.md", "workflows.md", "tickets.md",
+    "reconciliations.md",
     "README.md", "CODE-OF-CONDUCT.md", "version.txt",
     "Rules-of-Rules.md", "rules-of-work-items.md", "DEPLOYMENT.md", "BACKLOG.md",
     "roadmaps.md",
@@ -68,7 +69,7 @@ def _resolve_pointer(pointer_path: Path) -> Path | None:
 def find_deploy_root(start: Path) -> Path | None:
     """Prefer the pointer-file model: a *<app-name>.catalyst file at or above
     `start` whose "agent-source" resolves to a real directory. Fall back to
-    the legacy model — a `.catalyst-proj/` directory itself at or above
+    the legacy model — a `.criterion/` directory itself at or above
     `start` — for deployments not yet migrated (INV-6)."""
     for base in (start, *start.parents):
         for pointer in sorted(base.glob(f"*{POINTER_SUFFIX}")):
@@ -86,8 +87,8 @@ def check_naming(root: Path) -> list[str]:
     errors: list[str] = []
     # "domains" is no longer top-level (INV-20): it nests under rules/, so
     # the "rules" walk below already covers rules/domains/**/*.md.
-    checked_dirs = ("rules", "requirements", "features", "IAM",
-                    "development", "work-items")
+    checked_dirs = ("rules", "requirements", "features", "reconciliations",
+                    "IAM", "development", "work-items")
     for sub in checked_dirs:
         d = root / sub
         if not d.is_dir():

@@ -4,9 +4,9 @@ argument-hint: <sprint-goal> --dates <start>..<end>
 ---
 
 Create a new sprint container. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4,
-`.catalyst-proj/work-items/rules-of-work-items.md`, template:
-`.catalyst-proj/work-items/sprints/templates/TEMPLATE-SPRINT-v1.md`.
+`.criterion/CODE-OF-CONDUCT.md` §4,
+`.criterion/work-items/rules-of-work-items.md`, template:
+`.criterion/work-items/sprints/templates/TEMPLATE-SPRINT-v1.md`.
 Input: $ARGUMENTS
 
 1. Resolve the next `SPRINT-NNN` ID (3 digits) from

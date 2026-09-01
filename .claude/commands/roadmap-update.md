@@ -4,12 +4,12 @@ argument-hint: <name> <file>
 ---
 
 Re-ingest a local file as the new full version of an existing named
-roadmap. Full spec: `.catalyst-proj/CODE-OF-CONDUCT.md`
-§4, template: `.catalyst-proj/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`.
+roadmap. Full spec: `.criterion/CODE-OF-CONDUCT.md`
+§4, template: `.criterion/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`.
 Input: $ARGUMENTS
 
 1. Parse `$ARGUMENTS` as `<name> <file>`. If either is missing, ask for it.
-2. If `.catalyst-proj/development/roadmaps/<name>.md` doesn't exist, refuse and point to
+2. If `.criterion/development/roadmaps/<name>.md` doesn't exist, refuse and point to
    `/roadmap-add` instead.
 3. Read `<file>` and identify its distinct items.
 4. For each item: if it matches an existing row by title/description

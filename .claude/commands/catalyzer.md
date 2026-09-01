@@ -4,13 +4,13 @@ argument-hint: list | activate <name> <version|latest> | download <name> <versio
 ---
 
 Manage plugin installation and activation. Full spec:
-`.catalyst-proj/CODE-OF-CONDUCT.md` §4.
+`.criterion/CODE-OF-CONDUCT.md` §4.
 Input: $ARGUMENTS
 
 **Unlike every other command here, this one resolves plugins against
 `plugins/<type>/catalog.md` in the catalyst framework's own repository
 (currently `plugins/repository/catalog.md`), not against anything under
-`.catalyst-proj/`.** A plugin name with no matching catalog entry is
+`.criterion/`.** A plugin name with no matching catalog entry is
 unregistered — refuse the subcommand and say so.
 
 1. `list` — read every plugin type's `catalog.md`; report each plugin's
