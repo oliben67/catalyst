@@ -21,6 +21,10 @@ Rules            (prefix)-(DOMAIN)-(NNN)                (documented behavior)
 Rules of rules   the meta-rules governing all of the above
 ```
 
+The work-items layer is optional, plugin-provided content, not core — see
+"Extensible via plugins" below. Without one active, the chain starts one
+layer down: dev artifacts trace straight to a rule.
+
 The chain's one invariant: **no work happens without a traceable link down to a
 documented rule**, and every document, domain, and rule carries a stable,
 permanent, never-reused ID. That is what makes both "why does this code do X"
@@ -91,11 +95,17 @@ never as something an ordinary deployment carries around.
 ## Extensible via plugins
 
 Plugins add ongoing capability without touching the framework core — each
-lives in its own repository (never this one), is gated behind explicit
-activation (`/catalyzer`), and operates on the *deployed* project, never on
-catalyst itself. `catalyst-git` is the first one: a continuous auditing
-plugin that watches a deployed project's repository and surfaces rule
-breaks as they happen.
+lives in its own repository (never this one, with one exception: schemas
+and plugins still maturing live under `plugins/_prototyping/` until they
+graduate out), is gated behind explicit activation (`/catalyzer`), and
+operates on the *deployed* project, never on catalyst itself. Two shapes
+exist: **background** plugins that continuously watch a deployed
+project — `catalyst-git`, the first one, surfacing rule breaks as they
+happen — and **content-contributing** plugins that add whole artifact
+types to a deployment on activation. Work-item tracking (`EPIC`/`STORY`/
+`TASK`/`SPIKE`/`SPRINT`) is the first of the latter kind: currently
+schema-only, in `plugins/_prototyping/project-management/agile/`, with
+no concrete, activatable plugin yet.
 
 ## Getting started
 
