@@ -1,6 +1,6 @@
 {
   "project_name": "catalyst",
-  "framework_version": "0.16.1",
+  "framework_version": "0.17.0",
   "agent": "claude-code",
   "agent-source": "/Users/oliviersteck/.claude/projects/-Users-oliviersteck-sources-catalyst/.criterion",
   "repoed": true,
