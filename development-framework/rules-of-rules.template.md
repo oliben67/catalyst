@@ -1037,3 +1037,102 @@ first.
 lives in catalyst's own repository until it graduates into a top-level
 plugin-type directory (e.g. `repository/`, `project-management/`), at
 which point INV-11 applies to it like any other plugin.
+
+## 18. `rr-META-018` Recreation drift check
+
+`/dogfood`'s base procedure (§13's `### /dogfood` subsection) verifies
+that catalyst's actual state still matches what its own rule document
+*claims* — for an existing rule, is the cited evidence still accurate.
+It cannot catch a different failure: an invariant gets added to
+`INVARIANTS.md` but never actually gets retrofitted into any rule at
+all, so there is nothing existing there for the base check to evaluate
+in the first place. This section defines a second, opt-in mode that
+catches exactly that — independently re-deriving `INV-N` coverage from
+`INVARIANTS.md` and the actual codebase, blind to the live deployment's
+rule document, then comparing. Both checks keep running; neither
+replaces the other.
+
+### Trigger: `/dogfood recreate`
+
+Opt-in, not part of the default `/dogfood` run — this spawns a full,
+careful codebase read, expensive relative to the base check. Suggested
+cadence: before cutting a release, not on every invocation. Because the
+isolation mechanism below operates on a git worktree, this audits the
+last **committed** state, not uncommitted working-tree edits — a
+non-issue at the suggested cadence, where the tree should already be
+clean.
+
+### The isolated agent
+
+Spawned via the `Agent` tool with `isolation: "worktree"` — one agent,
+not a four-eyes pair (see "Why not four-eyes" below). Since
+`.criterion/` lives entirely outside this repository, in agent-owned
+space resolved through `catalyst.catalyst`'s `agent-source` field
+(INV-6), a worktree checkout has no path to it — except that
+`catalyst.catalyst` itself is a tracked file and will still be present
+in the checkout. The agent's prompt must therefore state explicit,
+forceful prohibitions, not rely on the worktree's isolation alone:
+never resolve any `*.catalyst` pointer's `agent-source` field or read
+anything under a path so resolved; never read anything named
+`.criterion/` under any form it might be reached; never consult `git
+log` or commit messages, which narrate exactly what changed in the
+live deployment — current file content only.
+
+**The prompt handed to this agent must be hand-authored and
+self-contained, never `/dogfood`'s own text forwarded verbatim** — the
+base procedure above names
+`.criterion/rules/framework/fw-framework-rules.md` by literal path;
+reusing that text would leak exactly what blindness is meant to hide.
+
+**Deliverable**: for each `INV-N` in `INVARIANTS.md`, found or
+not-found, plus evidence — a `file:line` citation, or "behavioral, not
+machine-checkable" for something no script can verify. Not a full
+retrofit-quality rewritten rule document; the comparison below only
+needs a coverage judgment per invariant, not finished prose, IDs, or
+domain assignment.
+
+### Why not four-eyes
+
+`ANALYSIS-PLAYBOOK.md`'s own stated principle is that four-eyes matters
+most for exactly this kind of extract-what-exists-in-code work — this
+section is a deliberate, reasoned departure from that principle, not an
+oversight. The second opinion this whole check exists to provide
+already comes from comparing the isolated agent's findings against the
+live deployment; pairing the isolated agent with a second one on top of
+that duplicates cost for a periodic drift check, unlike a one-time
+bootstrap (`INSTANTIATION-GUIDE.md` §4), where the playbook's full
+four-eyes remains the right tool.
+
+### Comparison
+
+Done by the orchestrating session itself, after the isolated agent
+returns — unlike the generation/research side, comparing two
+already-produced documents doesn't need blindness. **This is a
+judgment-based read, never a literal string search for `INV-N`.** Many
+existing rules cite only an `INVARIANTS.md:<line>` pointer and never
+spell out the bare `INV-N` label in their own text, and cited line
+numbers drift as `INVARIANTS.md` grows without the underlying rule
+being wrong — matching requires reading each rule's content and its
+cited evidence, not grepping for a label or trusting an exact line
+number.
+
+Two flat-severity outcomes per `INV-N`, neither weighted above the
+other regardless of whether the invariant is machine-checkable or
+behavioral:
+
+- the isolated agent found supporting evidence, but the live deployment
+  has no rule covering that `INV-N` at all;
+- the live deployment claims coverage for an `INV-N`, but the isolated
+  agent's independent read found no supporting evidence for it.
+
+### Reporting only
+
+Never fix anything automatically, same as the base `/dogfood` policy —
+this surfaces drift for the user's or a follow-up command's call, it
+does not resolve it.
+
+### Out of scope
+
+Stays catalyst-development-only, the same boundary §13 already draws
+for `/dogfood` itself. Not a mechanism any other deployed project gains
+access to.

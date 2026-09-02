@@ -18,3 +18,5 @@ jobs:
           python-version: '3.11'
       - name: Validate catalyst deployment structure
         run: python3 scripts/check_deployment.py
+      - name: Validate command parity with CODE-OF-CONDUCT.md §4
+        run: python3 scripts/check_command_parity.py

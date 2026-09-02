@@ -6,7 +6,7 @@
     },
     {
       "name": "Scrum Master / Delivery Lead",
-      "actions": ["/create-epic", "/create-story", "/create-task", "/create-spike", "/create-sprint", "/show-backlog", "/status"]
+      "actions": ["/show-backlog", "/status"]
     },
     {
       "name": "Tech Lead / Architect",
@@ -14,7 +14,7 @@
     },
     {
       "name": "Developer",
-      "actions": ["/create-bug", "/create-req (implementation-driven)", "/create-task", "implement REQ-/BUG-", "/status on tasks/stories"]
+      "actions": ["/create-bug", "/create-req (implementation-driven)", "implement REQ-/BUG-", "/status on tasks/stories"]
     },
     {
       "name": "QA / Tester",
