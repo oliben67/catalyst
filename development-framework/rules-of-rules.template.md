@@ -892,8 +892,9 @@ folder": documents that govern the artifact type itself** —
 own `templates-<type>.md` catalog — sit flat alongside `README.md` and
 the instance catalog, siblings to `templates/`, not inside it and not
 inside the free-form `[...]` area. This is already the existing shape of
-`rules/Rules-of-Rules.md` and `work-items/rules-of-work-items.md`; §15
-generalizes it, it doesn't change it.
+`rules/Rules-of-Rules.md`; §15 generalizes it, it doesn't change it. A
+`work-items/` folder, if a project-management plugin deploys one, uses
+the same shape for its own `rules-of-work-items.md` (§8, INV-22).
 
 ### Where every artifact type actually sits
 
