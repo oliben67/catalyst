@@ -223,7 +223,13 @@ creates concrete rules for that particular project.
    "Slash commands" entry for the exact mechanism). When plugins are
    needed, pull their content directly from each plugin's own repository;
    no plugin may be sourced from this framework repository, and every
-   plugin must have its own repository with no exceptions.
+   plugin must have its own repository with no exceptions. Also deploy
+   `templates/Taskfile.common.template.yml` as `Taskfile.common.yml` at
+   the target project's root — same canonical §4 list, same drift
+   concern, see `CLAUDE.md`'s "Taskfiles" entry — and create the
+   project's own root `Taskfile.yml` if none exists yet, with
+   `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}`
+   plus that project's own operational tasks.
 6. For **every** artifact-type folder (`Rules-of-Rules.md` §15, INV-20):
    create its `templates/` subdirectory, copy the matching
    `templates/*.template.*` from this framework into it as
