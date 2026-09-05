@@ -22,6 +22,13 @@ def make_commands(tmp_path: Path, names: list[str]) -> Path:
     return commands_dir
 
 
+def make_taskfile(tmp_path: Path, names: list[str], *, filename="Taskfile.common.yml") -> Path:
+    taskfile = tmp_path / filename
+    body = "\n".join(f'  {name}:\n    desc: "..."\n    cmds:\n      - "true"' for name in names)
+    taskfile.write_text(f'version: "3"\n\ntasks:\n{body}\n')
+    return taskfile
+
+
 def test_extract_section4_commands_parses_simple_bullets():
     text = (
         "## 4. Slash-command entry points\n\n"
@@ -149,6 +156,65 @@ def test_check_command_parity_missing_section4(tmp_path: Path):
     assert any("has no '## 4.' section" in e for e in errors)
 
 
+def test_extract_taskfile_commands_parses_top_level_tasks():
+    text = (
+        'version: "3"\n\n'
+        "tasks:\n"
+        "  create-bug:\n"
+        '    desc: "..."\n'
+        "    cmds:\n"
+        '      - "true"\n'
+        "  list:\n"
+        '    desc: "..."\n'
+    )
+    assert ccp.extract_taskfile_commands(text) == {"create-bug", "list"}
+
+
+def test_extract_taskfile_commands_stops_at_dedent():
+    text = (
+        "tasks:\n"
+        "  create-bug:\n"
+        '    desc: "..."\n'
+        "vars:\n"
+        "  should-not-count: true\n"
+    )
+    assert ccp.extract_taskfile_commands(text) == {"create-bug"}
+
+
+def test_extract_taskfile_commands_returns_none_when_no_tasks_block():
+    assert ccp.extract_taskfile_commands('version: "3"\n') is None
+
+
+def test_check_taskfile_parity_clean_baseline_has_no_errors(tmp_path: Path):
+    coc = make_coc(
+        tmp_path,
+        "- `/create-bug` — create a bug.\n"
+        "- `/list <type>` — list artifacts.\n",
+    )
+    taskfile = make_taskfile(tmp_path, ["create-bug", "list"])
+    assert ccp.check_taskfile_parity(taskfile, coc) == []
+
+
+def test_check_taskfile_parity_flags_documented_command_missing_task(tmp_path: Path):
+    coc = make_coc(tmp_path, "- `/create-bug` — create a bug.\n")
+    taskfile = make_taskfile(tmp_path, [])
+    errors = ccp.check_taskfile_parity(taskfile, coc)
+    assert any("references /create-bug but" in e for e in errors)
+
+
+def test_check_taskfile_parity_flags_undocumented_task(tmp_path: Path):
+    coc = make_coc(tmp_path, "- `/create-bug` — create a bug.\n")
+    taskfile = make_taskfile(tmp_path, ["create-bug", "mystery-task"])
+    errors = ccp.check_taskfile_parity(taskfile, coc)
+    assert any("'mystery-task' task but it is not referenced" in e for e in errors)
+
+
+def test_check_taskfile_parity_missing_taskfile(tmp_path: Path):
+    coc = make_coc(tmp_path, "- `/create-bug` — create a bug.\n")
+    errors = ccp.check_taskfile_parity(tmp_path / "Taskfile.common.yml", coc)
+    assert any("is missing" in e for e in errors)
+
+
 def test_main_returns_zero_when_no_deployment(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     assert ccp.main() == 0
@@ -159,8 +225,10 @@ def test_main_returns_zero_for_valid_parity(tmp_path: Path, monkeypatch):
     deploy_root.mkdir()
     make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
     commands_dir = make_commands(tmp_path, ["create-bug", "dogfood"])
+    taskfile = make_taskfile(tmp_path, ["create-bug"])
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
+    monkeypatch.setattr(ccp, "TASKFILE_PATH", taskfile)
     assert ccp.main() == 0
 
 
@@ -169,6 +237,19 @@ def test_main_returns_one_for_mismatched_parity(tmp_path: Path, monkeypatch):
     deploy_root.mkdir()
     make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
     commands_dir = make_commands(tmp_path, ["dogfood"])
+    taskfile = make_taskfile(tmp_path, ["create-bug"])
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
+    monkeypatch.setattr(ccp, "TASKFILE_PATH", taskfile)
+    assert ccp.main() == 1
+
+
+def test_main_returns_one_for_missing_taskfile(tmp_path: Path, monkeypatch):
+    deploy_root = tmp_path / ".criterion"
+    deploy_root.mkdir()
+    make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
+    commands_dir = make_commands(tmp_path, ["create-bug", "dogfood"])
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
+    monkeypatch.setattr(ccp, "TASKFILE_PATH", tmp_path / "Taskfile.common.yml")
     assert ccp.main() == 1

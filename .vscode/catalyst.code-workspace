@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "catalyst",
+      "path": ".."
+    },
+    {
+      "name": "catalyst-ui",
+      "path": "../../catalyst-ui"
+    }
+  ],
+  "settings": {}
+}

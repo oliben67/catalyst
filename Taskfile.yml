@@ -1,0 +1,59 @@
+# catalyst's own operations. Mirrors .github/workflows/*.yml exactly, so
+# `task check:all` (or `task ci`) is what CI runs, runnable locally.
+#
+# Catalyst-operation dispatch tasks (create-bug, check-rules, sync-framework,
+# ...) come from Taskfile.common.yml (deployed from
+# development-framework/templates/Taskfile.common.template.yml — refreshed
+# by /sync-framework, not hand-edited here).
+
+version: "3"
+
+includes:
+  common:
+    taskfile: ./Taskfile.common.yml
+    flatten: true
+
+tasks:
+  install:
+    desc: "Install Python test dependencies into the active environment"
+    cmds:
+      - pip install -r requirements-dev.txt
+
+  test:
+    desc: "Run the pytest suite"
+    cmds:
+      - pytest
+
+  check:deployment:
+    desc: "Validate catalyst deployment structure (scripts/check_deployment.py)"
+    cmds:
+      - python3 scripts/check_deployment.py
+
+  check:command-parity:
+    desc: "Validate .claude/commands/ and Taskfile.common.yml against CODE-OF-CONDUCT.md §4"
+    cmds:
+      - python3 scripts/check_command_parity.py
+
+  check:plugins:
+    desc: "Validate plugin rules (scripts/check_plugins.py)"
+    cmds:
+      - python3 scripts/check_plugins.py
+
+  check:plugin-contracts:
+    desc: "Validate plugin contracts (scripts/check_plugin_contracts.py)"
+    cmds:
+      - python3 scripts/check_plugin_contracts.py
+
+  check:all:
+    desc: "Run every validation script plus the test suite (what CI runs)"
+    cmds:
+      - task: check:deployment
+      - task: check:command-parity
+      - task: check:plugins
+      - task: check:plugin-contracts
+      - task: test
+
+  dogfood:
+    desc: "Vet this repository against its own rules (catalyst-development-only)"
+    cmds:
+      - '{{.CLAUDE_BIN | default "claude"}} -p "/dogfood {{.CLI_ARGS}}"'

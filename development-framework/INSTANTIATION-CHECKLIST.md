@@ -97,6 +97,12 @@ from drifting. The guide holds the rationale; this holds the checks.
       `templates/slash-command.template.md` — or the documented fallback
       applied and noted in the deployed `README.md` (other agents), per
       `BOOTSTRAP.md §1`
+- [ ] `Taskfile.common.yml` deployed from
+      `templates/Taskfile.common.template.yml` (one task per command in
+      `rules-of-development.template.md` §4), and a project root
+      `Taskfile.yml` exists with
+      `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}`
+      plus this project's own operational tasks
 
 ## Finalize
 - [ ] `dev-instructions.yaml` deleted after successful deploy
