@@ -186,7 +186,13 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      only if this framework version actually changed that command's spec
      in `rules-of-development.template.md` §4 — an unchanged command's file
      is project-owned content like any other synced file, not something to
-     overwrite wholesale on every sync.
+     overwrite wholesale on every sync. Same treatment for
+     `Taskfile.common.yml` against `templates/Taskfile.common.template.yml`:
+     add any task missing relative to §4, refresh a task's `desc`/dispatched
+     command only if this framework version changed that command's §4 spec.
+     The project's own root `Taskfile.yml` (its `includes:` plus its
+     project-specific tasks) is project-owned content, never overwritten by
+     a sync.
 7. Update the deployed framework's `version.txt` to the latest released
    version once synchronization is complete.
 

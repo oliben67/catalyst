@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""Validate .claude/commands/*.md against CODE-OF-CONDUCT.md's §4 command list.
+"""Validate .claude/commands/*.md and Taskfile.common.yml against
+CODE-OF-CONDUCT.md's §4 command list.
 
-CLAUDE.md's own instructions require one native command file per §4 entry,
-kept in sync so a deployment's actual command set never silently drifts from
-its own documented spec. Nothing previously checked this mechanically.
+CLAUDE.md's own instructions require one native command file, and one
+Taskfile task, per §4 entry, kept in sync so a deployment's actual command
+set never silently drifts from its own documented spec. Nothing previously
+checked this mechanically.
 
-`.claude/commands/` lives in the outer project repo; §4's canonical list
-lives in the deployed CODE-OF-CONDUCT.md, resolved via the same pointer-file
-mechanism check_deployment.py already implements (`find_deploy_root`) — the
-two roots are usually different directories (agent-owned space vs. the
-project tree), so both are resolved independently rather than assumed to
-coincide.
+`.claude/commands/` and `Taskfile.common.yml` both live in the outer project
+repo; §4's canonical list lives in the deployed CODE-OF-CONDUCT.md, resolved
+via the same pointer-file mechanism check_deployment.py already implements
+(`find_deploy_root`) — the two roots are usually different directories
+(agent-owned space vs. the project tree), so both are resolved independently
+rather than assumed to coincide.
 
-`dogfood.md` is the one documented exception: catalyst-development-only,
-deliberately absent from §4 (Rules-of-Rules.md §13).
+`dogfood.md` is the one documented exception for commands:
+catalyst-development-only, deliberately absent from §4 (Rules-of-Rules.md
+§13). Its Taskfile counterpart lives in the project's own root `Taskfile.yml`,
+never in the deployed `Taskfile.common.yml`, so no exception is needed there.
 
 Exit 0 = clean (including when no deployment resolves), exit 1 = drift found.
 """
@@ -27,6 +31,7 @@ from check_deployment import find_deploy_root
 
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS_DIR = ROOT / ".claude" / "commands"
+TASKFILE_PATH = ROOT / "Taskfile.common.yml"
 DOGFOOD_EXCEPTION = "dogfood"
 
 SECTION_HEADING_RE = re.compile(r"^## \d+\. ")
@@ -37,6 +42,8 @@ SECTION4_RE = re.compile(r"^## 4\. ")
 # any bold prose paragraph mentioning a command name mid-sentence, since
 # both are filtered out upstream by the column-0 "- " bullet check below.
 COMMAND_TOKEN_RE = re.compile(r"`/([a-z][a-z0-9-]*)")
+TASKS_HEADING_RE = re.compile(r"^tasks:\s*$")
+TASK_KEY_RE = re.compile(r"^  ([a-z][a-z0-9-]*):")
 
 
 def extract_section4_commands(coc_text: str) -> set[str] | None:
@@ -71,6 +78,31 @@ def find_command_files(commands_dir: Path) -> set[str]:
     return {f.stem for f in commands_dir.glob("*.md")} - {DOGFOOD_EXCEPTION}
 
 
+def extract_taskfile_commands(taskfile_text: str) -> set[str] | None:
+    """Top-level task names under Taskfile.common.yml's `tasks:` block.
+    Returns None if no `tasks:` block is found at all (reported distinctly
+    from an empty block by the caller)."""
+    lines = taskfile_text.splitlines()
+    start = None
+    for i, line in enumerate(lines):
+        if TASKS_HEADING_RE.match(line):
+            start = i
+            break
+    if start is None:
+        return None
+
+    names: set[str] = set()
+    for line in lines[start + 1 :]:
+        if line.strip() == "":
+            continue
+        if not line.startswith(" "):
+            break
+        match = TASK_KEY_RE.match(line)
+        if match:
+            names.add(match.group(1))
+    return names
+
+
 def check_command_parity(commands_dir: Path, code_of_conduct: Path) -> list[str]:
     if not code_of_conduct.is_file():
         return [f"command parity: {code_of_conduct} is missing"]
@@ -96,6 +128,39 @@ def check_command_parity(commands_dir: Path, code_of_conduct: Path) -> list[str]
     return errors
 
 
+def check_taskfile_parity(taskfile: Path, code_of_conduct: Path) -> list[str]:
+    if not code_of_conduct.is_file():
+        return [f"taskfile parity: {code_of_conduct} is missing"]
+
+    coc_names = extract_section4_commands(
+        code_of_conduct.read_text(encoding="utf-8", errors="ignore")
+    )
+    if coc_names is None:
+        return [f"taskfile parity: {code_of_conduct} has no '## 4.' section"]
+
+    if not taskfile.is_file():
+        return [f"taskfile parity: {taskfile} is missing"]
+
+    task_names = extract_taskfile_commands(
+        taskfile.read_text(encoding="utf-8", errors="ignore")
+    )
+    if task_names is None:
+        return [f"taskfile parity: {taskfile} has no 'tasks:' block"]
+
+    errors: list[str] = []
+    for name in sorted(coc_names - task_names):
+        errors.append(
+            f"taskfile parity: CODE-OF-CONDUCT.md §4 references /{name} but "
+            f"{taskfile.name} has no matching task"
+        )
+    for name in sorted(task_names - coc_names):
+        errors.append(
+            f"taskfile parity: {taskfile.name} has a '{name}' task but it is "
+            f"not referenced in CODE-OF-CONDUCT.md §4"
+        )
+    return errors
+
+
 def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
@@ -104,14 +169,19 @@ def main() -> int:
         return 0
 
     errors = check_command_parity(COMMANDS_DIR, root / "CODE-OF-CONDUCT.md")
+    errors += check_taskfile_parity(TASKFILE_PATH, root / "CODE-OF-CONDUCT.md")
 
     if errors:
         print(f"command parity validation FAILED ({len(errors)} issue(s)):")
         for e in errors:
             print(f"  - {e}")
         return 1
+    task_names = extract_taskfile_commands(
+        TASKFILE_PATH.read_text(encoding="utf-8", errors="ignore")
+    )
     print(f"command parity valid ({len(find_command_files(COMMANDS_DIR))} "
           f"command(s) checked)")
+    print(f"taskfile parity valid ({len(task_names or set())} task(s) checked)")
     return 0
 
 

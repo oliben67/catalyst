@@ -29,6 +29,21 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
     (`INSTANTIATION-GUIDE.md` §1 step 5, `INSTANTIATION-CHECKLIST.md`'s
     Discoverability section) — not an optional add-on once everything else
     is deployed.
+- **Taskfiles:** deploy
+  `development-framework/templates/Taskfile.common.template.yml` as
+  `Taskfile.common.yml` at the **target project's** root — one task per
+  entry in `CODE-OF-CONDUCT.md` §4, same canonical-list rule as slash
+  commands (`scripts/check_command_parity.py` diffs it the same way).
+  Each task is a thin `claude -p "/<name> {{.CLI_ARGS}}"` dispatch —
+  never duplicate a command's behavior inline in the task. Also ensure
+  the project has its own root `Taskfile.yml` with
+  `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}` (the
+  `flatten` keeps task names bare — `task check-rules`, not
+  `task common:check-rules`) plus that project's
+  project-specific operations (install/lint/test/build/...). Same
+  instantiation-procedure status as slash commands above — part of
+  `INSTANTIATION-GUIDE.md` §1 step 5 and `INSTANTIATION-CHECKLIST.md`'s
+  Discoverability section, not optional.
 - **Hooks:** if `.claude/settings.json` is present, its `SessionStart` hook
   re-injects `INVARIANTS.md` and its `Stop` hook runs the deployment validator —
   the enforcement layer of the anti-drift architecture. You do not need to
