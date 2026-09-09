@@ -43,9 +43,11 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
   in from the project's own root `Taskfile.yml`, resolved from the
   `*.catalyst` pointer's `agent` field (mirrors `catalyst-ui`'s own
   `agent-launch.ts`). Also ensure the project has its own root
-  `Taskfile.yml` resolving `.criterion`'s location the same way (from the
-  pointer's `agent-source` field) and including the common tasks
-  dynamically: `includes: common: {taskfile: '{{.CRITERION_DIR}}/
+  `Taskfile.yml` pointing the include at `.criterion`'s location, copied
+  in from the pointer's `agent-source` field as a **literal** var (not
+  `sh:`-computed — Task resolves an `includes.taskfile` path before
+  dynamic vars are evaluated, so a dynamic value there silently fails;
+  confirmed by hand): `includes: common: {taskfile: '{{.CRITERION_DIR}}/
   Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: ...}}` (the
   `flatten` keeps task names bare — `task check-rules`, not
   `task common:check-rules`; see `INSTANTIATION-GUIDE.md` §1 step 5 for

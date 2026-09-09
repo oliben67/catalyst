@@ -230,26 +230,42 @@ creates concrete rules for that particular project.
    project-root only because Claude Code's own fixed discovery path
    forces it there) — same canonical §4 list, same drift concern, see
    `CLAUDE.md`'s "Taskfiles" entry. Create the project's own root
-   `Taskfile.yml` if none exists yet, resolving `.criterion`'s real
-   location and the deployed agent's CLI binary from the `*.catalyst`
-   pointer (same fields `find_deploy_root`/`resolveCorpusRoot` already
-   read elsewhere) so the include and every dispatched command stay
-   agent-generic:
+   `Taskfile.yml` if none exists yet, resolving the deployed agent's CLI
+   binary from the `*.catalyst` pointer's `agent` field so every
+   dispatched command stays agent-generic, and pointing the include at
+   `.criterion`'s real location (the pointer's own `agent-source` field —
+   same field `find_deploy_root`/`resolveCorpusRoot` already read
+   elsewhere), copied in as a **literal**, not `sh:`-computed: Task
+   resolves an `includes.taskfile` path before dynamic (`sh:`) vars are
+   evaluated, so a dynamic value there silently resolves to an empty
+   string and fails with "no Taskfile found" (confirmed by hand — the
+   identical `sh:` script works fine as an ordinary task var, only the
+   `includes:` use breaks). Update this literal by hand (or via
+   `/sync-framework`) if `agent-source` ever changes — the same
+   "set once, rarely revisited" tradeoff the pointer's own field already
+   has:
    ```yaml
    vars:
-     CRITERION_DIR:
-       sh: |
-         f=$(ls *.catalyst 2>/dev/null | head -1)
-         if [ -n "$f" ]; then
-           src=$(grep -oE '"agent-source"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" | head -1 | sed -E 's/.*"([^"]*)"$/\1/')
-           if [ -n "$src" ] && [ -d "$src" ]; then echo "$src"; exit 0; fi
-         fi
-         echo ".criterion"
+     # Copied from this deployment's *.catalyst pointer's agent-source
+     # field (INV-6) — see the note above for why this must be a literal.
+     # Falls back to a bare `.criterion` for an agent with no owned-space
+     # concept (INV-6's documented fallback).
+     CRITERION_DIR: "<absolute path from *.catalyst's agent-source field>"
+     # Resolves the deployed agent's CLI binary from the pointer's "agent"
+     # field. "claude-code" is the one known id whose CLI binary name
+     # differs from the id itself (mirrors catalyst-ui's agent-launch.ts);
+     # any other agent id is assumed to already be its own binary name.
+     # Falls back to "claude" — today's only known agent — when no
+     # pointer/field is found. This one is safe to compute dynamically:
+     # the `includes:`-timing restriction above only applies to
+     # CRITERION_DIR, since only it feeds an include path.
      AGENT_ID:
        sh: |
          f=$(ls *.catalyst 2>/dev/null | head -1)
          [ -n "$f" ] && grep -oE '"agent"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" | head -1 | sed -E 's/.*"([^"]*)"$/\1/'
      AGENT_BIN: '{{if eq .AGENT_ID "claude-code"}}claude{{else if .AGENT_ID}}{{.AGENT_ID}}{{else}}claude{{end}}'
+     # Full override escape hatch for an agent needing different flags
+     # than `<bin> -p "<prompt>"` entirely (e.g. a non-Claude CLI).
      AGENT_CMD: '{{.AGENT_CMD_OVERRIDE | default (printf "%s -p" .AGENT_BIN)}}'
 
    includes:
@@ -259,14 +275,8 @@ creates concrete rules for that particular project.
        vars:
          AGENT_CMD: '{{.AGENT_CMD}}'
    ```
-   `AGENT_BIN` is the one place a coding agent whose CLI binary name
-   differs from its `*.catalyst` `"agent"` id needs a mapping entry
-   (`"claude-code"` → `claude` is the one known today, mirroring
-   `catalyst-ui`'s own `agent-launch.ts`); `AGENT_CMD_OVERRIDE` is the
-   escape hatch for an agent needing an entirely different non-interactive
-   invocation than `<bin> -p "<prompt>"`. Add that project's own
-   operational tasks in this same root `Taskfile.yml`, alongside — never
-   inside — the included common tasks.
+   Add that project's own operational tasks in this same root
+   `Taskfile.yml`, alongside — never inside — the included common tasks.
 6. For **every** artifact-type folder (`Rules-of-Rules.md` §15, INV-20):
    create its `templates/` subdirectory, copy the matching
    `templates/*.template.*` from this framework into it as

@@ -29,7 +29,7 @@ exists for exactly this.
 |---|---|
 | `Taskfile.common.yml` at the target project's own root, committed | `Taskfile.common.yml` inside `.criterion/` (agent-owned space), not committed to the product's own repo |
 | Every task: `{{.CLAUDE}} -p "/name {{.CLI_ARGS}}"`, `vars: {CLAUDE: '{{.CLAUDE_BIN \| default "claude"}}'}` inside `Taskfile.common.yml` itself | Every task: `{{.AGENT_CMD}} "/name {{.CLI_ARGS}}"`, with no `vars:` block of its own — `AGENT_CMD` is passed in from the project's root `Taskfile.yml` |
-| Root `Taskfile.yml`: `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}` | Root `Taskfile.yml`: resolves `CRITERION_DIR`/`AGENT_ID`/`AGENT_BIN`/`AGENT_CMD` from the `*.catalyst` pointer, `includes: common: {taskfile: '{{.CRITERION_DIR}}/Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: '{{.AGENT_CMD}}'}}` |
+| Root `Taskfile.yml`: `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}` | Root `Taskfile.yml`: `CRITERION_DIR` copied in as a literal from the `*.catalyst` pointer's `agent-source` field (Task resolves `includes.taskfile` paths before dynamic vars, so this can't be `sh:`-computed); `AGENT_ID`/`AGENT_BIN`/`AGENT_CMD` resolved dynamically from the pointer's `agent` field; `includes: common: {taskfile: '{{.CRITERION_DIR}}/Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: '{{.AGENT_CMD}}'}}` |
 
 ## Steps
 
