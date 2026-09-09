@@ -224,12 +224,49 @@ creates concrete rules for that particular project.
    needed, pull their content directly from each plugin's own repository;
    no plugin may be sourced from this framework repository, and every
    plugin must have its own repository with no exceptions. Also deploy
-   `templates/Taskfile.common.template.yml` as `Taskfile.common.yml` at
-   the target project's root — same canonical §4 list, same drift
-   concern, see `CLAUDE.md`'s "Taskfiles" entry — and create the
-   project's own root `Taskfile.yml` if none exists yet, with
-   `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}`
-   plus that project's own operational tasks.
+   `templates/Taskfile.common.template.yml` as `Taskfile.common.yml`
+   **inside `.criterion/`** (agent-owned space per INV-6 — never the
+   target project's own tree, unlike `.claude/commands/` which stays
+   project-root only because Claude Code's own fixed discovery path
+   forces it there) — same canonical §4 list, same drift concern, see
+   `CLAUDE.md`'s "Taskfiles" entry. Create the project's own root
+   `Taskfile.yml` if none exists yet, resolving `.criterion`'s real
+   location and the deployed agent's CLI binary from the `*.catalyst`
+   pointer (same fields `find_deploy_root`/`resolveCorpusRoot` already
+   read elsewhere) so the include and every dispatched command stay
+   agent-generic:
+   ```yaml
+   vars:
+     CRITERION_DIR:
+       sh: |
+         f=$(ls *.catalyst 2>/dev/null | head -1)
+         if [ -n "$f" ]; then
+           src=$(grep -oE '"agent-source"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" | head -1 | sed -E 's/.*"([^"]*)"$/\1/')
+           if [ -n "$src" ] && [ -d "$src" ]; then echo "$src"; exit 0; fi
+         fi
+         echo ".criterion"
+     AGENT_ID:
+       sh: |
+         f=$(ls *.catalyst 2>/dev/null | head -1)
+         [ -n "$f" ] && grep -oE '"agent"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" | head -1 | sed -E 's/.*"([^"]*)"$/\1/'
+     AGENT_BIN: '{{if eq .AGENT_ID "claude-code"}}claude{{else if .AGENT_ID}}{{.AGENT_ID}}{{else}}claude{{end}}'
+     AGENT_CMD: '{{.AGENT_CMD_OVERRIDE | default (printf "%s -p" .AGENT_BIN)}}'
+
+   includes:
+     common:
+       taskfile: '{{.CRITERION_DIR}}/Taskfile.common.yml'
+       flatten: true
+       vars:
+         AGENT_CMD: '{{.AGENT_CMD}}'
+   ```
+   `AGENT_BIN` is the one place a coding agent whose CLI binary name
+   differs from its `*.catalyst` `"agent"` id needs a mapping entry
+   (`"claude-code"` → `claude` is the one known today, mirroring
+   `catalyst-ui`'s own `agent-launch.ts`); `AGENT_CMD_OVERRIDE` is the
+   escape hatch for an agent needing an entirely different non-interactive
+   invocation than `<bin> -p "<prompt>"`. Add that project's own
+   operational tasks in this same root `Taskfile.yml`, alongside — never
+   inside — the included common tasks.
 6. For **every** artifact-type folder (`Rules-of-Rules.md` §15, INV-20):
    create its `templates/` subdirectory, copy the matching
    `templates/*.template.*` from this framework into it as

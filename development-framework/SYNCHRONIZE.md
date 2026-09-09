@@ -187,8 +187,9 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      in `rules-of-development.template.md` §4 — an unchanged command's file
      is project-owned content like any other synced file, not something to
      overwrite wholesale on every sync. Same treatment for
-     `Taskfile.common.yml` against `templates/Taskfile.common.template.yml`:
-     add any task missing relative to §4, refresh a task's `desc`/dispatched
+     `Taskfile.common.yml` (deployed inside `.criterion/`, not the project
+     tree — INV-6) against `templates/Taskfile.common.template.yml`: add
+     any task missing relative to §4, refresh a task's `desc`/dispatched
      command only if this framework version changed that command's §4 spec.
      The project's own root `Taskfile.yml` (its `includes:` plus its
      project-specific tasks) is project-owned content, never overwritten by
@@ -285,6 +286,17 @@ plugin now (new capability, INV-22). **Requires an explicit decision
 about any existing `work-items/` content before proceeding** — this is
 not a purely mechanical sync, since no concrete plugin currently exists
 to take over managing it.
+
+### From `0.18.0`: `Taskfile.common.yml` moves into `.criterion/`
+
+Target version `0.19.0`. Full procedure:
+`migrations/0.19.0/taskfile-into-criterion.md` (this repository) — not
+duplicated here. `Taskfile.common.yml` relocates from the target
+project's own root into `.criterion/` (agent-owned space, INV-6), and
+its dispatch becomes agent-generic (`{{.AGENT_CMD}}` instead of a
+hardcoded `claude -p`) — only a deployment that ran `/sync-framework` or
+was first instantiated while on exactly `0.18.0` needs this; anything
+older simply gets the new shape fresh, no migration involved.
 
 ## Expected outcome
 

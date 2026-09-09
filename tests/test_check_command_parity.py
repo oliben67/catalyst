@@ -225,10 +225,9 @@ def test_main_returns_zero_for_valid_parity(tmp_path: Path, monkeypatch):
     deploy_root.mkdir()
     make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
     commands_dir = make_commands(tmp_path, ["create-bug", "dogfood"])
-    taskfile = make_taskfile(tmp_path, ["create-bug"])
+    make_taskfile(deploy_root, ["create-bug"])
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
-    monkeypatch.setattr(ccp, "TASKFILE_PATH", taskfile)
     assert ccp.main() == 0
 
 
@@ -237,10 +236,9 @@ def test_main_returns_one_for_mismatched_parity(tmp_path: Path, monkeypatch):
     deploy_root.mkdir()
     make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
     commands_dir = make_commands(tmp_path, ["dogfood"])
-    taskfile = make_taskfile(tmp_path, ["create-bug"])
+    make_taskfile(deploy_root, ["create-bug"])
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
-    monkeypatch.setattr(ccp, "TASKFILE_PATH", taskfile)
     assert ccp.main() == 1
 
 
@@ -251,5 +249,21 @@ def test_main_returns_one_for_missing_taskfile(tmp_path: Path, monkeypatch):
     commands_dir = make_commands(tmp_path, ["create-bug", "dogfood"])
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
-    monkeypatch.setattr(ccp, "TASKFILE_PATH", tmp_path / "Taskfile.common.yml")
+    assert ccp.main() == 1
+
+
+def test_main_ignores_a_taskfile_at_the_project_root_not_in_criterion(
+    tmp_path: Path, monkeypatch
+):
+    """Taskfile.common.yml belongs inside the resolved deployment root
+    (agent-owned space, INV-6), not the outer project tree — a copy left
+    at the project root (the pre-0.19.0 location) must not satisfy the
+    check; only one inside .criterion/ counts."""
+    deploy_root = tmp_path / ".criterion"
+    deploy_root.mkdir()
+    make_coc(deploy_root, "- `/create-bug` — create a bug.\n")
+    commands_dir = make_commands(tmp_path, ["create-bug", "dogfood"])
+    make_taskfile(tmp_path, ["create-bug"])  # wrong location: project root
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(ccp, "COMMANDS_DIR", commands_dir)
     assert ccp.main() == 1
