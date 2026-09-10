@@ -298,6 +298,17 @@ hardcoded `claude -p`) — only a deployment that ran `/sync-framework` or
 was first instantiated while on exactly `0.18.0` needs this; anything
 older simply gets the new shape fresh, no migration involved.
 
+### From `0.19.0`: roadmap items gain a `Description` column
+
+Target version `0.20.0`. Full procedure:
+`migrations/0.20.0/roadmap-description-column.md` (this repository) — not
+duplicated here. Every existing `RM-NNNNNN` row in every
+`development/roadmaps/<name>.md` gains a `Description` column (between
+`Title` and `Status`) — a one-line summary per row must be backfilled,
+not left blank, so this is not a purely mechanical sync. A deployment
+with no named roadmaps yet (an empty `roadmaps.md`) has nothing to
+migrate.
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current
