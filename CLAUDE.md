@@ -31,19 +31,30 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
     is deployed.
 - **Taskfiles:** deploy
   `development-framework/templates/Taskfile.common.template.yml` as
-  `Taskfile.common.yml` at the **target project's** root — one task per
-  entry in `CODE-OF-CONDUCT.md` §4, same canonical-list rule as slash
-  commands (`scripts/check_command_parity.py` diffs it the same way).
-  Each task is a thin `claude -p "/<name> {{.CLI_ARGS}}"` dispatch —
-  never duplicate a command's behavior inline in the task. Also ensure
-  the project has its own root `Taskfile.yml` with
-  `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}` (the
+  `Taskfile.common.yml` **inside `.criterion/`** (agent-owned space per
+  INV-6 — never the target project's own tree, unlike `.claude/commands/`
+  which stays project-root only because Claude Code's own fixed discovery
+  path forces it there) — one task per entry in `CODE-OF-CONDUCT.md` §4,
+  same canonical-list rule as slash commands (`scripts/
+  check_command_parity.py` diffs it the same way). catalyst is
+  agent-agnostic, so each task is a thin `{{.AGENT_CMD}} "/<name>
+  {{.CLI_ARGS}}"` dispatch, never a hardcoded `claude -p` and never a
+  duplicated command behavior inline in the task — `AGENT_CMD` is passed
+  in from the project's own root `Taskfile.yml`, resolved from the
+  `*.catalyst` pointer's `agent` field (mirrors `catalyst-ui`'s own
+  `agent-launch.ts`). Also ensure the project has its own root
+  `Taskfile.yml` pointing the include at `.criterion`'s location, copied
+  in from the pointer's `agent-source` field as a **literal** var (not
+  `sh:`-computed — Task resolves an `includes.taskfile` path before
+  dynamic vars are evaluated, so a dynamic value there silently fails;
+  confirmed by hand): `includes: common: {taskfile: '{{.CRITERION_DIR}}/
+  Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: ...}}` (the
   `flatten` keeps task names bare — `task check-rules`, not
-  `task common:check-rules`) plus that project's
-  project-specific operations (install/lint/test/build/...). Same
-  instantiation-procedure status as slash commands above — part of
-  `INSTANTIATION-GUIDE.md` §1 step 5 and `INSTANTIATION-CHECKLIST.md`'s
-  Discoverability section, not optional.
+  `task common:check-rules`; see `INSTANTIATION-GUIDE.md` §1 step 5 for
+  the exact var block) plus that project's project-specific operations
+  (install/lint/test/build/...). Same instantiation-procedure status as
+  slash commands above — part of `INSTANTIATION-GUIDE.md` §1 step 5 and
+  `INSTANTIATION-CHECKLIST.md`'s Discoverability section, not optional.
 - **Hooks:** if `.claude/settings.json` is present, its `SessionStart` hook
   re-injects `INVARIANTS.md` and its `Stop` hook runs the deployment validator —
   the enforcement layer of the anti-drift architecture. You do not need to

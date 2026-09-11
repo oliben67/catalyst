@@ -26,9 +26,9 @@
 
 ## Items
 
-| ID | Title | Status | Linked | Signed-off-by | Notes |
-|---|---|---|---|---|---|
-| `RM-000001` | {{short title, as given by the source file}} | Not triaged | *(none)* | {{registered user who ran the ingest — see `CODE-OF-CONDUCT.md` §2}} | {{free text}} |
+| ID | Title | Description | Status | Linked | Signed-off-by | Notes |
+|---|---|---|---|---|---|---|
+| `RM-000001` | {{short title, as given by the source file}} | {{a sentence or two summarizing the item, from the source file — not a restatement of Title}} | Not triaged | *(none)* | {{registered user who ran the ingest — see `CODE-OF-CONDUCT.md` §2}} | {{free text}} |
 
 ## Status values
 
@@ -46,10 +46,10 @@
   `CODE-OF-CONDUCT.md` §2.
 - `/roadmap-update <name> <file>` re-reads `<file>` as the new full,
   authoritative version of this roadmap: adds rows for new items,
-  updates matched rows' `Title`/`Notes` (matched by title/description
-  similarity — ask the user rather than guessing when ambiguous), and
-  flags in `Notes` (never deletes) any row whose item no longer appears
-  in the new file. Updates `Source`/`Last updated` above.
+  updates matched rows' `Title`/`Description`/`Notes` (matched by
+  title/description similarity — ask the user rather than guessing when
+  ambiguous), and flags in `Notes` (never deletes) any row whose item no
+  longer appears in the new file. Updates `Source`/`Last updated` above.
 - `/roadmap-merge <name> <update file>` treats `<update file>` as a
   partial delta, not the full roadmap: only adds/updates the rows it
   actually contains, with the same matching rule as `-update`. Does not

@@ -1,10 +1,14 @@
-main, then PR to merge # Meta-tag — {{key}} for {{artefact-id}}
+# Meta-tag — {{key}} for {{artefact-id}}
 
 **Stored as:** `tag-{{key}}-{{artefact-id}}`
 **Target artifact:** `{{artefact-id}}`
 **Key:** `comment` | `version` | `link-to`
 **Value type:** `string` | `number` | `artefact ID`
 **Value:** `{{value}}`
+
+## Description
+
+{{one line on why this tag was added — the context behind the value above, not a restatement of it}}
 
 ## Contents
 

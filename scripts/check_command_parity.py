@@ -7,12 +7,13 @@ Taskfile task, per §4 entry, kept in sync so a deployment's actual command
 set never silently drifts from its own documented spec. Nothing previously
 checked this mechanically.
 
-`.claude/commands/` and `Taskfile.common.yml` both live in the outer project
-repo; §4's canonical list lives in the deployed CODE-OF-CONDUCT.md, resolved
-via the same pointer-file mechanism check_deployment.py already implements
-(`find_deploy_root`) — the two roots are usually different directories
-(agent-owned space vs. the project tree), so both are resolved independently
-rather than assumed to coincide.
+`.claude/commands/` lives in the outer project repo (forced there by Claude
+Code's own fixed discovery path); `Taskfile.common.yml` lives inside the
+resolved deployment root instead, alongside CODE-OF-CONDUCT.md (INV-6 — it's
+generated framework machinery, not product code, so it belongs in
+agent-owned space like everything else there). Both are resolved via the
+same pointer-file mechanism check_deployment.py already implements
+(`find_deploy_root`).
 
 `dogfood.md` is the one documented exception for commands:
 catalyst-development-only, deliberately absent from §4 (Rules-of-Rules.md
@@ -31,7 +32,6 @@ from check_deployment import find_deploy_root
 
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS_DIR = ROOT / ".claude" / "commands"
-TASKFILE_PATH = ROOT / "Taskfile.common.yml"
 DOGFOOD_EXCEPTION = "dogfood"
 
 SECTION_HEADING_RE = re.compile(r"^## \d+\. ")
@@ -168,8 +168,14 @@ def main() -> int:
               "parity validation")
         return 0
 
+    # Taskfile.common.yml lives inside the resolved deployment root
+    # (agent-owned space, INV-6), never the outer project tree — unlike
+    # COMMANDS_DIR, which Claude Code's own fixed discovery path forces
+    # to stay project-root.
+    taskfile_path = root / "Taskfile.common.yml"
+
     errors = check_command_parity(COMMANDS_DIR, root / "CODE-OF-CONDUCT.md")
-    errors += check_taskfile_parity(TASKFILE_PATH, root / "CODE-OF-CONDUCT.md")
+    errors += check_taskfile_parity(taskfile_path, root / "CODE-OF-CONDUCT.md")
 
     if errors:
         print(f"command parity validation FAILED ({len(errors)} issue(s)):")
@@ -177,7 +183,7 @@ def main() -> int:
             print(f"  - {e}")
         return 1
     task_names = extract_taskfile_commands(
-        TASKFILE_PATH.read_text(encoding="utf-8", errors="ignore")
+        taskfile_path.read_text(encoding="utf-8", errors="ignore")
     )
     print(f"command parity valid ({len(find_command_files(COMMANDS_DIR))} "
           f"command(s) checked)")
