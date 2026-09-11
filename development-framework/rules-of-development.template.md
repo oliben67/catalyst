@@ -395,11 +395,12 @@ message if `development/roadmaps/<name>.md` already exists (point to
 `/roadmap-update`/`/roadmap-merge`). Otherwise read `<file>` from the
 local filesystem, identify its distinct items, and create
 `development/roadmaps/<name>.md` from `templates/roadmap.template.md` with
-one `RM-NNNNNN` row per item (`Status: Not triaged`, `Linked: *(none)*`),
-IDs continuing the global sequence across every existing named roadmap —
-never reused, never guessed. Register the new roadmap in
-`development/roadmaps/roadmaps.md`, then report the roadmap name and the
-IDs assigned.
+one `RM-NNNNNN` row per item (`Description`: a sentence or two summarizing
+the item, drawn from `<file>` — not a restatement of `Title`; `Status: Not
+triaged`, `Linked: *(none)*`), IDs continuing the global sequence across
+every existing named roadmap — never reused, never guessed. Register the
+new roadmap in `development/roadmaps/roadmaps.md`, then report the
+roadmap name and the IDs assigned.
 
 When the user enters `/roadmap-remove <name>`, refuse with a clear message
 if `development/roadmaps/<name>.md` does not exist. If every row's `Linked`
@@ -414,7 +415,8 @@ When the user enters `/roadmap-update <name> <file>: ...`, refuse with a
 clear message if `development/roadmaps/<name>.md` does not exist (point to
 `/roadmap-add`). Otherwise treat `<file>` as the new full, authoritative
 version of this roadmap: add a new `RM-NNNNNN` row for each item not already
-present, update the `Title`/`Notes` of any row that matches an item in
+present (with its own `Description`, same rule as `/roadmap-add`), update
+the `Title`/`Description`/`Notes` of any row that matches an item in
 `<file>` by title/description similarity (ask the user rather than
 guessing when a match is ambiguous), and flag — in `Notes`, never by
 deleting — any existing row whose item no longer appears in `<file>`.

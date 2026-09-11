@@ -24,7 +24,9 @@ Input: $ARGUMENTS
 6. Create `.criterion/development/roadmaps/<name>.md` from
    `.criterion/development/roadmaps/templates/TEMPLATE-ROADMAP-v1.md`, with `Name: <name>`,
    `Source: <file>`, `Added`/`Last updated` set to today, and one row per
-   identified item (`Status: Not triaged`, `Linked: *(none)*`).
+   identified item (`Description`: a sentence or two summarizing the item,
+   drawn from `<file>` — not a restatement of `Title`; `Status: Not
+   triaged`, `Linked: *(none)*`).
 7. Register `<name>` in `.criterion/development/roadmaps/roadmaps.md`.
 8. Report the roadmap name and the IDs assigned. Do not commit or push —
    leave changes unstaged unless the user asks otherwise.

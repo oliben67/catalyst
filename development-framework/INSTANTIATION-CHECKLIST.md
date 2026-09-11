@@ -98,11 +98,14 @@ from drifting. The guide holds the rationale; this holds the checks.
       applied and noted in the deployed `README.md` (other agents), per
       `BOOTSTRAP.md §1`
 - [ ] `Taskfile.common.yml` deployed from
-      `templates/Taskfile.common.template.yml` (one task per command in
+      `templates/Taskfile.common.template.yml` into `.criterion/` (agent-owned
+      space per INV-6 — not this project's own tree; one task per command in
       `rules-of-development.template.md` §4), and a project root
-      `Taskfile.yml` exists with
-      `includes: common: {taskfile: ./Taskfile.common.yml, flatten: true}`
-      plus this project's own operational tasks
+      `Taskfile.yml` exists resolving `.criterion`'s location and the
+      deployed agent's CLI binary from the `*.catalyst` pointer, with
+      `includes: common: {taskfile: '{{.CRITERION_DIR}}/Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: ...}}`
+      (see `INSTANTIATION-GUIDE.md` §1 step 5 for the full snippet) plus
+      this project's own operational tasks
 
 ## Finalize
 - [ ] `dev-instructions.yaml` deleted after successful deploy

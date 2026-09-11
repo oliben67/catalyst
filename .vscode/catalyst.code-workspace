@@ -5,8 +5,16 @@
       "path": ".."
     },
     {
+      "name": "catalyst.criterion",
+      "path": "/Users/oliviersteck/.claude/projects/-Users-oliviersteck-sources-catalyst/.criterion"
+    },
+    {
       "name": "catalyst-ui",
       "path": "../../catalyst-ui"
+    },
+    {
+      "name": "catalyst-ui.criterion",
+      "path": "/Users/oliviersteck/.claude/projects/-Users-oliviersteck-sources-catalyst-ui/.criterion"
     }
   ],
   "settings": {}
