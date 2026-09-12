@@ -56,10 +56,14 @@ creates concrete rules for that particular project.
    ```
    <project-root>/.criterion/
      .ledger/
+     ACCESS-CONTROL.md
      CODE-OF-CONDUCT.md
      DEPLOYMENT.md
      README.md
      version.txt
+     definitions/
+       README.md
+       <type>.md
      rules/
        templates/
          README.md
@@ -361,13 +365,19 @@ creates concrete rules for that particular project.
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
    in every major deployed folder (`rules/`, `rules/domains/`,
-   `requirements/`, `features/`, `reconciliations/`, `IAM/users/`,
-   `IAM/roles/`, `development/`, `development/roadmaps/`,
+   `requirements/`, `features/`, `reconciliations/`, `workflows/`,
+   `IAM/users/`, `IAM/roles/`, `development/`, `development/roadmaps/`,
    `development/bugs/`, `development/house-keeping/`,
    `development/meta-tags/`) and in every `templates/` subdirectory
    (INV-20) that briefly explains that folder's purpose and link to it
    from the root README so the structure is discoverable and
-   self-documenting.
+   self-documenting. Also copy `development-framework/ACCESS-CONTROL.md`
+   to `.criterion/ACCESS-CONTROL.md` verbatim (no project-specific
+   customization, unlike this README) — a root-level governing reference,
+   same treatment as `CODE-OF-CONDUCT.md`/`Rules-of-Rules.md`: created on
+   first deploy, refreshed on `/sync-framework` whenever this framework
+   version actually changes it, linked from the root README so it's
+   discoverable.
 9. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
