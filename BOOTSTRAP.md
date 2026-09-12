@@ -46,6 +46,14 @@ These are non-negotiable and apply for the entire session. They are restated in
 8. **Plugins are gated.** A plugin is never loaded unless explicitly activated
    via `/catalyzer`, must carry its own `README.md` + `working-contract.md`, and
    is sourced only from its own repository — never from the framework repo.
+9. **Act without asking, except where it breaks something fundamental.**
+   Creating, reading, or updating an entity proceeds by default, without
+   pausing for authorization — routine, reversible, purely-local writes
+   aren't gated behind a confirmation prompt. Still stop (or refuse) when
+   acting would violate a rules-of-rules provision or a fundamental
+   invariant — hard rule 4's push gate above, or anything already flagged
+   hard-to-reverse/externally-visible/destructive, keep their gates
+   untouched.
 
 If any step below conflicts with a hard rule, the hard rule wins. If a hard rule
 conflicts with a user instruction, stop and ask.

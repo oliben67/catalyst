@@ -20,6 +20,17 @@ faster and is the first thing a summarizer mangles.
   thereafter, in guidance, memory, and discussion.
 - **INV-4 — Assent before push.** Never push anything (project or catalyst)
   without the user's explicit assent. No target-repo commit without assent.
+- **INV-25 — Act without asking, except where it breaks something
+  fundamental.** Creating, reading, or updating an entity proceeds by
+  default, without pausing for the user's authorization — routine,
+  reversible, purely-local writes are not gated behind a confirmation
+  prompt. The agent still stops (or refuses) when acting would violate a
+  documented `rules-of-rules` provision or a fundamental invariant (this
+  file) — INV-4's push gate, an INV-16 violation, or anything the
+  framework's own text already calls hard-to-reverse, externally-visible,
+  or destructive keep their existing gates untouched. Not a relaxation of
+  any of those; it only removes confirmation pauses that were advisory in
+  the first place (e.g. `rr-META-011`'s role-mismatch check).
 
 ## Structural
 
@@ -79,10 +90,12 @@ faster and is the first thing a summarizer mangles.
   a hard requirement, not optional-if-empty like `roadmaps.md`. Every
   dev-artifact, feature, roadmap item, and work item carries a
   `Signed-off-by` field. Role checks against `roles.json` are advisory — a
-  mismatch prompts for confirmation, never a hard block, since catalyst
-  cannot verify who is actually typing. `/user-remove` never deletes a
-  user's entry; it sets `"active": false`, and refuses (or warns) if doing
-  so would leave zero active users.
+  mismatch proceeds anyway, noted rather than paused for (INV-25), never
+  a hard block, since catalyst cannot verify who is actually typing.
+  `/user-remove` never deletes a user's entry; it sets `"active": false`,
+  and refuses if doing so would leave zero active users — this specific
+  case isn't advisory, since it would break this invariant's own hard
+  requirement (INV-25's fundamental-invariant exception).
 - **INV-17 — Append-only, replayable journal.** `development/journal.jsonl`
   always exists (empty is fine). Every command that creates, modifies,
   closes, or retires a rule-linked artifact, rule, domain, or work item, or
@@ -194,12 +207,17 @@ faster and is the first thing a summarizer mangles.
   field; its chain runs sideways via an `Entity` field naming the
   disputed artifact. Never file-versioned per round — each round of
   back-and-forth is a new row in the same file's `Revisions` section,
-  edited in place and journaled like `BUG-`/`REQ-` (INV-17). Resolved
-  via `/reconcile <id> accept|accept-with-edits|reject`, moving `Status`
-  through `Open`/`Under Review`/`Resolved-*`/`Closed` — who can resolve
-  one stays advisory (INV-16), but the `Resolver` field and its journal
-  entry make an unauthorized resolution a visible record rather than a
-  silent gap.
+  edited in place and journaled like `BUG-`/`REQ-` (INV-17). Resolved via
+  `/reconcile <id> accept|accept-with-edits|reject|propose <text>`,
+  moving `Status` through `Open`/`Under Review`/`Resolved-*`/`Closed` —
+  who can resolve one is genuinely gated by the actor's role
+  (`reconciliation: full|propose|none` in `IAM/roles/roles.json`), the
+  one deliberate exception to `rr-META-011`'s advisory-only principle:
+  `propose` may only move a case to `Under Review`, `none` is refused
+  outright, and only `full` can reach a `Resolved-*` status — see
+  `Rules-of-Rules.md` §16. May optionally name a `Workflow` field (a
+  `WORKFLOW-NNNNNN`, INV-24) to guide its resolution — read before
+  choosing a verb, when present.
 - **INV-22 — Content-contributing plugins.** A plugin's
   `working-contract.md` may carry an optional `## Contributes` section
   naming artifact-type folder(s) (full INV-20 treatment) and/or
@@ -210,7 +228,7 @@ faster and is the first thing a summarizer mangles.
   artifact instances the deployment already created with it. Two
   content-contributing plugins that would deploy the same artifact-type
   folder must not both be active. `work-items/` (`BOARD-`/`EPIC-`/
-  `SPRINT-`/`STORY-`/`TASK-`/`SPIKE-`/`TICKET-`/`WORKFLOW-`) is the
+  `SPRINT-`/`STORY-`/`TASK-`/`SPIKE-`/`TICKET-`) is the
   first type moved to this model — no longer core (INV-20), it only
   exists once a project-management-type plugin extending the schema at
   `plugins/_prototyping/project-management/agile/` is activated; none
@@ -218,6 +236,25 @@ faster and is the first thing a summarizer mangles.
   `epic → story → task →` prefix applies only when such a plugin is
   active. Plugins under `plugins/_prototyping/` are exempt from INV-11's
   separate-repository requirement until they graduate out of it.
+- **INV-23 — Frozen entity definitions.** Every real entity type has a
+  short, versioned prose definition (`definitions/README.md`) explaining
+  what it is and what it's for, deployed to `.criterion/definitions/
+  <type>.md`. Once deployed, that file is frozen forever: `/sync-framework`
+  only ever creates a missing one (a type introduced since the project's
+  last sync), never overwrites an existing one, no matter how far the
+  framework's own copy has moved on. The only sanctioned way to move a
+  deployed definition forward is `/migrate-definition <entity-type>
+  <version>`, and only to a version number that actually exists in this
+  framework's `definitions/<entity-type>/` folder.
+- **INV-24 — Workflow entity for guided procedures.** `WORKFLOW-NNNNNN`
+  (`templates/workflow.template.md`) is a process-definition document —
+  a repeatable multi-step procedure, `Status` `Active`/`Deprecated`,
+  never itself work. Core, not plugin-gated: its own top-level
+  `workflows/` folder, sibling of `reconciliations/`, always present,
+  full INV-20 treatment, no `/create-workflow` command (authored ad hoc,
+  same posture as `RECON-`). Other core entities may optionally
+  reference one by ID to guide their own process — `RECON-`
+  reconciliation is the first (INV-21, `Rules-of-Rules.md` §16/§19).
 
 ## Plugins
 

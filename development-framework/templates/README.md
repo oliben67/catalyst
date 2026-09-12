@@ -16,7 +16,8 @@ This folder contains the reusable document templates that seed the deployed cata
 - **Work-item templates are not here anymore.** They moved to
   `plugins/_prototyping/project-management/agile/templates/` — `work-items/`
   is plugin-territory, not core (`Rules-of-Rules.md` §8, INV-22); see
-  that directory's own `README.md`.
+  that directory's own `README.md`. `workflow.template.md` is the one
+  exception — it moved back here, see below.
 - Rule and domain scaffolding templates used when a project is instantiated
   — `domain.template.md` deploys nested under `rules/domains/`, not as a
   top-level sibling (domains exist only to group rules).
@@ -25,6 +26,12 @@ This folder contains the reusable document templates that seed the deployed cata
   diverging versions of some other entity that `/criterion push`'s
   vet+merge step (or a manual open) couldn't cleanly reconcile. Never a
   unit of work; see `Rules-of-Rules.md` §16.
+- [`workflow.template.md`](workflow.template.md) — a top-level,
+  non-rule-linked type for `WORKFLOW-NNNNNN` process-definition
+  documents: a repeatable multi-step procedure, never itself work. Core
+  (unlike the rest of the work-items schema), so other core entities can
+  reference one without requiring any plugin — `RECON-` reconciliation
+  is the first; see `Rules-of-Rules.md` §19, `INVARIANTS.md` INV-24.
 - [`templates-catalog.template.md`](templates-catalog.template.md) — the
   generic catalog every artifact type's `templates/templates-<type>.md`
   is seeded from (`INVARIANTS.md` INV-20): Version | File | Timestamp |

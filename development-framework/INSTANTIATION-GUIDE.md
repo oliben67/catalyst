@@ -106,6 +106,13 @@ creates concrete rules for that particular project.
          TEMPLATE-RECONCILIATION-v1.md
        README.md
        reconciliations.md
+     workflows/
+       templates/
+         README.md
+         templates-workflow.md
+         TEMPLATE-WORKFLOW-v1.md
+       README.md
+       workflows.md
      IAM/
        users/
          templates/
@@ -287,12 +294,14 @@ creates concrete rules for that particular project.
    date, "initial version"). Then write the artifact-type folder's own
    `README.md` and its `<type>.md` instance catalog (`bugs.md`,
    `requirements.md`, `features.md`, `reconciliations.md`,
-   `house-keeping.md`, `meta-tags.md`, `roadmaps.md`, `domains.md`).
+   `house-keeping.md`, `meta-tags.md`, `roadmaps.md`, `domains.md`,
+   `workflows.md`).
    This loop does not include `work-items/` or any of its subtypes
    (`boards.md`/`epics.md`/`stories.md`/`tasks.md`/`spikes.md`/
-   `sprints.md`/`workflows.md`/`tickets.md`) — that folder is
+   `sprints.md`/`tickets.md`) — that folder is
    plugin-only (step 4's note above) and isn't built during core
-   instantiation at all.
+   instantiation at all. `workflows.md` is core now (`Rules-of-Rules.md`
+   §19, INV-24), so it's in the list above, not this exclusion.
 
    Keep requirements templates in the same `requirements/` directory as
    the actual requirements documents so the template and the concrete
@@ -331,7 +340,22 @@ creates concrete rules for that particular project.
    or changes a `Status` field, appends one entry to it as its last step
    (`CODE-OF-CONDUCT.md` §9) — including every step of this instantiation
    itself from here onward.
-7. Create a root-level `README.md` in the deployed framework directory that
+7. Deploy `development-framework/definitions/` (`INVARIANTS.md` INV-23) —
+   one short prose file per real entity type explaining what it is and
+   what it's for, distinct from the `templates/` files' field-and-shape
+   definitions. For each type, copy
+   only its *latest* `DEFINITION-<TYPE>-vN.md` content into
+   `.criterion/definitions/<type>.md` (flat — one file per type, no nested
+   subfolder in the deployed copy; the versioned-history subfolders under
+   `development-framework/definitions/` are framework-source structure
+   only). Also copy `development-framework/definitions/README.md` to
+   `.criterion/definitions/README.md` so the freeze/versioning convention
+   travels with the deployment. **This step never runs again after first
+   deploy for a type that already has a deployed definition** — see
+   `SYNCHRONIZE.md`'s definitions carve-out; only `/sync-framework` adding a
+   brand-new type, or an explicit `/migrate-definition`, ever touches a
+   `.criterion/definitions/<type>.md` file after this.
+8. Create a root-level `README.md` in the deployed framework directory that
    explains the project's rule-and-workflow structure, the deployment path,
    and the main artifact folders. This README should be created during both
    deployment and synchronization so the deployed framework always has a
@@ -344,7 +368,7 @@ creates concrete rules for that particular project.
    (INV-20) that briefly explains that folder's purpose and link to it
    from the root README so the structure is discoverable and
    self-documenting.
-8. Create a starter requirements document in `requirements/` based on the
+9. Create a starter requirements document in `requirements/` based on the
    project's rule documents (for example, a description document such as
    `UI-Rules.md` for UI rules or `business-rules.md` for business rules) and
    keep it aligned with the rule IDs or source documents that define the
@@ -352,7 +376,7 @@ creates concrete rules for that particular project.
    application areas, screens, flows, or components, because they are the
    basis for tests and for the bugs that will later be raised when the
    behavior is wrong.
-9. Create your first rule document(s) with a `## Contents` heading and a
+10. Create your first rule document(s) with a `## Contents` heading and a
    `## Known Bugs — Quick Index` heading (even if empty) — the rest fills
    in as domains/rules get added, each per `Rules-of-Rules.md` §6, so the
    framework produces rules that are specific to this project. This is a hard

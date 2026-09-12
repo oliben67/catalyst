@@ -125,6 +125,11 @@ tasks:
     cmds:
       - '{{.AGENT_CMD}} "/freeze {{.CLI_ARGS}}"'
 
+  migrate-definition:
+    desc: "Update a deployed entity definition to a specific version, only if it exists: <entity-type> <version>"
+    cmds:
+      - '{{.AGENT_CMD}} "/migrate-definition {{.CLI_ARGS}}"'
+
   catalyzer:
     desc: "Manage plugin installation/activation: <list|activate|download|deactivate|upgrade|downgrade> ..."
     cmds:
@@ -136,7 +141,7 @@ tasks:
       - '{{.AGENT_CMD}} "/criterion {{.CLI_ARGS}}"'
 
   reconcile:
-    desc: "Resolve an open reconciliation case: <RECON-id> <accept|accept-with-edits|reject>"
+    desc: "Resolve an open reconciliation case: <RECON-id> <accept|accept-with-edits|reject|propose <text>>"
     cmds:
       - '{{.AGENT_CMD}} "/reconcile {{.CLI_ARGS}}"'
 

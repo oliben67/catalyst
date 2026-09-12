@@ -176,6 +176,27 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      this requirement gets it created empty on its next sync — synchronizing
      does not retroactively fabricate entries for history that predates
      the journal's own existence.
+   - `definitions/<type>.md` for every real entity type (from
+     `development-framework/definitions/<type>/DEFINITION-<TYPE>-vN.md`,
+     latest version only — see `definitions/README.md` and
+     `INVARIANTS.md` INV-23). **Frozen once deployed**: a sync creates `.criterion/definitions/<type>.md` only for
+     a type that doesn't already have one there (e.g. a type this framework
+     version introduced since the project's last sync) — it never
+     overwrites or touches an existing `definitions/<type>.md`, no matter
+     how much newer the framework's own copy has become. This is stronger
+     than every other "don't overwrite" item above: those still get
+     refreshed when the framework version actually changed their spec;
+     a deployed definition never does, by design (a project's understanding
+     of what an entity type *is* must not shift silently underneath it).
+     The only sanctioned way to move a deployed definition forward is the
+     explicit `/migrate-definition <entity-type> <version>` command, and
+     only to a version that actually exists in this framework's
+     `definitions/<entity-type>/` folder — see `rules-of-development.
+     template.md` §4. A deployed project that predates this feature
+     entirely gets every type's `definitions/<type>.md` created (at
+     whatever version is current in this framework) the first time it
+     syncs past the version that introduced it — see "Version-specific
+     one-time migrations" below.
    - `version.txt`
    - every documented slash command from `rules-of-development.template.md`
      §4 — the canonical list; this file must never re-enumerate a subset of
@@ -308,6 +329,37 @@ duplicated here. Every existing `RM-NNNNNN` row in every
 not left blank, so this is not a purely mechanical sync. A deployment
 with no named roadmaps yet (an empty `roadmaps.md`) has nothing to
 migrate.
+
+### From `0.20.0`: entity definitions
+
+Target version `0.21.0`. Full procedure:
+`migrations/0.21.0/add-entity-definitions.md` (this repository) — not
+duplicated here. A deployment with no `definitions/` folder yet gets one
+created, with every real entity type's current latest `definitions/<type>/
+DEFINITION-<TYPE>-vN.md` copied in as `.criterion/definitions/<type>.md` —
+the same "create if missing" logic ordinary synchronization now applies
+to this folder going forward (INV-23), just run once, retroactively.
+
+### From `0.21.0`: role-gated reconciliation
+
+Target version `0.22.0`. Full procedure:
+`migrations/0.22.0/role-gated-reconciliation.md` (this repository) — not
+duplicated here. Every existing role in `IAM/roles/roles.json` gains a
+`reconciliation` field (`full`/`propose`/`none`) — matched against this
+framework's default roles by name where recognized, defaulting to
+`propose` for a custom role rather than guessing `full`. `/reconcile`
+begins enforcing it from this point on; no `RECON-` case already in
+flight is retroactively affected.
+
+### From `0.22.0`: `WORKFLOW-` promoted to core
+
+Target version `0.23.0`. Full procedure:
+`migrations/0.23.0/promote-workflow-to-core.md` (this repository) — not
+duplicated here. Creates the always-present `workflows/` folder (full
+INV-20 treatment, empty catalog is fine) and `definitions/workflow.md`
+for any deployment that doesn't have them yet — pure addition, since no
+deployment has ever had `work-items/workflows/` populated (no concrete
+project-management plugin has ever existed).
 
 ## Expected outcome
 

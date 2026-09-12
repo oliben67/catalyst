@@ -32,6 +32,9 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     roadmaps = development / "roadmaps"
     roadmaps.mkdir()
     (roadmaps / "roadmaps.md").write_text("# Roadmaps index\n\n*(none)*\n")
+    workflows = root / "workflows"
+    workflows.mkdir()
+    (workflows / "workflows.md").write_text("# Workflows index\n\n*(none)*\n")
     iam = root / "IAM"
     users_dir = iam / "users"
     roles_dir = iam / "roles"
@@ -62,6 +65,13 @@ def make_valid_deployment(tmp_path: Path) -> Path:
             ],
         }) + "\n"
     )
+    definitions = root / "definitions"
+    definitions.mkdir()
+    for entity_type in cd.ENTITY_TYPES:
+        (definitions / f"{entity_type}.md").write_text(
+            f"# `{entity_type}` — entity definition (v1)\n\n"
+            "## Description\n\nA definition.\n"
+        )
     return root
 
 
@@ -125,8 +135,10 @@ def test_valid_deployment_has_no_errors(tmp_path: Path):
     assert cd.check_required_headings(root) == []
     assert cd.check_backlog_exists(root) == []
     assert cd.check_roadmaps_index_exists(root) == []
+    assert cd.check_workflows_index_exists(root) == []
     assert cd.check_users_and_roles_exist(root) == []
     assert cd.check_journal_exists(root) == []
+    assert cd.check_definitions_exist(root) == []
 
 
 def test_check_naming_rejects_bare_id_filename(tmp_path: Path):
@@ -311,6 +323,23 @@ def test_check_roadmaps_index_exists_missing_development_dir(tmp_path: Path):
     assert any("INV-15" in e for e in errors)
 
 
+def test_check_workflows_index_exists_missing(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "workflows" / "workflows.md").unlink()
+    errors = cd.check_workflows_index_exists(root)
+    assert any(
+        "INV-24" in e and "workflows/workflows.md is missing" in e
+        for e in errors
+    )
+
+
+def test_check_workflows_index_exists_missing_workflows_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    shutil.rmtree(root / "workflows")
+    errors = cd.check_workflows_index_exists(root)
+    assert any("INV-24" in e for e in errors)
+
+
 def test_check_users_and_roles_exist_missing_users(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
     (root / "IAM" / "users" / "users.json").unlink()
@@ -446,6 +475,21 @@ def test_check_journal_exists_ignores_blank_lines(tmp_path: Path):
     existing = (root / "development" / "journal.jsonl").read_text()
     (root / "development" / "journal.jsonl").write_text(existing + "\n\n   \n")
     assert cd.check_journal_exists(root) == []
+
+
+def test_check_definitions_exist_missing_dir(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    shutil.rmtree(root / "definitions")
+    errors = cd.check_definitions_exist(root)
+    assert any("definitions/ is missing" in e for e in errors)
+
+
+def test_check_definitions_exist_missing_one_type(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "definitions" / "rule.md").unlink()
+    errors = cd.check_definitions_exist(root)
+    assert len(errors) == 1
+    assert "definitions/rule.md is missing" in errors[0]
 
 
 def test_main_returns_zero_when_no_deployment(tmp_path: Path, monkeypatch, capsys):
