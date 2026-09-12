@@ -50,26 +50,29 @@ of a regenerated document.
 
 **Hard requirement: `IAM/users/users.json` must always have at least
 one entry with `"active": true`.** A project with nobody registered has
-nobody to sign work. `/user-remove` must refuse or warn (per its own
-spec) rather than silently drop the last active user to zero.
+nobody to sign work. `/user-remove` must refuse rather than silently
+drop the last active user to zero — this specific case isn't advisory,
+since it would break this hard requirement (INV-25's
+fundamental-invariant exception to acting without asking).
 
 **Beyond that one hard requirement, this role model is advisory, not an
-access-control system.** Catalyst has no way to verify who is actually
-typing, so a role mismatch is a prompt for confirmation, never a silent
-block:
+access-control system, and per INV-25 it never pauses for authorization
+either.** Catalyst has no way to verify who is actually typing, so a
+role mismatch is noted, never a block or a confirmation prompt:
 
 1. Before an artifact-creating or work-item-status-changing command
    completes, resolve who is signing it: the user established earlier
    this session, or ask if not yet established (don't guess from git
    config — confirm with the user).
-2. Look up that name in `IAM/users/users.json`. If unregistered, say so
-   and ask whether to proceed anyway or register them first via
-   `/user-add`.
+2. Look up that name in `IAM/users/users.json`. If unregistered, proceed
+   anyway, noting that the signer isn't registered — `/user-add` can
+   register them properly as a follow-up, but doesn't gate this write.
 3. Look up their role(s) in `IAM/roles/roles.json` and check whether the
-   action being performed is one that role covers. If it isn't, say so
-   and ask for confirmation before continuing — never refuse outright.
-4. Once confirmed (or if the role already covers the action), fill the
-   artifact's `Signed-off-by` field with the user's name and proceed.
+   action being performed is one that role covers. If it isn't, proceed
+   anyway — never refuse outright — noting the mismatch.
+4. Fill the artifact's `Signed-off-by` field with the user's name
+   (carrying forward any unregistered-signer or role-mismatch note from
+   steps 2-3) and proceed.
 
 Every dev-artifact, feature entry, roadmap item, and work item carries a
 `Signed-off-by` field for this reason (see each type's template). It
@@ -199,8 +202,8 @@ The framework exposes the following custom slash commands:
   `IAM/roles/roles.json`. Refuses if `<name>` is already registered —
   use `/user-modify`/`/user-assign-role` instead.
 - `/user-remove <name>` — set `<name>`'s `active` field to `false` in
-  `IAM/users/users.json`. Never deletes the entry (see §2). Refuses or
-  warns if this would leave zero active users (hard rule, §2).
+  `IAM/users/users.json`. Never deletes the entry (see §2). Refuses if
+  this would leave zero active users (hard rule, §2).
 - `/user-modify <name> <field> <value>` — edit `<name>`'s `notes` or
   `active` field. Refuses for `roles` (use `/user-assign-role`) and for
   identity/audit fields (`name`, `registered`).
@@ -236,6 +239,12 @@ the seven currently exist anywhere.
   item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
+- `/migrate-definition <entity-type> <version>` — the only way to move a
+  deployed `definitions/<entity-type>.md` forward once it exists
+  (`INVARIANTS.md` INV-23: ordinary `/sync-framework` never touches one
+  that already exists). Refuses if `<entity-type>` isn't a real entity
+  type, or if `<version>` doesn't exist for it in this framework's own
+  `definitions/<entity-type>/` folder.
 - `/catalyzer <subcommand>` — manage plugin installation and activation through
   the framework interface. Every subcommand resolves plugins against the
   registry file `plugins/<type>/catalog.md` (currently only
@@ -309,14 +318,22 @@ the seven currently exist anywhere.
   ends clean or ends with fixes applied and reverified, offer this
   command (`create` if not yet repoed, `push` otherwise) as the natural
   next step — never run it automatically.
-- `/reconcile <RECON-id> accept|accept-with-edits|reject` — resolve an
-  open reconciliation case (`Rules-of-Rules.md` §16, `INVARIANTS.md`
-  INV-21): `accept` merges its `Proposed` content into the `Entity` it
-  names as-is, `accept-with-edits` appends a new `Revisions` row first
-  and merges that instead, `reject` leaves `criterion` unchanged and
-  flags the proposer's local copy for reverting. Sets `Status` to the
-  matching `Resolved-*` value, fills `Resolved`/`Resolver`, and
-  registers the outcome in `reconciliations/reconciliations.md`.
+- `/reconcile <RECON-id> accept|accept-with-edits|reject|propose <text>`
+  — resolve, or move toward resolving, an open reconciliation case
+  (`Rules-of-Rules.md` §16, `INVARIANTS.md` INV-21): `accept` merges its
+  `Proposed` content into the `Entity` it names as-is, `accept-with-edits`
+  appends a new `Revisions` row first and merges that instead, `reject`
+  leaves `criterion` unchanged and flags the proposer's local copy for
+  reverting — each sets `Status` to the matching `Resolved-*` value,
+  fills `Resolved`/`Resolver`, and registers the outcome in
+  `reconciliations/reconciliations.md`. `propose <text>` instead appends
+  `<text>` as a new `Revisions` row and moves `Status` to `Under Review`
+  without resolving anything. **Genuinely role-gated, not advisory**: the
+  actor's `reconciliation` field in `IAM/roles/roles.json` must be `full`
+  for the three resolving verbs — `propose`-level actors may only use
+  `propose`, and `none`-level actors are refused on any verb. If the case
+  names a `Workflow` (`WORKFLOW-NNNNNN`, `Rules-of-Rules.md` §19), read
+  its `## Steps`/`## Gates / exit criteria` before choosing a verb.
 - `/project create <project name>` — install a fresh catalyst deployment
   here (`Rules-of-Rules.md` §14): resolve `agent-source`, build the
   working copy there, and write `<app-name>.catalyst` at this project's
@@ -447,9 +464,10 @@ user" requirement (§2) is now satisfied.
 
 When the user enters `/user-remove <name>`, refuse with a clear message if
 `<name>` has no entry in `IAM/users/users.json`. If `<name>` is the only
-`active: true` entry, warn that this would leave the project with zero
-active users (hard rule, §2) and ask for confirmation, or suggest
-`/user-add` for a replacement first. Otherwise set that entry's `active`
+`active: true` entry, refuse — this would leave the project with zero
+active users (hard rule, §2, INV-25's fundamental-invariant exception to
+acting without asking) — and point at `/user-add` for a replacement
+first. Otherwise set that entry's `active`
 field to `false` — never delete it, since existing `Signed-off-by`
 references on already-signed artifacts must stay resolvable. Report the
 result.
@@ -511,6 +529,21 @@ the item to its backing file path, append that path to the root-level
 `.frozen` file if it is not already present, and report success. The item is
 then protected from automatic framework synchronization until it is
 explicitly removed from `.frozen` or re-synchronized with an override.
+
+When the user enters `/migrate-definition <entity-type> <version>`, first
+confirm `<entity-type>` names a real entity type (this framework's source
+has a `definitions/<entity-type>/` folder for it — see `definitions/
+README.md`'s "Entity types covered" list); if not, refuse and name the
+valid types. Obtain this framework's current source content the same way
+`/sync-framework` does (`SYNCHRONIZE.md`'s "Version rule" — the `release`
+branch of the catalyst repository), and check whether `definitions/
+<entity-type>/DEFINITION-<ENTITY-TYPE>-v<version>.md` exists there. If it
+does not, refuse and report the highest version number that does exist for
+that type instead of guessing or rounding to the nearest one. If it does,
+overwrite the deployed `.criterion/definitions/<entity-type>.md` with that
+exact version's content — this is the one and only way that file ever
+changes once deployed, per `SYNCHRONIZE.md`'s definitions carve-out — and
+report the old version number moving to the new one.
 
 Every `/catalyzer` subcommand resolves plugin identity, repository URL, and
 version information exclusively from the `catalog.md` registry of the

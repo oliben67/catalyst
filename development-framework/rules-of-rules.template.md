@@ -285,14 +285,16 @@ deployment gets it by default. It only exists once a
 project-management-type plugin extending the agile schema at
 `plugins/_prototyping/project-management/agile/` (framework repository)
 is activated (INV-13, INV-22) — that schema defines
-`(EPIC|STORY|TASK|SPIKE)-(NNNNNN)`, `SPRINT-(NNN)`, and the two further
-optional types below, but defines them as *what a plugin deploys*, not
+`(EPIC|STORY|TASK|SPIKE)-(NNNNNN)`, `SPRINT-(NNN)`, and the one further
+optional type below, but defines them as *what a plugin deploys*, not
 as content core instantiation writes. See `INVARIANTS.md` INV-22 for the
 activation mechanism (§17 below defines it here) and INV-5 for the
 chain invariant's plugin-conditional wording. No concrete plugin extends
 this schema yet — it exists so the shape is ready to build against.
+(`WORKFLOW-(NNNNNN)` used to be part of this schema too; it's core now
+— see §19.)
 
-The schema's two further, optional types:
+The schema's one further, optional type:
 
 - **`BOARD-(NNNNNN)`** — the Kanban-flavor structural counterpart to
   `SPRINT-NNN`: a trackable container with its own `Status`
@@ -300,11 +302,6 @@ The schema's two further, optional types:
   sprint membership. Relevant only under the Kanban/Scrumban flavor (§2
   of `INSTANTIATION-GUIDE.md`) — a pure-Scrum deployment has no need for
   it, the same way a pure-Kanban one has no need for `sprints/`.
-- **`WORKFLOW-(NNNNNN)`** — a process-definition document, not a unit of
-  work: it documents a repeatable multi-step procedure (e.g. "how a bug
-  moves from triage to resolution"). It carries `Status`
-  (`Active`/`Deprecated`) reflecting whether the process is currently in
-  use, never a work-tracking lifecycle, and is never itself "done."
 
 **`TICKET-(NNNNNN)` is deliberately not a defined type even within the
 schema.** A `work-items/tickets/` folder, if a plugin deploys one,
@@ -388,7 +385,9 @@ because it is managed exclusively by commands:
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
 — see `rules-of-development.md` §4. `IAM/roles/roles.json`
 (`templates/roles.template.json`) maps each role to the actions/commands
-it typically performs — a JSON array of `{name, actions}` objects, seeded
+it typically performs — a JSON array of `{name, actions, reconciliation}`
+objects (`reconciliation` is `full`/`propose`/`none` — see §16, the one
+field in this file that's genuinely enforced rather than advisory), seeded
 with a default agile-role mapping and then extended via `/role-add`
 (new role) and `/role-modify` (change an existing role's actions).
 `IAM/users/` and `IAM/roles/` each follow the same uniform shape as every
@@ -398,18 +397,20 @@ other artifact type (§15) — their own `templates/` and `README.md`.
 true`.** This is a hard requirement, unlike `roadmaps.md`'s "empty is
 fine": a project with zero active users has nobody to sign work, so
 deployment is not complete until `/user-add` has registered at least one
-person. `/user-remove` refuses (or warns, per the command's own spec) if
-removing the last active user would leave zero.
+person. `/user-remove` refuses if removing the last active user would
+leave zero — this specific case isn't advisory, since it would break
+this file's own hard existence requirement (INV-25's
+fundamental-invariant exception to acting without asking).
 
 Catalyst has no way to verify who is actually typing, so beyond that one
 hard existence requirement, this scheme is **advisory**: before an
 artifact-creating or status-changing command completes, the agent
 resolves who is signing it, checks their role(s) against `roles.json`,
 and — if the action isn't one their role covers, or they aren't
-registered at all — asks for confirmation rather than refusing outright.
-Every dev-artifact, feature entry, roadmap item, and work item carries a
-`Signed-off-by` field recording the outcome (`rules-of-development.md`
-§2).
+registered at all — proceeds anyway (INV-25), noting the mismatch rather
+than pausing for confirmation or refusing outright. Every dev-artifact,
+feature entry, roadmap item, and work item carries a `Signed-off-by`
+field recording the outcome (`rules-of-development.md` §2).
 
 `/user-remove` never deletes a user's entry, the same "never delete,
 retire in place" principle as §4 and §10: it sets `active` to `false` so
@@ -910,6 +911,9 @@ the same shape for its own `rules-of-work-items.md` (§8, INV-22).
   `features/`, not nested under `work-items/`: `RECON-NNNNNN` cases are
   triggered by `/criterion push`'s own mechanism (§13), not agile
   process (§8), and are never themselves work (§16).
+- `workflows/` — top-level folder, sibling of `reconciliations/`:
+  `WORKFLOW-NNNNNN` process-definition documents, core (not gated behind
+  any plugin) and never themselves work (§19).
 - `IAM/` — new top-level folder replacing bare
   `development/users.json`/`roles.json`; holds `users/` and `roles/`,
   each shaped exactly like any other artifact type (§11), including the
@@ -933,7 +937,7 @@ the same shape for its own `rules-of-work-items.md` (§8, INV-22).
   `plugins/_prototyping/project-management/agile/`'s schema is
   activated; that plugin's own `## Contributes` section then defines
   which of `boards/`/`epics/`/`spikes/`/`sprints/`/`stories/`/`tasks/`/
-  `tickets/`/`workflows/` it deploys, alongside `README.md` and
+  `tickets/` it deploys, alongside `README.md` and
   `rules-of-work-items.md`.
 
 See `INSTANTIATION-GUIDE.md` §1 for the full deployed layout tree and
@@ -948,11 +952,18 @@ vetting-flagged semantic clash, or a rights-mismatch against
 chainable record of that disagreement and how it got settled, instead
 of the resolution living only in an ephemeral sub-agent proposal.
 
-**Never itself work.** Like `WORKFLOW-` (§8), a `RECON-` carries no
+**Never itself work.** Like `WORKFLOW-` (§19), a `RECON-` carries no
 `Targets` rule field and is exempt from the chain invariant's
 epic→story→task→REQ/BUG/HK→rule requirement — its chain runs sideways,
 via an `Entity` field naming the artifact actually in dispute, not
 downward to a rule.
+
+**May optionally name a guiding workflow.** A `Workflow` field can cite
+a `WORKFLOW-NNNNNN` (§19) whose `## Steps`/`## Gates / exit criteria`
+describe how this specific, recurring kind of conflict should be
+resolved — read it before choosing a `/reconcile` verb, when present.
+Most cases won't have one: the fixed verb set below already *is* the
+procedure for the ordinary case.
 
 **Opened** by `/criterion push` itself (automatically, when its merge
 step hits one of the three trigger kinds above) or manually by any
@@ -972,18 +983,31 @@ are, and every edit is journaled with its before/after content hash
 (INV-17) — that already gives the audit trail; no second versioning
 scheme is needed on top.
 
-**Resolved** via `/reconcile <id> accept|accept-with-edits|reject`:
-`accept` merges `Proposed` into the `Entity` as-is; `accept-with-edits`
-merges the latest `## Revisions` row's content instead; `reject` leaves
-`criterion` unchanged and flags the proposer's local copy as needing to
-pull the rejection down. `Status` moves `Open` → `Under Review` (once
-someone starts working it) → one of `Resolved-Accepted` /
-`Resolved-Accepted-with-Edits` / `Resolved-Rejected` → `Closed`. Who
-*can* resolve one is advisory, same as every other role check
-(`rr-META-011`) — catalyst still can't verify who's typing — but the
-`Resolver` field and the journal entry it produces mean an
-unauthorized resolution is a visible, permanent record, not a silent
-gap the way an unreconciled rights-mismatch would otherwise be.
+**Resolved** via `/reconcile <id> accept|accept-with-edits|reject|propose
+<text>`: `accept` merges `Proposed` into the `Entity` as-is;
+`accept-with-edits` merges the latest `## Revisions` row's content
+instead; `reject` leaves `criterion` unchanged and flags the proposer's
+local copy as needing to pull the rejection down; `propose <text>`
+appends `<text>` as a new `## Revisions` row without resolving anything.
+`Status` moves `Open` → `Under Review` → one of `Resolved-Accepted` /
+`Resolved-Accepted-with-Edits` / `Resolved-Rejected` → `Closed`.
+
+**Who can do what is genuinely gated by role — the one deliberate
+exception to `rr-META-011`'s advisory-only principle.** Each role in
+`IAM/roles/roles.json` carries a `reconciliation` field: `full` may use
+every verb, including the three resolving ones; `propose` may only use
+`propose <text>` — moving `Status` to `Under Review` — and is refused
+outright on `accept`/`accept-with-edits`/`reject`, told a `full`-level
+actor must finish it; `none` is refused on every verb immediately, told
+to ask a `full` or `propose` actor to act on their behalf. This differs
+from every other role check in the framework in that the command
+genuinely stops rather than asking for confirmation and proceeding
+anyway. The trust boundary is unchanged — catalyst still can't verify
+who's typing — but letting anyone finish a reconciliation regardless of
+role would defeat the reason `RECON-` exists: the `Resolver` field and
+the journal entry it produces are only meaningful as a record of *who
+was actually allowed to decide*, not just who happened to type the
+command.
 
 **Layout and ID**: `reconciliations/`, top-level, sibling to
 `requirements/`/`features/` (§15's "Where every artifact type actually
@@ -1136,3 +1160,34 @@ does not resolve it.
 Stays catalyst-development-only, the same boundary §13 already draws
 for `/dogfood` itself. Not a mechanism any other deployed project gains
 access to.
+
+## 19. `rr-META-019` Workflow entity for guided procedures
+
+`WORKFLOW-NNNNNN` (`templates/workflow.template.md`) is a
+process-definition document, not a unit of work: it documents a
+repeatable multi-step procedure (e.g. "how a bug moves from triage to
+resolution," or how to work through a particular recurring kind of
+reconciliation). It carries `Status` (`Active`/`Deprecated`) reflecting
+whether the process is currently in use, never a work-tracking
+lifecycle, and is never itself "done." Used to live inside
+`work-items/`'s plugin-territory schema (§8); it's core now — its own
+top-level `workflows/` folder, sibling of `reconciliations/`, always
+present, full INV-20 treatment, no plugin required (`INVARIANTS.md`
+INV-24).
+
+**Its purpose is to be referenced, not just filed.** A core entity may
+optionally name a `WORKFLOW-` by ID to guide its own process — `RECON-`
+reconciliation is the first to do this (§16's optional `Workflow`
+field): when a case names one, the resolver reads its `## Steps`/
+`## Gates / exit criteria` before choosing a `/reconcile` verb, the same
+way a documented procedure guides a human through an otherwise
+ambiguous judgment call. Most reconciliations won't need one — `/reconcile`'s
+fixed verb set already *is* the procedure for the ordinary case; a
+`Workflow` is for a project that wants a documented, repeatable
+escalation path for a specific recurring kind of conflict.
+
+No dedicated creation command (no `/create-workflow` in core) — like
+`RECON-`, a workflow is authored occasionally, not through a frequent,
+form-driven flow; an agent creates one ad hoc from
+`templates/workflow.template.md` and registers it in `workflows/workflows.md`
+the same way any other artifact type's instance gets registered.

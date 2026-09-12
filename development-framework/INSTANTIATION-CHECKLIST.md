@@ -50,6 +50,8 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `features/` → `features.md`
       - `reconciliations/` → `reconciliations.md` (empty index allowed
         — no `RECON-` yet on a fresh deployment)
+      - `workflows/` → `workflows.md` (empty index allowed — no
+        `WORKFLOW-` yet on a fresh deployment)
       - `IAM/users/` → `templates/` (`TEMPLATE-USERS-v1.json` from
         `templates/users.template.json`) then `users.json` seeded from
         it (empty array, INV-16)
@@ -68,6 +70,11 @@ from drifting. The guide holds the rationale; this holds the checks.
       See `ARTIFACT-LAYOUT.md`'s "Optional, plugin-provided: `work-items/`"
       for what a project-management-type plugin deploys if/when one is
       activated.
+- [ ] `definitions/<type>.md` created for every real entity type (INV-23),
+      from this framework's current latest `definitions/<type>/
+      DEFINITION-<TYPE>-vN.md`, plus `definitions/README.md` — frozen
+      from this point on, never touched again except by
+      `/migrate-definition`
 - [ ] `/user-add` run for at least one person — deployment is not
       complete with zero active users (INV-16, hard rule, stricter than
       every other on-demand artifact)
