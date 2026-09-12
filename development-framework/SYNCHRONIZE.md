@@ -126,7 +126,11 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    overwrite or delete them wholesale.
 5. Ensure the deployed project contains a custom root-level `README.md` that
    describes the deployed framework's structure and the project's artifact
-   layout.
+   layout. Also ensure it contains `ACCESS-CONTROL.md`, copied verbatim
+   from `development-framework/ACCESS-CONTROL.md` (no project-specific
+   customization, unlike the README) — create it if missing, and refresh
+   it if this framework version actually changed its content, same
+   treatment as `CODE-OF-CONDUCT.md`/`Rules-of-Rules.md`.
 6. Ensure the deployed project contains the required artifacts:
    - `requirements/requirements.md`
    - `requirements/` individual requirement files
@@ -360,6 +364,14 @@ INV-20 treatment, empty catalog is fine) and `definitions/workflow.md`
 for any deployment that doesn't have them yet — pure addition, since no
 deployment has ever had `work-items/workflows/` populated (no concrete
 project-management plugin has ever existed).
+
+### From `0.24.0`: add `ACCESS-CONTROL.md`
+
+Target version `0.25.0`. Full procedure:
+`migrations/0.25.0/add-access-control-doc.md` (this repository) — not
+duplicated here. Creates the root-level `ACCESS-CONTROL.md` (copied
+verbatim, no project customization) for any deployment that doesn't have
+it yet, and links it from the root README.
 
 ## Expected outcome
 

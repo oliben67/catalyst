@@ -95,6 +95,8 @@ from drifting. The guide holds the rationale; this holds the checks.
 
 ## Discoverability
 - [ ] Root `README.md` written (structure, deploy path, artifact folders)
+- [ ] `ACCESS-CONTROL.md` copied verbatim from
+      `development-framework/ACCESS-CONTROL.md`, linked from root README
 - [ ] Per-folder `README.md` written for every artifact-type folder and
       every `templates/` subdirectory (INV-20 — see the Deploy skeleton
       list above for the full set), plus `development/` and `IAM/`,
