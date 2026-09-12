@@ -72,6 +72,15 @@ the surrounding deploy-procedure text.
         README.md
         reconciliations.md            # reconciliations catalog
         [...]
+    workflows/
+        templates/
+            README.md
+            templates-workflow.md
+            TEMPLATE-WORKFLOW-v1.md
+            ...
+        README.md
+        workflows.md                  # workflows catalog
+        [...]
     IAM/
         users/
             templates/
@@ -181,20 +190,17 @@ core type:
             [...]
         spikes/, sprints/ (Scrum flavor only), stories/, tasks/  # same shape
         tickets/                         # no templates/ — no core semantics (§8)
-        workflows/
-            templates/ ...
-            README.md
-            workflows.md
-            [...]
         README.md
         rules-of-work-items.md           # governs this type, siblings to its templates/
 ```
 
 Exactly which of `boards/`/`epics/`/`spikes/`/`sprints/`/`stories/`/
-`tasks/`/`tickets/`/`workflows/` actually deploys, and their template
+`tasks/`/`tickets/` actually deploys, and their template
 content, is that plugin's own `working-contract.md` `## Contributes`
 section — this tree is illustrative of the shape, not a guarantee any
 given plugin deploys all of it. No concrete plugin exists yet.
+(`WORKFLOW-`/`workflows/` used to be part of this schema too — it's
+core now, always present, see the top-level tree above.)
 
 ## See also
 

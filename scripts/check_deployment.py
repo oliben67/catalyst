@@ -88,7 +88,7 @@ def check_naming(root: Path) -> list[str]:
     # "domains" is no longer top-level (INV-20): it nests under rules/, so
     # the "rules" walk below already covers rules/domains/**/*.md.
     checked_dirs = ("rules", "requirements", "features", "reconciliations",
-                    "IAM", "development", "work-items")
+                    "workflows", "IAM", "development", "work-items")
     for sub in checked_dirs:
         d = root / sub
         if not d.is_dir():
@@ -201,6 +201,15 @@ def check_roadmaps_index_exists(root: Path) -> list[str]:
     return []
 
 
+def check_workflows_index_exists(root: Path) -> list[str]:
+    """INV-24: workflows/workflows.md index always exists (empty is fine)."""
+    index = root / "workflows" / "workflows.md"
+    if not index.is_file():
+        return ["INV-24: workflows/workflows.md is missing — seed "
+                "workflows/ from templates/workflow.template.md"]
+    return []
+
+
 def check_users_and_roles_exist(root: Path) -> list[str]:
     """INV-16: IAM/users/users.json + IAM/roles/roles.json always exist,
     and users.json has at least one active user."""
@@ -273,6 +282,30 @@ def check_journal_exists(root: Path) -> list[str]:
     return errors
 
 
+ENTITY_TYPES = (
+    "bug", "requirement", "house-keeping", "rule", "domain", "feature",
+    "roadmap", "user", "role", "reconciliation", "meta-tag", "journal",
+    "backlog", "ledger", "slash-command", "templates-catalog", "workflow",
+)
+
+
+def check_definitions_exist(root: Path) -> list[str]:
+    """INV-23: definitions/<type>.md exists for every real entity type."""
+    definitions = root / "definitions"
+    if not definitions.is_dir():
+        return ["INV-23: definitions/ is missing — seed it from "
+                "development-framework/definitions/"]
+
+    errors: list[str] = []
+    for entity_type in ENTITY_TYPES:
+        if not (definitions / f"{entity_type}.md").is_file():
+            errors.append(
+                f"INV-23: definitions/{entity_type}.md is missing — seed it "
+                f"from development-framework/definitions/{entity_type}/"
+            )
+    return errors
+
+
 def main() -> int:
     root = find_deploy_root(Path.cwd())
     if root is None:
@@ -290,8 +323,10 @@ def main() -> int:
     errors += check_required_headings(root)
     errors += check_backlog_exists(root)
     errors += check_roadmaps_index_exists(root)
+    errors += check_workflows_index_exists(root)
     errors += check_users_and_roles_exist(root)
     errors += check_journal_exists(root)
+    errors += check_definitions_exist(root)
 
     if errors:
         print(f"catalyst deployment validation FAILED ({len(errors)} issue(s)):")

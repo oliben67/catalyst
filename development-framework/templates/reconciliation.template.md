@@ -11,6 +11,7 @@
 |---|---|
 | **ID** | `RECON-NNNNNN` |
 | **Entity** | type + ID/path of the artifact actually being reconciled |
+| **Workflow** | `WORKFLOW-NNNNNN` guiding this case's resolution, if any — optional, leave blank unless a documented procedure for this recurring kind of conflict exists (`Rules-of-Rules.md` §19) |
 | **Trigger** | `rights-mismatch` / `merge-conflict` / `manual` |
 | **Status** | `Open` / `Under Review` / `Resolved-Accepted` / `Resolved-Accepted-with-Edits` / `Resolved-Rejected` / `Closed` |
 | **Proposer** | name (role) — see `IAM/users/users.json` |

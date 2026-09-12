@@ -66,15 +66,11 @@ sprint membership. A pure-Scrum deployment has no need for it, the same
 way a pure-Kanban deployment has no need for `sprints/` — pick the one
 your flavor actually uses, not both by default.
 
-## 7. Workflows document a process, they are not themselves work
+> `WORKFLOW-NNNNNN` used to be part of this schema. It's now a core
+> type — always present, no plugin required — see `Rules-of-Rules.md`
+> §19 and `INVARIANTS.md` INV-24.
 
-A `WORKFLOW-NNNNNN` is a process-definition document — how a category of
-work moves through its steps (e.g. "how a bug moves from triage to
-resolution") — never a unit of work with acceptance criteria. `Status` is
-`Active`/`Deprecated`, reflecting whether the process is currently in
-use; a workflow is never "done" the way a story or task is.
-
-## 8. Tickets are a plugin-territory slot, not a core work-item type
+## 7. Tickets are a plugin-territory slot, not a core work-item type
 
 `tickets/` is scaffolded like every other artifact type (`Rules-of-Rules.md`
 §15) but core catalyst defines no `TICKET-NNNNNN` semantics, no `/create-ticket`
@@ -84,15 +80,16 @@ project-management-type plugin is activated for that concern
 (`Rules-of-Rules.md` §8, INV-13). If no such plugin is active, the folder
 stays empty; that is not a deployment error.
 
-## 9. IDs
+## 8. IDs
 
-Per `Rules-of-Rules.md` §8: `(EPIC|STORY|TASK|SPIKE|BOARD|WORKFLOW)-NNNNNN`
+Per `Rules-of-Rules.md` §8: `(EPIC|STORY|TASK|SPIKE|BOARD)-NNNNNN`
 (6 digits), `SPRINT-NNN` (3 digits), each sequence global within its own
-type, never reused. `TICKET-NNNNNN` is reserved but not core-managed (§8
+type, never reused. `TICKET-NNNNNN` is reserved but not core-managed (§7
 above) — whichever plugin populates it owns its own ID/sequencing
-behavior.
+behavior. `WORKFLOW-NNNNNN` has its own global sequence too, but is
+core-managed now — see `Rules-of-Rules.md` §19.
 
-## 10. Templates
+## 9. Templates
 
 | Type | Folder | Template |
 |---|---|---|
@@ -102,8 +99,7 @@ behavior.
 | Task | `tasks/` | `templates/task.template.md` |
 | Spike | `spikes/` | `templates/spike.template.md` |
 | Sprint | `sprints/` | `templates/sprint.template.md` |
-| Workflow | `workflows/` | `templates/workflow.template.md` |
-| Ticket | `tickets/` | (plugin-provided — §8 above) |
+| Ticket | `tickets/` | (plugin-provided — §7 above) |
 
 Each folder's template deploys nested and versioned per
 `Rules-of-Rules.md` §15 — e.g. `boards/templates/TEMPLATE-BOARD-v1.md`,
