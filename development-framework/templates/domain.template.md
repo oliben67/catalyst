@@ -6,6 +6,7 @@
 > [`INSTANTIATION-GUIDE.md`](../INSTANTIATION-GUIDE.md).
 
 **Document:** {{RULE_DOC}}
+**Name:** {{Domain short summary summarizing purpose}}
 **Defined:** {{DATE}}
 **Parent:** {{PARENT_CODE or "none"}}
 **Sub-domains:** {{list of child CODEs, or "none"}}
