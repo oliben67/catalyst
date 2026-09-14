@@ -11,6 +11,7 @@
 | Field | Value |
 |---|---|
 | **ID** | `WORKFLOW-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
+| **Name** | short descriptive summary summarizing the workflow's purpose — follows Rules of Rules naming conventions |
 | **Status** | `Active` / `Deprecated` |
 | **Defined** | YYYY-MM-DD |
 | **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this workflow — see `CODE-OF-CONDUCT.md` §2 |

@@ -10,6 +10,7 @@
 | Field | Value |
 |---|---|
 | **ID** | `RECON-NNNNNN-<userid>` — the userid suffix is the resolved signer's/proposer's (`Rules-of-Rules.md` §20) |
+| **Name** | short descriptive summary summarizing the reconciliation's purpose — follows Rules of Rules naming conventions |
 | **Entity** | type + ID/path of the artifact actually being reconciled |
 | **Workflow** | `WORKFLOW-NNNNNN` guiding this case's resolution, if any — optional, leave blank unless a documented procedure for this recurring kind of conflict exists (`Rules-of-Rules.md` §19) |
 | **Trigger** | `rights-mismatch` / `merge-conflict` / `manual` |

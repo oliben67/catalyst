@@ -3,6 +3,7 @@
 | Field | Value |
 |---|---|
 | **ID** | `BUG-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
+| **Name** | short descriptive summary of the entity's purpose/impact, e.g. `password-reset-link-expired` — follows Rules of Rules naming conventions |
 | **Filename** | descriptive kebab-case filename, e.g. `BUG-000012-Ab3xR9pQ-password-reset-link-expired.md` — prefer specific problem/context over generic labels like `bug.md` or `auth-issue.md` |
 | **Status** | open / in-progress / fixed / wontfix / duplicate-of `BUG-xxxx` |
 | **Severity** | Critical / High / Medium / Low — see scale below. **Required.** |
