@@ -79,6 +79,17 @@ consistent.
 State, in one line to the user, which mode you resolved to (e.g. "running without
 sub-agents → analysis passes will be sequential"), then continue.
 
+### 1.1 Agent Switch Handling
+
+When an agent starts a session or assumes governance of a project previously managed by another agent:
+1. Read `<app-name>.catalyst` at the project root.
+2. Compare the running agent's identifier (`agent`, e.g. `copilot`, `claude-code`, etc.) against `<app-name>.catalyst`'s `agent` field.
+3. If they differ (or if `agent-source` has changed):
+   - Update `<app-name>.catalyst`: set `agent` to the running agent's name, resolve the current agent's `agent-source` directory path per §1 above, and update `updated` to the current date (`YYYY-MM-DD`).
+   - If the `.criterion/` working copy existed in the old `agent-source` location and is not present in the new location, copy or move `.criterion/` to the new `agent-source` path.
+   - Update project root `Taskfile.yml`: set `CRITERION_DIR` to match the newly resolved `agent-source` path.
+   - Update Framework Memory / Deployment Target Note in persistent memory with the current agent name, resolved `agent-source` directory, and date.
+
 ---
 
 ## 2. Install procedure
