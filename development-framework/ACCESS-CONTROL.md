@@ -79,8 +79,8 @@ that records the write, same principle `rr-META-016` gives reconciliation's
 
 ## 4. Identity: what the `*.catalyst` pointer actually names
 
-The pointer (`CatalystPointer` in catalyst-ui's `types.ts`; `DEPLOYMENT.md`
-in the framework's own terms) carries exactly **one** human-identity field:
+The pointer (`DEPLOYMENT.md` in the framework's own terms) carries
+exactly **one** human-identity field:
 **`created_by`** — and only when the deployment is `repoed: true`. It's set
 once, at `/criterion create`'s first call, to whoever ran it
 (`rr-META-013`). `criterion_branch` also encodes identity indirectly for a
