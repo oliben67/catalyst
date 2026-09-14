@@ -264,10 +264,10 @@ creates concrete rules for that particular project.
      CRITERION_DIR: "<absolute path from *.catalyst's agent-source field>"
      # Resolves the deployed agent's CLI binary from the pointer's "agent"
      # field. "claude-code" is the one known id whose CLI binary name
-     # differs from the id itself (mirrors catalyst-ui's agent-launch.ts);
-     # any other agent id is assumed to already be its own binary name.
-     # Falls back to "claude" — today's only known agent — when no
-     # pointer/field is found. This one is safe to compute dynamically:
+     # differs from the id itself; any other agent id is assumed to
+     # already be its own binary name. Falls back to "claude" — today's
+     # only known agent — when no pointer/field is found. This one is
+     # safe to compute dynamically:
      # the `includes:`-timing restriction above only applies to
      # CRITERION_DIR, since only it feeds an include path.
      AGENT_ID:

@@ -18,12 +18,12 @@ already populate `Title`, drawn from the ingested source file.
 |---|---|
 | `\| ID \| Title \| Status \| Linked \| Signed-off-by \| Notes \|` | `\| ID \| Title \| Description \| Status \| Linked \| Signed-off-by \| Notes \|` |
 
-If you're running the `catalyst-ui` VS Code extension against this
-deployment: versions of that extension before its own `Description`-aware
-release parse this table **positionally** — inserting a column in the
-middle would shift `Status`/`Linked`/`Signed-off-by` for any row created
-under the new shape. Upgrade `catalyst-ui` alongside this migration, not
-after it, if you use it.
+If you're running a host UI against this deployment that parses this
+table **positionally** rather than by column name: this migration
+inserts a column in the middle, which would shift `Status`/`Linked`/
+`Signed-off-by` for any row created under the new shape until that host
+has its own `Description`-aware release. Upgrade that host alongside
+this migration, not after it, if you use one.
 
 ## Steps
 
