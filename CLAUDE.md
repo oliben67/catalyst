@@ -41,11 +41,11 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
   {{.CLI_ARGS}}"` dispatch, never a hardcoded `claude -p` and never a
   duplicated command behavior inline in the task — `AGENT_CMD` is passed
   in from the project's own root `Taskfile.yml`, resolved from the
-  `*.catalyst` pointer's `agent` field (mirrors `catalyst-ui`'s own
-  `agent-launch.ts`). Also ensure the project has its own root
-  `Taskfile.yml` pointing the include at `.criterion`'s location, copied
-  in from the pointer's `agent-source` field as a **literal** var (not
-  `sh:`-computed — Task resolves an `includes.taskfile` path before
+  `*.catalyst` pointer's `agent` field. Also ensure the project has its
+  own root `Taskfile.yml` pointing the include at `.criterion`'s
+  location, copied in from the pointer's `agent-source` field as a
+  **literal** var (not `sh:`-computed — Task resolves an
+  `includes.taskfile` path before
   dynamic vars are evaluated, so a dynamic value there silently fails;
   confirmed by hand): `includes: common: {taskfile: '{{.CRITERION_DIR}}/
   Taskfile.common.yml', flatten: true, vars: {AGENT_CMD: ...}}` (the

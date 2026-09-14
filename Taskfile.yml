@@ -24,9 +24,9 @@ vars:
   CRITERION_DIR: "/Users/oliviersteck/.claude/projects/-Users-oliviersteck-sources-catalyst/.criterion"
   # Resolves the deployed agent's CLI binary from the pointer's "agent"
   # field. "claude-code" is the one known id whose CLI binary name differs
-  # from the id itself (mirrors catalyst-ui's agent-launch.ts); any other
-  # agent id is assumed to already be its own binary name. Falls back to
-  # "claude" — today's only known agent — when no pointer/field is found.
+  # from the id itself; any other agent id is assumed to already be its
+  # own binary name. Falls back to "claude" — today's only known agent —
+  # when no pointer/field is found.
   AGENT_ID:
     sh: |
       f=$(ls *.catalyst 2>/dev/null | head -1)
