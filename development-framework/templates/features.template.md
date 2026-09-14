@@ -22,6 +22,7 @@ it exists.
 | Field | Value |
 |---|---|
 | **ID** | `FEAT-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
+| **Name** | short descriptive summary summarizing the feature's purpose, e.g. `bulk-export` — follows Rules of Rules naming conventions |
 | **Filename** | descriptive kebab-case filename, e.g. `FEAT-000004-Ab3xR9pQ-bulk-export.md` — prefer specific product intent over generic labels like `feature.md` or `export.md` |
 | **Status** | idea / proposed / planned / in-development / shipped / dropped |
 | **Opened** | YYYY-MM-DD |

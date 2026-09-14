@@ -373,6 +373,21 @@ duplicated here. Creates the root-level `ACCESS-CONTROL.md` (copied
 verbatim, no project customization) for any deployment that doesn't have
 it yet, and links it from the root README.
 
+### From `0.25.1`: userid field + entity-ID signer suffix
+
+Target version `0.26.0`. Full procedure:
+`migrations/0.26.0/userid-and-entity-id-suffix.md` (this repository) — not
+duplicated here. Every registered user gains a `userid`; every entity ID
+gains a creator/signer `userid` suffix; rule sequence IDs widen to 6 digits.
+
+### From `0.26.0`: add `Name` field to development entities
+
+Target version `0.27.0`. Full procedure:
+`migrations/0.27.0/add-entity-name-field.md` (this repository) — not
+duplicated here. Base `entity` definition introduced and `Name` field
+added across all development entities and templates (`definitions/entity/`,
+`Rules-of-Rules.md` §3).
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current

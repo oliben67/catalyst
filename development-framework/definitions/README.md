@@ -41,6 +41,7 @@ to definitions instead of instance templates.
 
 ## Entity types covered
 
+`entity` (base entity definition extended by all other entity definitions),
 `bug`, `requirement`, `house-keeping`, `rule`, `domain`, `feature`,
 `roadmap`, `user`, `role`, `reconciliation`, `meta-tag`, `journal`,
 `backlog`, `ledger`, `slash-command`, `templates-catalog`, `workflow` —

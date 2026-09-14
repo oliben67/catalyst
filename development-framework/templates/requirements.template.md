@@ -21,6 +21,7 @@ more rules. None of those three are optional.
 | Field | Value |
 |---|---|
 | **ID** | `REQ-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
+| **Name** | short descriptive summary of the requirement's purpose, e.g. `password-reset-flow` — follows Rules of Rules naming conventions |
 | **Filename** | descriptive kebab-case filename, e.g. `REQ-000002-Ab3xR9pQ-password-reset-flow.md` — prefer specific problem/context over generic labels like `requirement.md` or `auth.md` |
 | **Status** | proposed / approved / in-progress / done / rejected |
 | **Opened** | YYYY-MM-DD |
