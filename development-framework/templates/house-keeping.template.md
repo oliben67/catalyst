@@ -7,7 +7,7 @@ verifiable/documented, even indirectly.
 
 | Field | Value |
 |---|---|
-| **ID** | `HK-NNNNNN` |
+| **ID** | `HK-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
 | **Status** | proposed / in-progress / done / abandoned |
 | **Priority** | High / Medium / Low — how urgently this blocks or de-risks other work |
 | **Opened** | YYYY-MM-DD |

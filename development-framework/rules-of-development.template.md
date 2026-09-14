@@ -31,8 +31,9 @@ process) — but it must be stated explicitly, not left blank.
 ## 2. Users, roles, and signing
 
 `IAM/users/users.json` is a JSON array of registered users
-(`{name, roles, registered, active, notes}`, plus `git_username` once a
-repoed deployment resolves it — `Rules-of-Rules.md` §13), managed only by
+(`{name, roles, registered, active, notes, userid}`, plus `git_username`
+once a repoed deployment resolves it — `Rules-of-Rules.md` §13), managed
+only by
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
 — see §4. Once a user has a `git_username`, every `Signed-off-by`/journal
 `actor` written for them uses that, never `name`. Each user has one or
@@ -73,6 +74,11 @@ role mismatch is noted, never a block or a confirmation prompt:
 4. Fill the artifact's `Signed-off-by` field with the user's name
    (carrying forward any unregistered-signer or role-mismatch note from
    steps 2-3) and proceed.
+5. Append that same signer's `userid` as this entity's own id suffix
+   (`Rules-of-Rules.md` §20, INV-26) — the same moment, never a separate
+   step done later. If the signer has no `userid` yet (unregistered, or
+   registered before INV-26 existed), register them and assign one
+   first; an entity is never assigned a suffixed id ahead of its signer.
 
 Every dev-artifact, feature entry, roadmap item, and work item carries a
 `Signed-off-by` field for this reason (see each type's template). It
@@ -878,19 +884,22 @@ from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
 
 ## 6. Development-artifact IDs
 
-Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNNNN)`, global per type,
-sequential, zero-padded 6 digits, never reused. Meta-tags use a file-name
-pattern of `tag-<key>-<artefact-id>` rather than a sequential numeric ID.
-This is a hard requirement for all new artifacts and work items: every item
-name must be more than the bare ID and must follow the format
+Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNNNN)-(userid)`, global per
+type, sequential, zero-padded 6 digits, never reused, plus the signer's
+`userid` as a trailing suffix from the moment they're signed
+(`Rules-of-Rules.md` §20, INV-26). Meta-tags use a file-name pattern of
+`tag-<key>-<artefact-id>` rather than a sequential numeric ID. This is a
+hard requirement for all new artifacts and work items: every item name
+must be more than the bare ID and must follow the format
 **`<artifact-id>-<short-summary>`**. The corresponding markdown filename must
 also follow the same descriptive pattern as
 **`<artifact-id>-<short-summary>.md`**, not simply `<artifact-id>.md`.
-Example: `BUG-000001-login-form-validation` or
-`BUG-000001-login-form-validation.md`, and `REQ-000002-password-reset-flow` or
-`REQ-000002-password-reset-flow.md`. The same rule must be applied
+Example: `BUG-000001-Ab3xR9pQ-login-form-validation` or
+`BUG-000001-Ab3xR9pQ-login-form-validation.md`, and
+`REQ-000002-Ab3xR9pQ-password-reset-flow` or
+`REQ-000002-Ab3xR9pQ-password-reset-flow.md`. The same rule must be applied
 retroactively during framework deployment or synchronization to existing
-deployed items whose names or filenames are still only the ID.
+deployed items whose names or filenames are still only the bare ID.
 
 ## 7. Closing an item
 
