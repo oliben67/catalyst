@@ -21,12 +21,18 @@ Input: $ARGUMENTS
 4. If `<role>` isn't one of the roles listed in `.criterion/IAM/roles/roles.json`,
    ask whether to use an existing role or run `/role-add` for `<role>`
    first.
-5. Append a new object to the `users` array in `.criterion/IAM/users/users.json`:
+5. Generate a `userid` (`Rules-of-Rules.md` §11, INV-26): draw 8
+   characters from `[A-Za-z0-9]` via a cryptographically-secure random
+   source; redraw if the result contains no uppercase letter; check
+   against every existing `userid` already in
+   `.criterion/IAM/users/users.json`; redraw from scratch on any
+   collision.
+6. Append a new object to the `users` array in `.criterion/IAM/users/users.json`:
    `{"name": "<name>", "roles": ["<role>"], "registered": "<today>",
-   "active": true, "notes": ""}`.
-6. Report the result. If this is the project's first registered user,
-   note that the hard "at least one active user" requirement is now
-   satisfied.
+   "active": true, "notes": "", "userid": "<generated>"}`.
+7. Report the result, including the assigned `userid`. If this is the
+   project's first registered user, note that the hard "at least one
+   active user" requirement is now satisfied.
 
 Do not commit or push — leave changes unstaged unless the user asks
 otherwise. This role model is advisory, not access control — catalyst has
