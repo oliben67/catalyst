@@ -39,8 +39,12 @@ These are non-negotiable and apply for the entire session. They are restated in
    exactly one file for it, `<app-name>.catalyst` at its root. No agent
    owned-space concept available → fall back to building `.criterion/`
    directly inside the target project instead, gitignored there, never
-   committed. `/criterion`, not a commit into the product's own repo,
-   is how a team persists or shares the working copy across contributors.
+   committed. On starting catalyst, always check if the agent has changed:
+   if so, update `agent` and `agent-source` in `<app-name>.catalyst`, relocate
+   or sync `.criterion/` to the new `agent-source`, update `Taskfile.yml`'s
+   `CRITERION_DIR`, and refresh memory. `/criterion`, not a commit into the
+   product's own repo, is how a team persists or shares the working copy
+   across contributors.
 7. **Descriptive naming.** Every rule, dev artifact, and domain file is named
    `<id>-<short-summary>.md`. Bare-ID filenames are not acceptable.
 8. **Plugins are gated.** A plugin is never loaded unless explicitly activated
