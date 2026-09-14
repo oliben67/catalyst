@@ -547,6 +547,8 @@ Keep a compact note with at least:
 When this guide is used again for the same project, check memory first and
 reuse the existing note as the default project context. If a prior note
 already exists for that project, update it instead of creating a duplicate.
+When switching agents, update this persistent memory note alongside `<app-name>.catalyst`
+(`agent`, `agent-source`, `updated`) and `Taskfile.yml` (`CRITERION_DIR`).
 This makes the association durable across sessions and keeps the project's
 instantiated ruleset available whenever the guide is used again.
 
