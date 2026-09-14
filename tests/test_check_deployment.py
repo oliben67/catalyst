@@ -17,10 +17,10 @@ def make_valid_deployment(tmp_path: Path) -> Path:
 
     (rules / "templates" / "TEMPLATE-RULE-v1.md").write_text("# Rule template\n")
     (rules / "rules.md").write_text(
-        "# Rules index\n\n- br-AUTH-001-login-flow\n"
+        "# Rules index\n\n- br-AUTH-000001-Ab3xR9pQ-login-flow\n"
     )
-    (business / "br-AUTH-001-login-flow.md").write_text(
-        "# br-AUTH-001-login-flow\n\n"
+    (business / "br-AUTH-000001-Ab3xR9pQ-login-flow.md").write_text(
+        "## `br-AUTH-000001-Ab3xR9pQ` Login flow\n\n"
         "## Contents\n\n...\n\n"
         "## Known Bugs — Quick Index\n\n(none)\n"
     )
@@ -43,7 +43,7 @@ def make_valid_deployment(tmp_path: Path) -> Path:
     (users_dir / "users.json").write_text(json.dumps({
         "users": [
             {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
-             "active": True, "notes": ""},
+             "active": True, "notes": "", "userid": "Ab3xR9pQ"},
         ]
     }))
     (roles_dir / "roles.json").write_text(json.dumps({
@@ -56,7 +56,7 @@ def make_valid_deployment(tmp_path: Path) -> Path:
             "command": "/create-bug",
             "action": "create",
             "artifact": "BUG-000001",
-            "targets": ["br-AUTH-001"],
+            "targets": ["br-AUTH-000001-Ab3xR9pQ"],
             "intent": ["fix a real bug"],
             "files": [
                 {"path": "development/bugs/BUG-000001-x.md",
@@ -133,10 +133,12 @@ def test_valid_deployment_has_no_errors(tmp_path: Path):
     assert cd.check_single_rule_template(root) == []
     assert cd.check_rule_indexing(root) == []
     assert cd.check_required_headings(root) == []
+    assert cd.check_rule_id_shape(root) == []
     assert cd.check_backlog_exists(root) == []
     assert cd.check_roadmaps_index_exists(root) == []
     assert cd.check_workflows_index_exists(root) == []
     assert cd.check_users_and_roles_exist(root) == []
+    assert cd.check_users_have_userid(root) == []
     assert cd.check_journal_exists(root) == []
     assert cd.check_definitions_exist(root) == []
 
@@ -270,16 +272,16 @@ def test_check_rule_indexing_missing_global_index(tmp_path: Path):
 
 def test_check_required_headings_missing_contents(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    rule = root / "rules" / "business" / "br-AUTH-001-login-flow.md"
-    rule.write_text("# br-AUTH-001-login-flow\n\n## Known Bugs — Quick Index\n")
+    rule = root / "rules" / "business" / "br-AUTH-000001-Ab3xR9pQ-login-flow.md"
+    rule.write_text("## `br-AUTH-000001-Ab3xR9pQ` Login flow\n\n## Known Bugs — Quick Index\n")
     errors = cd.check_required_headings(root)
     assert any("missing '## Contents'" in e for e in errors)
 
 
 def test_check_required_headings_missing_known_bugs(tmp_path: Path):
     root = make_valid_deployment(tmp_path)
-    rule = root / "rules" / "business" / "br-AUTH-001-login-flow.md"
-    rule.write_text("# br-AUTH-001-login-flow\n\n## Contents\n")
+    rule = root / "rules" / "business" / "br-AUTH-000001-Ab3xR9pQ-login-flow.md"
+    rule.write_text("## `br-AUTH-000001-Ab3xR9pQ` Login flow\n\n## Contents\n")
     errors = cd.check_required_headings(root)
     assert any("missing '## Known Bugs" in e for e in errors)
 
@@ -390,6 +392,105 @@ def test_check_users_and_roles_exist_empty_users_array(tmp_path: Path):
     (root / "IAM" / "users" / "users.json").write_text(json.dumps({"users": []}))
     errors = cd.check_users_and_roles_exist(root)
     assert any("no active user" in e for e in errors)
+
+
+def test_check_users_have_userid_missing(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "IAM" / "users" / "users.json").write_text(json.dumps({
+        "users": [
+            {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
+             "active": True, "notes": ""},
+        ]
+    }))
+    errors = cd.check_users_have_userid(root)
+    assert any("INV-26" in e and "Ada" in e for e in errors)
+
+
+def test_check_users_have_userid_no_uppercase(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "IAM" / "users" / "users.json").write_text(json.dumps({
+        "users": [
+            {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
+             "active": True, "notes": "", "userid": "ab3xr9pq"},
+        ]
+    }))
+    errors = cd.check_users_have_userid(root)
+    assert any("INV-26" in e and "Ada" in e for e in errors)
+
+
+def test_check_users_have_userid_duplicate(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    (root / "IAM" / "users" / "users.json").write_text(json.dumps({
+        "users": [
+            {"name": "Ada", "roles": ["Developer"], "registered": "2026-08-23",
+             "active": True, "notes": "", "userid": "Ab3xR9pQ"},
+            {"name": "Bea", "roles": ["Developer"], "registered": "2026-08-24",
+             "active": True, "notes": "", "userid": "Ab3xR9pQ"},
+        ]
+    }))
+    errors = cd.check_users_have_userid(root)
+    assert any("INV-26" in e and "more than one user" in e for e in errors)
+
+
+def test_check_rule_id_shape_short_digits(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    rule = root / "rules" / "business" / "br-AUTH-000001-Ab3xR9pQ-login-flow.md"
+    rule.write_text(
+        "## `br-AUTH-001-Ab3xR9pQ` Login flow\n\n"
+        "## Contents\n\n## Known Bugs — Quick Index\n"
+    )
+    errors = cd.check_rule_id_shape(root)
+    assert any("INV-26 width" in e and "3-digit" in e for e in errors)
+
+
+def test_check_rule_id_shape_missing_userid_suffix(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    rule = root / "rules" / "business" / "br-AUTH-000001-Ab3xR9pQ-login-flow.md"
+    rule.write_text(
+        "## `br-AUTH-000001` Login flow\n\n"
+        "## Contents\n\n## Known Bugs — Quick Index\n"
+    )
+    errors = cd.check_rule_id_shape(root)
+    assert any("INV-26 signer" in e and "no valid trailing userid" in e
+               for e in errors)
+
+
+def test_check_rule_id_shape_unknown_userid(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    rule = root / "rules" / "business" / "br-AUTH-000001-Ab3xR9pQ-login-flow.md"
+    rule.write_text(
+        "## `br-AUTH-000001-Zz9kM2wT` Login flow\n\n"
+        "## Contents\n\n## Known Bugs — Quick Index\n"
+    )
+    errors = cd.check_rule_id_shape(root)
+    assert any("INV-26 signer" in e and "does not match any registered user" in e
+               for e in errors)
+
+
+def test_check_rule_id_shape_applies_to_rr_meta_ids_too(tmp_path: Path):
+    # rr-META-* is exempt from check_rule_indexing (never listed in
+    # rules.md) but NOT from the id-shape convention itself — rr-META-003
+    # names `rr` as one of DOC_PREFIX's own examples, same grammar as
+    # every other rule.
+    root = make_valid_deployment(tmp_path)
+    (root / "rules" / "Rules-of-Rules.md").write_text(
+        "## 1. `rr-META-010` A three-digit, unsuffixed self-governing id\n"
+    )
+    errors = cd.check_rule_id_shape(root)
+    assert any("INV-26 width" in e and "rr-META-010" in e for e in errors)
+    assert any("INV-26 signer" in e and "rr-META-010" in e for e in errors)
+
+
+def test_check_rule_id_shape_ignores_pure_bullet_list_index(tmp_path: Path):
+    root = make_valid_deployment(tmp_path)
+    # rules.md is a bullet-list index, not a rule document — bullets are
+    # never headings, so this is really just confirming the file is
+    # skipped rather than merely never matching.
+    (root / "rules" / "rules.md").write_text(
+        "# Rules index\n\n- rr-META-010 (not a real heading)\n"
+    )
+    errors = cd.check_rule_id_shape(root)
+    assert errors == []
 
 
 def test_check_users_and_roles_exist_invalid_json(tmp_path: Path):

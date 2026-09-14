@@ -21,8 +21,8 @@ it exists.
 
 | Field | Value |
 |---|---|
-| **ID** | `FEAT-NNNNNN` |
-| **Filename** | descriptive kebab-case filename, e.g. `FEAT-000004-bulk-export.md` — prefer specific product intent over generic labels like `feature.md` or `export.md` |
+| **ID** | `FEAT-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
+| **Filename** | descriptive kebab-case filename, e.g. `FEAT-000004-Ab3xR9pQ-bulk-export.md` — prefer specific product intent over generic labels like `feature.md` or `export.md` |
 | **Status** | idea / proposed / planned / in-development / shipped / dropped |
 | **Opened** | YYYY-MM-DD |
 | **Area** | free-text product/functional area label |

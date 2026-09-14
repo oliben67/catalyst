@@ -74,7 +74,7 @@ and should cross-reference rather than pick just one.
 
 ## 3. `rr-META-003` Every rule has a unique, stable ID
 
-Format: **`(DOC_PREFIX)-(DOMAIN)-(NNN)[-(parent-id)]`**
+Format: **`(DOC_PREFIX)-(DOMAIN)-(NNNNNN)[-(parent-id)]-(userid)`**
 
 - **`DOC_PREFIX`** — which rule document the rule lives in. Define one
   short lowercase prefix per document in {{RULE_DOCS_LIST}} (e.g. `ui`,
@@ -82,7 +82,7 @@ Format: **`(DOC_PREFIX)-(DOMAIN)-(NNN)[-(parent-id)]`**
 - **Name format** — every rule name must be more than the bare ID. The
   canonical name format is **`<rule-id>-<short-summary>`**, where the suffix
   is a lowercase slug that briefly describes what the rule is about. Example:
-  `br-AUTH-003-login-flow`. This is a hard requirement for all new rules and
+  `br-AUTH-000003-login-flow`. This is a hard requirement for all new rules and
   must also be applied retroactively to existing deployed rules during
   framework deployment or synchronization. Existing names that are only the ID
   must be renamed to include a summary suffix, and every index entry and link
@@ -92,21 +92,29 @@ domain the rule sits under. Fixed once assigned — renaming a domain's
 prose heading does not change its code, since existing IDs (in code
 comments, tests, Known Bugs indexes, cross-references) must keep
 resolving.
-- **`NNN`** — a zero-padded 3-digit sequence number, unique within that
-  `DOMAIN`, assigned in document order the first time IDs are
+- **`NNNNNN`** — a zero-padded **6-digit** sequence number, unique within
+  that `DOMAIN`, assigned in document order the first time IDs are
   retrofitted (or in creation order thereafter). Never reused, never
   renumbered, even if an earlier rule in the same domain is later
-deleted/retired.
+  deleted/retired. Zero-padding is always applied before the `userid`
+  suffix (rr-META-020) is appended — never after, and never left
+  half-done across a document (a mix of 3-digit and padded 6-digit IDs
+  breaks lexicographic sort).
 - **`[-parent-id]`** — optional. Used two ways: (a) a rule that is a
   specialization/consequence of another rule references that rule's full
-  ID as its own suffix; (b) a numbered sub-item inside a single rule
-  bullet that enumerates several concretely distinct behaviors gets the
-  parent's ID plus its own position (e.g. `br-EVTO-015-1`). Prefer this
-over inventing a new top-level rule when the sub-items are only
-  meaningful in the context of the parent bullet.
+  ID (including its own `userid` suffix) as its own suffix; (b) a
+  numbered sub-item inside a single rule bullet that enumerates several
+  concretely distinct behaviors gets the parent's ID plus its own
+  position (e.g. `br-EVTO-000015-1`, before that rule's own `userid` is
+  appended). Prefer this over inventing a new top-level rule when the
+  sub-items are only meaningful in the context of the parent bullet.
+- **`(userid)`** — always the final segment, after any `[-parent-id]`.
+  See rr-META-020 for the full mechanism and the rule/domain
+  authorship limitation.
 
-Rules with no sub-items or parent never have the trailing segment — it's
-absent, not empty.
+Rules with no sub-items or parent never have that trailing segment —
+it's absent, not empty. The `userid` segment, by contrast, is never
+absent once rr-META-020 applies.
 
 ### Domain codes — {{RULE_DOC_1}}
 
@@ -380,8 +388,8 @@ whenever removing it outright would break a `FEAT-`/`REQ-` cross-reference.
 
 `IAM/users/users.json` (`templates/users.template.json`) is the registry
 of people who can sign work — a JSON array of `{name, roles, registered,
-active, notes}` objects, kept as data rather than a hand-edited document
-because it is managed exclusively by commands:
+active, notes, userid}` objects, kept as data rather than a hand-edited
+document because it is managed exclusively by commands:
 `/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
 — see `rules-of-development.md` §4. `IAM/roles/roles.json`
 (`templates/roles.template.json`) maps each role to the actions/commands
@@ -392,6 +400,22 @@ with a default agile-role mapping and then extended via `/role-add`
 (new role) and `/role-modify` (change an existing role's actions).
 `IAM/users/` and `IAM/roles/` each follow the same uniform shape as every
 other artifact type (§15) — their own `templates/` and `README.md`.
+
+**`userid` generation (`/user-add`, INV-26).** Draw 8 characters, each
+independently and uniformly from the 62-character alphabet
+`[A-Za-z0-9]`, using whatever cryptographically-secure random source
+the running agent's environment provides (e.g. Python's
+`secrets.choice`) — this is an agent-followed procedure, not a
+specific library dependency, since catalyst itself has no fixed
+runtime. Redraw if the result contains no uppercase letter (this
+closes a real parsing ambiguity in host UIs that derive an id from a
+filename: an 8-letter, all-lowercase summary word like `database` must
+never be mistakable for a `userid` suffix — see rr-META-020). Check
+the candidate against every existing `userid` already in `users.json`
+(including any assigned earlier in the same batch operation); redraw
+from scratch on any collision, never patch a colliding draw. Assign
+once unique. A `userid`, once assigned, never changes — the same
+"never retroactively changes" posture as `Signed-off-by` below.
 
 **`IAM/users/users.json` must contain at least one entry with `"active":
 true`.** This is a hard requirement, unlike `roadmaps.md`'s "empty is
@@ -410,7 +434,9 @@ and — if the action isn't one their role covers, or they aren't
 registered at all — proceeds anyway (INV-25), noting the mismatch rather
 than pausing for confirmation or refusing outright. Every dev-artifact,
 feature entry, roadmap item, and work item carries a `Signed-off-by`
-field recording the outcome (`rules-of-development.md` §2).
+field recording the outcome (`rules-of-development.md` §2); at the same
+moment, that resolved signer's `userid` is appended as the entity's own
+id suffix (INV-26, rr-META-020) — never resolved separately or later.
 
 `/user-remove` never deletes a user's entry, the same "never delete,
 retire in place" principle as §4 and §10: it sets `active` to `false` so
@@ -1191,3 +1217,56 @@ No dedicated creation command (no `/create-workflow` in core) — like
 form-driven flow; an agent creates one ad hoc from
 `templates/workflow.template.md` and registers it in `workflows/workflows.md`
 the same way any other artifact type's instance gets registered.
+
+## 20. `rr-META-020` Entity IDs carry their signer's userid
+
+Once a registered user has a `userid` (§11, INV-26), every rule,
+`BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `WORKFLOW-`, and `RECON-` ID
+carries that user's `userid` as a trailing `-XXXXXXXX` segment — always
+the final segment of the id, after any type-specific suffix a section
+above already defines (a rule's `[-parent-id]`, §3). Assigned once, at
+the same moment the entity's `Signed-off-by` (or, for a rule, the
+authorship resolved below) is determined; never reassigned, never
+changed if the signer is later deactivated or their role changes — the
+same immutability posture `Signed-off-by` itself already has (§11).
+
+**Hard ordering.** No entity may be assigned a suffixed id until its
+signer already has a `userid`. Never generate a userid and an entity
+suffix in the same breath if the signer isn't already registered with
+one — register the user first, confirm the `userid` exists, then
+proceed.
+
+**For a type with a resolvable signer** (every type above except
+rules): the `userid` is exactly that resolved signer's — the same
+person `rules-of-development.md` §2's signer-resolution procedure names
+in `Signed-off-by`. No separate lookup, no separate decision.
+
+**For a rule** (and, by extension, a domain's own code, which is
+never suffixed — see below): no rule or domain template carries an
+authorship field of any kind, so there is nothing today recording who
+added a given rule. Until a dedicated field is designed, use the sole
+registered active user; if more than one is active, use whichever was
+most recently registered. **This is a known, documented limitation**,
+not a permanent design choice — a deployment with real multi-author
+rule authorship will get an inaccurate attribution under this fallback,
+and should treat adding a real per-rule authorship field as its own
+future `HK-` item once that limitation actually bites.
+
+**Domains are out of scope.** A domain has no numeric sequence — it's
+identified by its `CODE` alone (§7), embedded as a substring inside
+every rule id that cites it. There is no id to suffix.
+
+**Cross-reference impact.** Renaming an id (retroactive migration, or
+the initial rollout of this rule) means updating every place that id is
+cited by exact string: its own heading/field, its type's index/catalog
+row, every structured cross-reference field (`Targets`, `Feature`,
+`Roadmap`, `Requirement(s)`, `Linked`, `Entity`, `Workflow`), and every
+free-text citation in `## Related`/`## Notes`/prose — there is no
+dedicated cross-reference-checking script today (`/check-rules` and
+`/audit` are agent-judgment procedures), so this is the agent's
+responsibility to verify by direct search, not something CI catches
+automatically. Two things a rename must never touch:
+`development/journal.jsonl` (INV-17 — append-only; historical entries
+correctly keep citing the pre-rename form forever) and
+`development/BACKLOG.md` (INV-14 — machine-regenerated; run
+`/show-backlog` after the rename instead of hand-editing it).

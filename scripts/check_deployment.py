@@ -2,7 +2,7 @@
 """Validate a deployed .criterion/ against catalyst's structural invariants.
 
 This is the enforcement layer of the anti-drift architecture: the invariants an
-agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16, INV-17) are re-checked here deterministically, so
+agent is asked to uphold (INV-5..INV-8, INV-14, INV-15, INV-16, INV-17, INV-26) are re-checked here deterministically, so
 they hold every time regardless of what any agent or human did. Mirrors the
 existing scripts/check_plugins.py pattern.
 
@@ -36,6 +36,16 @@ TEMPLATE_RE = re.compile(r"^TEMPLATE-[A-Z-]+(?:-v\d+)?\.md$")
 TEMPLATES_CATALOG_RE = re.compile(r"^templates-[a-z-]+\.md$")
 # git hash-object is a 40-char hex SHA-1.
 HASH_RE = re.compile(r"^[0-9a-f]{40}$")
+# 8-char case-sensitive alphanumeric — the "contains an uppercase letter"
+# half of INV-26's userid shape is checked separately (a character class
+# alone can't express "at least one of").
+USERID_RE = re.compile(r"^[A-Za-z0-9]{8}$")
+# `## N. `id` Title` or `### `id` Title` — a rule heading, id capturing its
+# own trailing digits (group 2) and any suffix segments (group 3), the last
+# of which (once INV-26 applies) must be a userid.
+RULE_HEADING_RE = re.compile(
+    r"^#{2,3}\s+(?:\d+\.\s+)?`([a-z]+-[A-Z][A-Z0-9]*-(\d+)((?:-[a-zA-Z0-9]+)*))`"
+)
 JOURNAL_REQUIRED_FIELDS = (
     "timestamp", "actor", "command", "action", "artifact", "targets",
     "intent", "files",
@@ -183,6 +193,73 @@ def check_required_headings(root: Path) -> list[str]:
     return errors
 
 
+def _known_userids(root: Path) -> set[str]:
+    """Every userid currently registered in IAM/users/users.json, or an
+    empty set if the file is missing/malformed (already reported by
+    check_users_and_roles_exist / check_users_have_userid)."""
+    users_path = root / "IAM" / "users" / "users.json"
+    if not users_path.is_file():
+        return set()
+    try:
+        data = json.loads(users_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return set()
+    users = data.get("users", []) if isinstance(data, dict) else []
+    return {
+        str(u["userid"]) for u in users
+        if isinstance(u, dict) and u.get("userid")
+    }
+
+
+def check_rule_id_shape(root: Path) -> list[str]:
+    """INV-26: every rule ID's sequence number is 6-digit, and its final
+    segment is a userid naming a real registered user. Unlike
+    check_rule_indexing/check_required_headings, Rules-of-Rules.md is
+    NOT exempt here: `rr-META-*` ids use the exact same id grammar
+    (rr-META-003 names `rr` as one of DOC_PREFIX's own examples) and are
+    only exempt from *indexing* (never listed in rules.md), not from the
+    shape convention itself. Only the pure bullet-list index (rules.md)
+    and template/catalog/domain files are skipped — they carry no real
+    rule headings to check."""
+    rules = root / "rules"
+    if not rules.is_dir():
+        return []
+
+    known_userids = _known_userids(root)
+    errors: list[str] = []
+    for f in rules.rglob("*.md"):
+        if (f.name == "rules.md" or TEMPLATE_RE.match(f.name)
+                or TEMPLATES_CATALOG_RE.match(f.name)
+                or _is_under_domains(f, rules)):
+            continue
+        for lineno, line in enumerate(
+            f.read_text(encoding="utf-8", errors="ignore").splitlines(), 1
+        ):
+            m = RULE_HEADING_RE.match(line)
+            if not m:
+                continue
+            full_id, digits, suffixes = m.group(1), m.group(2), m.group(3)
+            if len(digits) != 6:
+                errors.append(
+                    f"INV-26 width: {f.relative_to(root)}:{lineno} `{full_id}` "
+                    f"has a {len(digits)}-digit sequence number, expected 6"
+                )
+            parts = [p for p in suffixes.split("-") if p]
+            userid = parts[-1] if parts else None
+            if (not userid or not USERID_RE.match(userid)
+                    or not any(c.isupper() for c in userid)):
+                errors.append(
+                    f"INV-26 signer: {f.relative_to(root)}:{lineno} `{full_id}` "
+                    f"has no valid trailing userid suffix"
+                )
+            elif known_userids and userid not in known_userids:
+                errors.append(
+                    f"INV-26 signer: {f.relative_to(root)}:{lineno} `{full_id}`'s "
+                    f"userid '{userid}' does not match any registered user"
+                )
+    return errors
+
+
 def check_backlog_exists(root: Path) -> list[str]:
     """INV-14: development/BACKLOG.md always exists."""
     backlog = root / "development" / "BACKLOG.md"
@@ -236,6 +313,40 @@ def check_users_and_roles_exist(root: Path) -> list[str]:
     if not any(isinstance(u, dict) and u.get("active") for u in users):
         errors.append("INV-16: IAM/users/users.json has no active user — "
                       "a project must have at least one (/user-add)")
+    return errors
+
+
+def check_users_have_userid(root: Path) -> list[str]:
+    """INV-26: every registered user has a unique, valid 8-char alphanumeric
+    userid (containing at least one uppercase letter)."""
+    users_path = root / "IAM" / "users" / "users.json"
+    if not users_path.is_file():
+        return []  # already reported by check_users_and_roles_exist
+    try:
+        data = json.loads(users_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []  # already reported by check_users_and_roles_exist
+
+    errors: list[str] = []
+    seen: set[str] = set()
+    users = data.get("users", []) if isinstance(data, dict) else []
+    for u in users:
+        if not isinstance(u, dict):
+            continue
+        name = u.get("name", "<unnamed>")
+        userid = u.get("userid")
+        if (not userid or not USERID_RE.match(str(userid))
+                or not any(c.isupper() for c in str(userid))):
+            errors.append(
+                f"INV-26: user '{name}' has no valid 8-char alphanumeric "
+                f"userid (must contain an uppercase letter)"
+            )
+        elif userid in seen:
+            errors.append(
+                f"INV-26: userid '{userid}' is assigned to more than one user"
+            )
+        else:
+            seen.add(userid)
     return errors
 
 
@@ -321,10 +432,12 @@ def main() -> int:
     errors += check_single_rule_template(root)
     errors += check_rule_indexing(root)
     errors += check_required_headings(root)
+    errors += check_rule_id_shape(root)
     errors += check_backlog_exists(root)
     errors += check_roadmaps_index_exists(root)
     errors += check_workflows_index_exists(root)
     errors += check_users_and_roles_exist(root)
+    errors += check_users_have_userid(root)
     errors += check_journal_exists(root)
     errors += check_definitions_exist(root)
 

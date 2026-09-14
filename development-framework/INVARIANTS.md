@@ -255,6 +255,24 @@ faster and is the first thing a summarizer mangles.
   same posture as `RECON-`). Other core entities may optionally
   reference one by ID to guide their own process — `RECON-`
   reconciliation is the first (INV-21, `Rules-of-Rules.md` §16/§19).
+- **INV-26 — Signed entity IDs.** Every registered user
+  (`IAM/users/users.json`) carries a `userid`: 8 characters,
+  case-sensitive alphanumeric, containing at least one uppercase
+  letter, drawn cryptographically at `/user-add` time and regenerated
+  on collision against every existing `userid` in the registry
+  (`Rules-of-Rules.md` rr-META-011). From that point on, every rule,
+  `BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `WORKFLOW-`, and `RECON-` ID
+  carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
+  suffix, assigned once at creation and never changed thereafter
+  (`Rules-of-Rules.md` rr-META-020). A rule ID's sequence number is
+  6-digit, not 3 (`Rules-of-Rules.md` rr-META-003) — zero-padded
+  before the suffix is appended, never after. Rules and domains carry
+  no dedicated authorship field: until one exists, the sole or
+  most-recently-active registered user is used for a rule's suffix
+  (`rr-META-020`'s documented limitation); domains have no numeric ID
+  and are out of scope for this suffix entirely. A user must have a
+  `userid` before any entity it signs can be assigned its suffix —
+  this ordering is not optional.
 
 ## Plugins
 
