@@ -57,7 +57,10 @@ faster and is the first thing a summarizer mangles.
   `catalyst_repo`/`catalyst_repo_url`/`created_by` fields for project-root
   visibility without resolving `agent-source` first. Fallback for an agent with no
   owned-space concept: keep `.criterion/` directly in the project
-  instead, gitignored, never committed. `/criterion` (INV-18) is the
+  instead, gitignored, never committed. When switching agents, the newly active
+  agent updates `<app-name>.catalyst` (`agent`, `agent-source`, `updated`), syncs/migrates
+  `.criterion/` to the new `agent-source` location, updates `CRITERION_DIR` in `Taskfile.yml`,
+  and updates its persistent framework memory note. `/criterion` (INV-18) is the
   opt-in, repo-backed persistence/sync layer on top of either shape —
   never a commit into the product's own repo. `/project
   create`/`remove`/`export`/`import` (INV-19) manage the lifecycle;
