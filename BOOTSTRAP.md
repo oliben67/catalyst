@@ -90,7 +90,7 @@ When an agent starts a session or assumes governance of a project previously man
 2. Compare the running agent's identifier (`agent`, e.g. `copilot`, `claude-code`, etc.) against `<app-name>.catalyst`'s `agent` field.
 3. If they differ (or if `agent-source` has changed):
    - Update `<app-name>.catalyst`: set `agent` to the running agent's name, resolve the current agent's `agent-source` directory path per §1 above, and update `updated` to the current date (`YYYY-MM-DD`).
-   - If the `.criterion/` working copy existed in the old `agent-source` location and is not present in the new location, copy or move `.criterion/` to the new `agent-source` path.
+   - If the `.criterion/` working copy existed in the old `agent-source` location, mirror it into the new `agent-source` path: the new location must end up an exact copy of the old one — nothing added, nothing left over — overwriting whatever is already there if needed.
    - Update project root `Taskfile.yml`: set `CRITERION_DIR` to match the newly resolved `agent-source` path.
    - Update Framework Memory / Deployment Target Note in persistent memory with the current agent name, resolved `agent-source` directory, and date.
 

@@ -58,8 +58,9 @@ faster and is the first thing a summarizer mangles.
   visibility without resolving `agent-source` first. Fallback for an agent with no
   owned-space concept: keep `.criterion/` directly in the project
   instead, gitignored, never committed. When switching agents, the newly active
-  agent updates `<app-name>.catalyst` (`agent`, `agent-source`, `updated`), syncs/migrates
-  `.criterion/` to the new `agent-source` location, updates `CRITERION_DIR` in `Taskfile.yml`,
+  agent updates `<app-name>.catalyst` (`agent`, `agent-source`, `updated`), mirrors
+  `.criterion/` into the new `agent-source` location (exact copy, overwriting the
+  destination — never a partial merge), updates `CRITERION_DIR` in `Taskfile.yml`,
   and updates its persistent framework memory note. `/criterion` (INV-18) is the
   opt-in, repo-backed persistence/sync layer on top of either shape —
   never a commit into the product's own repo. `/project
