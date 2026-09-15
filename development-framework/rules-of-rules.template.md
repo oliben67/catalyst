@@ -831,7 +831,7 @@ courtesy as `/criterion create`:
 When a session starts or an agent assumes governance of a project previously managed by another agent (detected when the running agent's identity differs from the `agent` field in `<app-name>.catalyst`):
 1. Resolve the running agent's `agent-source` path per `BOOTSTRAP.md` §1 (agent-owned space for the running agent, or in-project fallback `.criterion/`).
 2. Update `<app-name>.catalyst`: set `agent` to the current agent's identifier, `agent-source` to the resolved path, and `updated` to the current date string (`YYYY-MM-DD`).
-3. If the `.criterion/` working copy existed in the previous `agent-source` location and is not present in the new `agent-source` location, copy or move `.criterion/` to the new `agent-source` location.
+3. If the `.criterion/` working copy existed in the previous `agent-source` location, mirror it into the new `agent-source` location: the new location ends up an exact copy of the old one — every file the old one had, none it didn't — overwriting anything already at the new location that conflicts, and removing anything at the new location the old one doesn't have. Never a partial merge.
 4. Update `Taskfile.yml` at the project root: set the `CRITERION_DIR` variable to match the new `agent-source` path.
 5. Update persistent framework memory (and deployment notes) with the current agent name, resolved `agent-source` directory, and update timestamp.
 
