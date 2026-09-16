@@ -150,6 +150,11 @@ tasks:
     cmds:
       - '{{.AGENT_CMD}} "/project {{.CLI_ARGS}}"'
 
+  switch-agent:
+    desc: "Force the agent-switch procedure to run now: [agent-id]"
+    cmds:
+      - '{{.AGENT_CMD}} "/switch-agent {{.CLI_ARGS}}"'
+
   status:
     desc: "Update an artifact or work item's Status field"
     cmds:
