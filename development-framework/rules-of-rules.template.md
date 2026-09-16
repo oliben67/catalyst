@@ -835,6 +835,13 @@ When a session starts or an agent assumes governance of a project previously man
 4. Update `Taskfile.yml` at the project root: set the `CRITERION_DIR` variable to match the new `agent-source` path.
 5. Update persistent framework memory (and deployment notes) with the current agent name, resolved `agent-source` directory, and update timestamp.
 
+`/switch-agent [agent-id]` runs this same procedure on demand, unconditionally
+(steps 1–5 above, without first checking whether identity actually differs)
+— the manual escape hatch for when the automatic per-session check above is
+skipped (e.g. dropped by a compacted session) or only partially applies (one
+field updated, another left stale). Full command spec: `CODE-OF-CONDUCT.md`
+§4.
+
 ### `/project create`/`remove`/`export`/`import`
 
 The lifecycle commands for this model (full command spec:

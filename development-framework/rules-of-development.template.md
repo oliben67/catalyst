@@ -358,6 +358,20 @@ the seven currently exist anywhere.
   the current project. Refuses if a deployment already exists here,
   unless `force` is given, in which case it overwrites the existing one
   — confirm explicitly first.
+- `/switch-agent [agent-id]` — force the agent-switch procedure (hard
+  rule 6, `BOOTSTRAP.md` §1.1, `Rules-of-Rules.md` §14's Agent switching
+  procedure) to run now, regardless of whether the running agent's
+  identity already appears to match `<app-name>.catalyst`'s `agent`
+  field. The manual escape hatch for when the automatic per-session
+  check is skipped or only partially completes (e.g. `agent-source`
+  already relocated but the pointer's `agent` field never updated to
+  match). Resolves `agent-source` for `<agent-id>` (defaulting to the
+  running agent's own identifier if omitted) per `BOOTSTRAP.md` §1,
+  updates `<app-name>.catalyst` (`agent`, `agent-source`, `updated`)
+  unconditionally, mirrors `.criterion/` into the resolved location if
+  it existed elsewhere (exact copy, overwriting the destination — never
+  a partial merge), updates `Taskfile.yml`'s `CRITERION_DIR`, and
+  refreshes persistent framework memory.
 - `/status` — update an artifact or work item's `Status` field.
 - `/audit <file-name>` — analyze the change-impact of the specified file by
   checking the current repository state, the file's role in the framework,
