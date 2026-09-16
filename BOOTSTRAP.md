@@ -76,7 +76,7 @@ consistent.
 | **Parallel sub-agents** (background workers) | Use them for the four-eyes analysis passes and audits. | Run each pass sequentially as separate, context-isolated turns; do not let one pass see the other's output before reconciliation. |
 | **Agent-owned per-project storage** (a data directory this agent already maintains per project, outside the project's own tree — e.g. Claude Code's per-project config space) | Build `.criterion/` there; record its path as `agent-source` in `<app-name>.catalyst` (hard rule 6). | Build `.criterion/` directly inside the target project instead, and add it to that project's own `.gitignore` — never committed. `<app-name>.catalyst`'s `agent-source` then just names the in-project path. |
 | **Persistent memory store** | Additionally cache the deployment note there for fast recall (framework name, deployed project, resolved `agent-source`, date — see `INSTANTIATION-GUIDE.md` §6). Optional: a nice-to-have, not load-bearing. | No problem: `<app-name>.catalyst` (project root, always tracked) and `.criterion/DEPLOYMENT.md` (inside the working copy — `repoed`, `catalyst_repo`, `catalyst_repo_url`, `created_by`, see `Rules-of-Rules.md` §13) are read fresh each session regardless. |
-| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/criterion create`, `/criterion get`, `/criterion push`, `/project create`, `/project remove`, `/project export`, `/project import`, `/create-board`, `/create-workflow`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
+| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/criterion create`, `/criterion get`, `/criterion push`, `/project create`, `/project remove`, `/project export`, `/project import`, `/switch-agent`, `/create-board`, `/create-workflow`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
 | **`/dogfood`** — not part of the set above | Only ever exposed when working on catalyst's own repository (`development-framework/` present), never materialized into a deployed project. See `Rules-of-Rules.md` §13. | Same — this one has no deployed fallback, because it has nothing to run against outside catalyst's own repo. |
 | **Repo file read/write** | — | This is the baseline requirement. If you cannot read and write files in the target repo, stop: catalyst cannot be installed. |
 
@@ -93,6 +93,11 @@ When an agent starts a session or assumes governance of a project previously man
    - If the `.criterion/` working copy existed in the old `agent-source` location, mirror it into the new `agent-source` path: the new location must end up an exact copy of the old one — nothing added, nothing left over — overwriting whatever is already there if needed.
    - Update project root `Taskfile.yml`: set `CRITERION_DIR` to match the newly resolved `agent-source` path.
    - Update Framework Memory / Deployment Target Note in persistent memory with the current agent name, resolved `agent-source` directory, and date.
+
+If this automatic check is ever skipped or only partially applies (e.g. a
+compacted session drops it, or `agent-source` gets updated but the pointer's
+`agent` field doesn't), `/switch-agent [agent-id]` runs the same procedure
+on demand — see `CODE-OF-CONDUCT.md` §4.
 
 ---
 
