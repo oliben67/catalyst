@@ -13,6 +13,12 @@ This folder contains the reusable document templates that seed the deployed cata
   `Rules-of-Rules.md` §9. Opening actual development work for a feature
   still means opening a requirement (`requirements.template.md`), not
   editing the feature entry.
+- [`step.template.md`](step.template.md) — a top-level, **non-rule-linked**
+  template sitting *below* a requirement rather than above it: one
+  concrete unit of implementation work performed toward a specific
+  `REQ-NNNNNN` — files touched, commands run, how it was verified. Always
+  names exactly one parent requirement; created via `/create-step` as work
+  actually happens, not in advance of it. See `Rules-of-Rules.md` §21.
 - **Work-item templates are not here anymore.** They moved to
   `plugins/_prototyping/project-management/agile/templates/` — `work-items/`
   is plugin-territory, not core (`Rules-of-Rules.md` §8, INV-22); see
@@ -53,7 +59,9 @@ This folder contains the reusable document templates that seed the deployed cata
   per named roadmap by `/roadmap-add`. `/roadmap-add`/`-update`/`-merge` add
   or update a roadmap's `RM-NNNNNN` rows from an external file, `/roadmap-
   remove` deletes or retires one, and `/show-backlog` refreshes their
-  Status/Linked columns — see `Rules-of-Rules.md` §10.
+  Status/Linked columns — `Linked` is a list, not a single ID, since a
+  roadmap item of real size is expected to decompose into more than one
+  requirement — see `Rules-of-Rules.md` §10/§21.
 - [`roles.template.json`](roles.template.json) — copy to
   `IAM/roles/roles.json` on first deploy (`INVARIANTS.md` INV-16), filled
   in with its default agile-role mapping. JSON, not markdown, because it's

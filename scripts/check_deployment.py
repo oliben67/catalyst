@@ -397,7 +397,7 @@ ENTITY_TYPES = (
     "bug", "requirement", "house-keeping", "rule", "domain", "feature",
     "roadmap", "user", "role", "reconciliation", "meta-tag", "journal",
     "backlog", "ledger", "slash-command", "templates-catalog", "workflow",
-    "entity",
+    "step", "entity",
 )
 
 

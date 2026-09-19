@@ -265,8 +265,8 @@ faster and is the first thing a summarizer mangles.
   letter, drawn cryptographically at `/user-add` time and regenerated
   on collision against every existing `userid` in the registry
   (`Rules-of-Rules.md` rr-META-011). From that point on, every rule,
-  `BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `WORKFLOW-`, and `RECON-` ID
-  carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
+  `BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and `RECON-`
+  ID carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
   suffix, assigned once at creation and never changed thereafter
   (`Rules-of-Rules.md` rr-META-020). A rule ID's sequence number is
   6-digit, not 3 (`Rules-of-Rules.md` rr-META-003) — zero-padded
@@ -277,6 +277,21 @@ faster and is the first thing a summarizer mangles.
   and are out of scope for this suffix entirely. A user must have a
   `userid` before any entity it signs can be assigned its suffix —
   this ordering is not optional.
+- **INV-27 — Steps record a requirement's actual implementation work.**
+  `STEP-NNNNNN` (`templates/step.template.md`) names exactly one parent
+  `REQ-NNNNNN` and records one concrete unit of implementation work
+  performed toward it — files touched, commands run, how it was
+  verified. Its own top-level `steps/` folder, sibling of
+  `requirements/`, full INV-20 treatment. Exempt from the chain
+  invariant's rule-targeting requirement (INV-5) the same way `FEAT-`/
+  `RM-` are — it inherits its parent requirement's already-vetted rule
+  target rather than asserting one of its own. A requirement's `Steps`
+  field lists every step opened against it; a requirement is not
+  closeable as `done` until every one of its steps is `done` or
+  `abandoned` (`Rules-of-Rules.md` rr-META-021). A roadmap row's
+  `Linked` field is a list, not a single ID: a roadmap item of real size
+  is expected to decompose into more than one requirement, each
+  accumulating its own steps.
 
 ## Plugins
 
