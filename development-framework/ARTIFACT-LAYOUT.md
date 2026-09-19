@@ -54,6 +54,15 @@ the surrounding deploy-procedure text.
         README.md
         requirements.md
         [...]
+    steps/
+        templates/
+            README.md
+            templates-step.md
+            TEMPLATE-STEP-v1.md
+            ...
+        README.md
+        steps.md                      # steps catalog
+        [...]
     features/
         templates/
             README.md

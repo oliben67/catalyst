@@ -47,6 +47,8 @@ from drifting. The guide holds the rationale; this holds the checks.
         (INV-8); none in rule-type dirs
       - `rules/domains/` → `domains.md` (empty index allowed)
       - `requirements/` → `requirements.md`
+      - `steps/` → `steps.md` (empty index allowed — no `STEP-` yet on a
+        fresh deployment)
       - `features/` → `features.md`
       - `reconciliations/` → `reconciliations.md` (empty index allowed
         — no `RECON-` yet on a fresh deployment)

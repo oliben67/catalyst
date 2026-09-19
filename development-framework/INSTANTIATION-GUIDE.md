@@ -95,6 +95,13 @@ creates concrete rules for that particular project.
        requirements.md
        <requirement-doc-1>.md
        <requirement-doc-2>.md
+     steps/
+       templates/
+         README.md
+         templates-step.md
+         TEMPLATE-STEP-v1.md
+       README.md
+       steps.md
      features/
        templates/
          README.md
@@ -216,10 +223,14 @@ creates concrete rules for that particular project.
    as a top-level sibling. The `features/` folder sits at the root,
    alongside `requirements/`; it holds descriptive, non-rule-linked
    feature entries (see `Rules-of-Rules.md` §9) and is never a
-   substitute for `requirements/`. The `reconciliations/` folder also
-   sits at the root, alongside `requirements/`/`features/` — not nested
-   under `work-items/` — and holds `RECON-NNNNNN` cases opened by
-   `/criterion push`'s merge step or manually (`Rules-of-Rules.md` §16).
+   substitute for `requirements/`. The `steps/` folder also sits at the
+   root, alongside `requirements/` — each `STEP-NNNNNN` inside it names
+   exactly one parent `REQ-NNNNNN` and records one concrete unit of
+   implementation work performed toward it (`Rules-of-Rules.md` §21). The
+   `reconciliations/` folder also sits at the root, alongside
+   `requirements/`/`features/`/`steps/` — not nested under `work-items/`
+   — and holds `RECON-NNNNNN` cases opened by `/criterion push`'s merge
+   step or manually (`Rules-of-Rules.md` §16).
    `work-items/` itself is not built at all here — it's plugin-only
    (`Rules-of-Rules.md` §8, INV-22); skip it entirely for a core
    instantiation.)
@@ -365,7 +376,7 @@ creates concrete rules for that particular project.
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
    in every major deployed folder (`rules/`, `rules/domains/`,
-   `requirements/`, `features/`, `reconciliations/`, `workflows/`,
+   `requirements/`, `steps/`, `features/`, `reconciliations/`, `workflows/`,
    `IAM/users/`, `IAM/roles/`, `development/`, `development/roadmaps/`,
    `development/bugs/`, `development/house-keeping/`,
    `development/meta-tags/`) and in every `templates/` subdirectory

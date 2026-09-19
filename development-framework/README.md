@@ -24,7 +24,7 @@ Work items    EPIC ─▶ STORY ─▶ TASK / SPIKE / SPRINT   (agile process la
 Dev artifacts        REQ- / BUG- / HK- / TAG-         (rule-linked work and lightweight annotations)
                         │
                         ▼
-Rules            (prefix)-(DOMAIN)-(NNN)               (documented behavior)
+Rules          (prefix)-(DOMAIN)-(NNNNNN)-(userid)     (documented behavior)
                         │
                         ▼
 Rules of rules   the meta-rules governing all of the above
@@ -51,7 +51,15 @@ completion. See `Rules-of-Rules.md` §9.
 (`development/roadmaps/<name>.md`, one file per external source ingested
 via `/roadmap-add`/`-update`/`-merge`) hold `RM-NNNNNN` items with their own
 Status, triaged into a `FEAT-` when a human decides one's worth tracking.
-See `Rules-of-Rules.md` §10.
+Its row's `Linked` field names every `FEAT-`/`REQ-NNNNNN` currently
+associated with it — a roadmap item of real size is expected to decompose
+into more than one requirement. See `Rules-of-Rules.md` §10.
+
+Sitting *below* a requirement, `STEP-NNNNNN` records (`steps/`) are one
+concrete unit of implementation work performed toward it — files touched,
+commands run, how it was verified — created via `/create-step` as work
+actually happens. A requirement isn't closeable as done until every step
+opened against it is done or abandoned. See `Rules-of-Rules.md` §21.
 
 Every artifact this framework creates — dev-artifact, feature, roadmap
 item, or work item — carries a `Signed-off-by` field, resolved against
@@ -91,7 +99,7 @@ project carries. See `Rules-of-Rules.md` §13.
 |---|---|
 | [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/rules/Rules-of-Rules.md` and fill in placeholders. |
 | [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
-| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, feature, reconciliation, house-keeping, meta-tag, domain, slash-command, backlog, roadmap, roles, users, journal). |
+| [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, step, feature, reconciliation, house-keeping, meta-tag, domain, workflow, slash-command, backlog, roadmap, roles, users, journal). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](version.txt) | Current framework version. |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |

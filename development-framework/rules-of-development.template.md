@@ -112,7 +112,22 @@ file rather than created one at a time, and are exempt from this document's
 rules the same way feature entries are (no `Targets`, no `Domain`, never
 "done" against a rule). Formalizing a roadmap item means opening a
 `FEAT-NNNNNN` for it via `/create-feature`, citing the `RM-NNNNNN` ID in the
-feature's `Roadmap` field.
+feature's `Roadmap` field. A roadmap item of real size is expected to
+decompose into **more than one** requirement rather than one oversized
+`REQ-NNNNNN` standing in for the whole item — its row's `Linked` field
+names every `FEAT-`/`REQ-NNNNNN` currently associated with it, not just one.
+
+Steps (`STEP-NNNNNN`, folder `steps/`, template `templates/step.template.md`)
+sit one level *below* a requirement — see `Rules-of-Rules.md` §21. Each
+names exactly one parent `REQ-NNNNNN` and records one concrete unit of
+implementation work performed toward it (files touched, commands run, how
+it was verified). Like feature entries and roadmap items, a step is exempt
+from this document's rules (no `Targets`, no `Domain` of its own — it
+inherits its parent requirement's), but unlike them it's created
+*during* active implementation, not before it: a requirement worth calling
+`in-progress` is expected to have at least one step opened against it, and
+isn't closeable as `done` until every one of its steps is `done` or
+`abandoned`.
 
 ### Hard rule: individual files and indexes
 
@@ -187,6 +202,12 @@ The framework exposes the following custom slash commands:
   in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
   prompts for a rule target or domain — features are not rule-linked (see
   `Rules-of-Rules.md` §9).
+- `/create-step <REQ-id>` — create a new step immediately against an
+  existing requirement, register it in `steps/steps.md`, and append its ID
+  to that requirement's own `Steps` field. Like `/create-feature`, never
+  prompts for a rule target or domain — a step inherits its parent
+  requirement's (see `Rules-of-Rules.md` §21). Refuses if `<REQ-id>` doesn't
+  resolve to an existing requirement.
 - `/roadmap-add <name> <file>` — ingest a new named roadmap from a local
   file, creating `development/roadmaps/<name>.md` from
   `templates/roadmap.template.md` and registering it in
@@ -422,10 +443,25 @@ rule-linked development work. Do not prompt for a domain or rule target —
 neither field exists on this artifact type. If this feature formalizes an
 existing roadmap row (in any `development/roadmaps/<name>.md`), cite that
 row's `RM-NNNNNN` ID in the new feature's `Roadmap` field and set the row's
-`Status` to `Triaged` and `Linked` to the new `FEAT-NNNNNN`. If the user later
-asks to start building a registered feature, create a `REQ-NNNNNN`
-requirement instead (prompting for domain/target rule as usual), and link
-it back to the `FEAT-NNNNNN` entry's `Requirement(s)` field.
+`Status` to `Triaged` and `Linked` to the new `FEAT-NNNNNN` (the row's first
+linked entry). If the user later asks to start building a registered
+feature, create a `REQ-NNNNNN` requirement instead (prompting for
+domain/target rule as usual), link it back to the `FEAT-NNNNNN` entry's
+`Requirement(s)` field, and **append** (never replace) that `REQ-NNNNNN` to
+the roadmap row's `Linked` list — a feature may reasonably decompose into
+more than one requirement, each added to `Linked` as it's opened, per
+`Rules-of-Rules.md` §21.
+
+When the user enters `/create-step <REQ-id>: ...`, refuse with a clear
+message if `<REQ-id>` doesn't resolve to an existing file under
+`requirements/`. Otherwise create a new step immediately using
+`templates/step.template.md`, register it in `steps/steps.md`, set its
+`Requirement` field to `<REQ-id>`, and append its own `STEP-NNNNNN` ID to
+that requirement's `Steps` field (creating the field if this is the
+requirement's first step). Do not prompt for a domain or rule target —
+neither field exists on this artifact type; it inherits `<REQ-id>`'s own
+`Targets`/`Domain`. New steps start `Status: planned` unless the user says
+work is already underway, in which case `in-progress`.
 
 When the user enters `/roadmap-add <name> <file>: ...`, refuse with a clear
 message if `development/roadmaps/<name>.md` already exists (point to
@@ -851,9 +887,11 @@ not marked `Retired`, rows grouped by roadmap name then Status),
 **overwrite `development/BACKLOG.md` in full** with the result (from
 `templates/backlog.template.md`'s structure, with a refreshed timestamp),
 **also refresh every active `development/roadmaps/<name>.md`** in place —
-for each `RM-NNNNNN` row, resolve whichever `FEAT-`/`REQ-` its `Linked` field
-names (if any) and set `Status` to `Not triaged` / `Triaged` /
-`In progress` / `Done` accordingly, leaving `Title`/`Notes`/`Source`
+for each `RM-NNNNNN` row, resolve every `FEAT-`/`REQ-` its `Linked` field
+names (if any — it's a list, not a single id) and set `Status` to
+`Not triaged` (nothing linked) / `Triaged` (only a `FEAT-` linked) /
+`In progress` (at least one linked `REQ-` isn't yet `done`) / `Done`
+(every linked `REQ-` is `done`) accordingly, leaving `Title`/`Notes`/`Source`
 untouched — and also report the same summary to the user in this turn. No
 file write is optional — a stale `BACKLOG.md`, or any roadmap file that
 doesn't match the last `/show-backlog` run, is itself a bug in the
@@ -922,7 +960,11 @@ its individual file and is reflected in the relevant index file.
 
 - **Bug**: not closeable as "fixed" without its test-plan item landing.
 - **Requirement**: not closeable as "done" until the acceptance criteria and
-  rule targets are reflected in the implementation and tests.
+  rule targets are reflected in the implementation and tests, **and** every
+  `STEP-NNNNNN` in its `Steps` field is `done` or `abandoned`
+  (`Rules-of-Rules.md` §21).
+- **Step**: not closeable as "done" without its own Verification section
+  filled in; `abandoned` requires a reason there instead.
 - **House-keeping**: closeable once its stated verification passes.
 
 ## 8. Retired rules and development work

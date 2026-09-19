@@ -134,6 +134,10 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
 6. Ensure the deployed project contains the required artifacts:
    - `requirements/requirements.md`
    - `requirements/` individual requirement files
+   - `steps/steps.md` (create the folder and index even when empty — see
+     the "Version-specific one-time migrations" section below for the
+     one-time `Steps` field this introduces on every existing requirement)
+   - `steps/` individual step files, if any
    - `features/features.md`
    - `features/` individual feature files, if any (create the folder and
      index even when empty — see the "Version-specific one-time
@@ -387,6 +391,15 @@ Target version `0.27.0`. Full procedure:
 duplicated here. Base `entity` definition introduced and `Name` field
 added across all development entities and templates (`definitions/entity/`,
 `Rules-of-Rules.md` §3).
+
+### From `0.28.0`: `STEP-` entity + roadmap multi-link
+
+Target version `0.29.0`. Full procedure:
+`migrations/0.29.0/add-step-entity-and-roadmap-multilink.md` (this
+repository) — not duplicated here. Adds the core `STEP-NNNNNN` entity
+(`steps/`, `/create-step`) recording a requirement's actual implementation
+work, a `Steps` field on every requirement, and generalizes a roadmap
+row's `Linked` field from an implicit single ID to an explicit list.
 
 ## Expected outcome
 

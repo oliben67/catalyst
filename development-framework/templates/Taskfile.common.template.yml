@@ -55,6 +55,11 @@ tasks:
     cmds:
       - '{{.AGENT_CMD}} "/create-feature {{.CLI_ARGS}}"'
 
+  create-step:
+    desc: "Create a new step against an existing requirement: <REQ-id>"
+    cmds:
+      - '{{.AGENT_CMD}} "/create-step {{.CLI_ARGS}}"'
+
   roadmap-add:
     desc: "Ingest a new named roadmap from a local file: <name> <file>"
     cmds:
