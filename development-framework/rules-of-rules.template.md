@@ -365,10 +365,19 @@ development artifacts in §6. It is exempt from:
 A roadmap item is never "done" against a rule and is never itself
 implemented. Once a human decides it's worth tracking inside catalyst,
 `/create-feature` opens a `FEAT-NNNNNN` for it (§9), citing the `RM-NNNNNN` ID
-in the feature's `Roadmap` field — that feature entry, and the `REQ-NNNNNN`
-it may later become, are what actually get vetted, assigned a domain, and
-measured. Each roadmap file's `Status`/`Linked` columns mirror whichever
-of those is currently linked, refreshed by `/show-backlog`, so a roadmap
+in the feature's `Roadmap` field — that feature entry, and the one or more
+`REQ-NNNNNN` requirements it may later become (§21 formalizes the
+expectation that a roadmap item of real size decomposes into more than one
+requirement), are what actually get vetted, assigned a domain, and
+measured.
+
+**`Linked` is a list, not a single ID**: every `FEAT-`/`REQ-NNNNNN`
+currently associated with that row, comma-separated, in the order each was
+linked. Each roadmap file's `Status`/`Linked` columns mirror every one of
+those, refreshed by `/show-backlog`: `Not triaged` while nothing is linked;
+`Triaged` while only a `FEAT-NNNNNN` is linked; `In progress` once at least
+one `REQ-NNNNNN` is linked and at least one of them isn't yet `done`;
+`Done` only once **every** linked `REQ-NNNNNN` is `done` — so a roadmap
 item's progress stays visible without becoming a second, competing source
 of truth for completion.
 
@@ -949,6 +958,8 @@ the same shape for its own `rules-of-work-items.md` (§8, INV-22).
 - `workflows/` — top-level folder, sibling of `reconciliations/`:
   `WORKFLOW-NNNNNN` process-definition documents, core (not gated behind
   any plugin) and never themselves work (§19).
+- `steps/` — top-level folder, sibling of `requirements/`: `STEP-NNNNNN`
+  execution records, each naming exactly one parent `REQ-NNNNNN` (§21).
 - `IAM/` — new top-level folder replacing bare
   `development/users.json`/`roles.json`; holds `users/` and `roles/`,
   each shaped exactly like any other artifact type (§11), including the
@@ -1269,8 +1280,8 @@ every rule id that cites it. There is no id to suffix.
 the initial rollout of this rule) means updating every place that id is
 cited by exact string: its own heading/field, its type's index/catalog
 row, every structured cross-reference field (`Targets`, `Feature`,
-`Roadmap`, `Requirement(s)`, `Linked`, `Entity`, `Workflow`), and every
-free-text citation in `## Related`/`## Notes`/prose — there is no
+`Roadmap`, `Requirement(s)`, `Steps`, `Linked`, `Entity`, `Workflow`), and
+every free-text citation in `## Related`/`## Notes`/prose — there is no
 dedicated cross-reference-checking script today (`/check-rules` and
 `/audit` are agent-judgment procedures), so this is the agent's
 responsibility to verify by direct search, not something CI catches
@@ -1279,3 +1290,59 @@ automatically. Two things a rename must never touch:
 correctly keep citing the pre-rename form forever) and
 `development/BACKLOG.md` (INV-14 — machine-regenerated; run
 `/show-backlog` after the rename instead of hand-editing it).
+
+## 21. `rr-META-021` Steps record a requirement's actual implementation work
+
+`STEP-NNNNNN` (`templates/step.template.md`) is the itemized record of one
+concrete unit of work performed toward a specific `REQ-NNNNNN` — the files
+touched, commands run, and how it was verified. It exists so a
+requirement's real implementation history is structured and independently
+referenceable, not only prose buried in its own `## Design / implementation
+plan` section or the journal's free-text `intent`.
+
+Format: **`STEP-(NNNNNN)`** — zero-padded 6-digit sequence number, global
+across every requirement, assigned in creation order, never reused — same
+scheme as every other numbered type. Same descriptive-naming requirement as
+every other artifact (`INSTANTIATION-GUIDE.md` §1): name and filename are
+`STEP-NNNNNN-<short-summary>` / `STEP-NNNNNN-<short-summary>.md`, never the
+bare ID. Stored one file per instance under `steps/`, top-level, sibling of
+`requirements/`/`features/`/`reconciliations/`/`workflows/`, full INV-20
+treatment (`templates/`, `README.md`, `steps.md` index).
+
+**Always names exactly one parent requirement** — the `Requirement` field,
+required, never blank. A step with no requirement to belong to isn't a
+step; open the requirement first (`/create-req`), then steps under it.
+
+Exempt from:
+
+- §1 (`rr-META-001`)'s conflict check,
+- `rules-of-development.md` §1 ("no development without a targeted
+  rule"), and
+- ever carrying a `Targets` or `Domain` field of its own —
+
+it inherits its parent requirement's already-vetted rule target; a step
+documents *executing* that work, it never asserts a new behavioral claim of
+its own. A step's own `Status` (`planned`/`in-progress`/`done`/`abandoned`)
+tracks that one unit of work's completion, independent of the parent
+requirement's own `Status` — a requirement stays `in-progress` while its
+steps range across every status, and isn't closeable as `done`
+(`rules-of-development.md` §7) until every one of its steps is `done` or
+explicitly `abandoned` with a reason.
+
+**A requirement's `Steps` field** (`rules-of-development.md`'s requirement
+template) lists every `STEP-NNNNNN` opened against it, in creation order —
+populated as steps are opened, never guessed or backfilled from unrelated
+work. A requirement with real implementation work underway and zero steps
+recorded is itself incomplete documentation, the same posture
+`rules-of-development.md` §2's `Test plan` requirement already takes
+toward untested rules.
+
+**Roadmap items decompose the same way, one level up.** A roadmap row's
+`Linked` field (§10) names one or more `FEAT-`/`REQ-NNNNNN` — a roadmap
+item of real size is expected to become more than one requirement, each
+targeting its own rule(s) and accumulating its own steps, rather than one
+oversized requirement standing in for the whole item. Nothing here
+numerically requires more than one requirement or more than one step, but
+a roadmap item that closes out via exactly one requirement with zero
+recorded steps is a signal the work was either trivial or
+under-documented — worth a second look before marking it `Done`.

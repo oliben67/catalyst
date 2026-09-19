@@ -13,10 +13,13 @@
 > once by a human: `/roadmap-add`/`/roadmap-update`/`/roadmap-merge` add
 > or update its `RM-NNNNNN` rows from an external source file, and
 > `/show-backlog` refreshes each row's `Status`/`Linked` columns from
-> whichever `FEAT-`/`REQ-` is currently linked to it. Hand-edit the
-> `Notes` column freely; never hand-edit `Status` or `Linked` — the next
-> `/show-backlog` run overwrites them from the real indexes, the same way
-> it overwrites `development/BACKLOG.md` (INV-14).
+> every `FEAT-`/`REQ-` currently linked to it — `Linked` is a
+> comma-separated list, not a single ID (`Rules-of-Rules.md` §21: a
+> roadmap item of real size is expected to decompose into more than one
+> requirement). Hand-edit the `Notes` column freely; never hand-edit
+> `Status` or `Linked` — the next `/show-backlog` run overwrites them
+> from the real indexes, the same way it overwrites
+> `development/BACKLOG.md` (INV-14).
 
 **Name:** {{name — the identifier used in `/roadmap-add`/`-remove`/`-update`/`-merge`, and this file's own filename}}
 **Source:** {{the file path last ingested via `/roadmap-add` or `/roadmap-update` — `/roadmap-merge` does not change this}}
@@ -32,10 +35,10 @@
 
 ## Status values
 
-- **Not triaged** — ingested; no `FEAT-`/`REQ-` for it yet.
-- **Triaged** — a `FEAT-NNNNNN` exists for this item (see its `Roadmap` field).
-- **In progress** — the linked `FEAT-` was promoted to a `REQ-NNNNNN` that is not yet done.
-- **Done** — the linked `REQ-NNNNNN` is complete.
+- **Not triaged** — ingested; no `FEAT-`/`REQ-` for it yet (`Linked` empty).
+- **Triaged** — a `FEAT-NNNNNN` exists for this item (see its `Roadmap` field); `Linked` names only that `FEAT-`.
+- **In progress** — at least one `REQ-NNNNNN` is linked and at least one of them isn't yet `done`.
+- **Done** — **every** linked `REQ-NNNNNN` is `done`.
 
 ## How this file is maintained
 
@@ -67,6 +70,7 @@
   inside catalyst, at which point `/create-feature` opens its `FEAT-NNNNNN`
   (citing this row's `RM-NNNNNN` ID in the feature's own `Roadmap` field).
 - From there, the normal `FEAT-` → `REQ-` promotion applies
-  (`Rules-of-Rules.md` §9/§10, `INVARIANTS.md` INV-9); this file's
-  `Status`/`Linked` columns always mirror whichever artifact is currently
-  linked, refreshed by `/show-backlog` — never edited here directly.
+  (`Rules-of-Rules.md` §9/§10/§21, `INVARIANTS.md` INV-9) — one or more
+  times, once per requirement the item decomposes into; this file's
+  `Status`/`Linked` columns always mirror every artifact currently linked,
+  refreshed by `/show-backlog` — never edited here directly.
