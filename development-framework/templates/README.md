@@ -19,6 +19,13 @@ This folder contains the reusable document templates that seed the deployed cata
   `REQ-NNNNNN` — files touched, commands run, how it was verified. Always
   names exactly one parent requirement; created via `/create-step` as work
   actually happens, not in advance of it. See `Rules-of-Rules.md` §21.
+- [`test.template.md`](test.template.md) — a top-level,
+  **rule-linked** development-artifact template alongside
+  `bug.template.md`/`requirement.template.md`/`house-keeping.template.md`
+  — a test always carries its own `Targets`/`Domain`, vetted the same
+  way. On top of that it may independently name `(0,n)` requirements and
+  `(0,n)` steps it verifies — both optional. Created via `/create-test`.
+  See `Rules-of-Rules.md` §22.
 - **Work-item templates are not here anymore.** They moved to
   `plugins/_prototyping/project-management/agile/templates/` — `work-items/`
   is plugin-territory, not core (`Rules-of-Rules.md` §8, INV-22); see

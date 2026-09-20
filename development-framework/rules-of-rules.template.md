@@ -177,12 +177,15 @@ lower than this framework's own `development-framework/version.txt`, the
 deployed framework must be synchronized before further work proceeds. See
 [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
-Format: **`(BUG|REQ|HK)-(NNNNNN)`** — see
+Format: **`(BUG|REQ|HK|TEST)-(NNNNNN)`** — see
 [`rules-of-development.template.md`](rules-of-development.template.md).
 `NNNNNN` is a zero-padded 6-digit sequence number, global within its own
-type, assigned in creation order, never reused. See §9 for the separate,
-non-rule-linked `FEAT-` scheme used for feature entries — it is not a
-fourth member of this format.
+type, assigned in creation order, never reused. `TEST-NNNNNN` joined
+this format at framework `0.30.0` (§22) — like every other member, it
+carries its own `Targets`/`Domain` and is subject to
+`rules-of-development.md` §1 ("no development without a targeted
+rule"). See §9 for the separate, non-rule-linked `FEAT-` scheme used
+for feature entries — that one is not a member of this format.
 
 ## 7. `rr-META-007` Defining a new `##` domain
 
@@ -960,6 +963,10 @@ the same shape for its own `rules-of-work-items.md` (§8, INV-22).
   any plugin) and never themselves work (§19).
 - `steps/` — top-level folder, sibling of `requirements/`: `STEP-NNNNNN`
   execution records, each naming exactly one parent `REQ-NNNNNN` (§21).
+- `tests/` — top-level folder, sibling of `requirements/`/`steps/`:
+  `TEST-NNNNNN` development artifacts, each carrying its own `Targets`/
+  `Domain` plus optional `(0,n)` links to the `REQ-`/`STEP-` it verifies
+  (§22).
 - `IAM/` — new top-level folder replacing bare
   `development/users.json`/`roles.json`; holds `users/` and `roles/`,
   each shaped exactly like any other artifact type (§11), including the
@@ -1241,8 +1248,8 @@ the same way any other artifact type's instance gets registered.
 ## 20. `rr-META-020` Entity IDs carry their signer's userid
 
 Once a registered user has a `userid` (§11, INV-26), every rule,
-`BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `WORKFLOW-`, and `RECON-` ID
-carries that user's `userid` as a trailing `-XXXXXXXX` segment — always
+`BUG-`/`REQ-`/`HK-`/`TEST-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and
+`RECON-` ID carries that user's `userid` as a trailing `-XXXXXXXX` segment — always
 the final segment of the id, after any type-specific suffix a section
 above already defines (a rule's `[-parent-id]`, §3). Assigned once, at
 the same moment the entity's `Signed-off-by` (or, for a rule, the
@@ -1346,3 +1353,45 @@ numerically requires more than one requirement or more than one step, but
 a roadmap item that closes out via exactly one requirement with zero
 recorded steps is a signal the work was either trivial or
 under-documented — worth a second look before marking it `Done`.
+
+## 22. `rr-META-022` Tests are development artifacts that may verify requirements and/or steps
+
+`TEST-NNNNNN` (`templates/test.template.md`) joined the `(BUG|REQ|HK|TEST)`
+development-artifact format at framework `0.30.0` (§6) — unlike `STEP-`
+(§21), it is **not** exempt from `rules-of-development.md` §1: a test
+always carries its own `Targets` (one or more rule IDs) and `Domain`,
+vetted the same way a bug or requirement is. Stored one file per
+instance under `tests/`, top-level, sibling of `requirements/`/`steps/`,
+indexed in `tests/tests.md`, full INV-20 treatment.
+
+**Two additional, independent link fields, each `(0,n)`:**
+
+- `Requirements` — zero or more `REQ-NNNNNN` this test verifies.
+- `Steps` — zero or more `STEP-NNNNNN` this test verifies.
+
+Both are optional, independently of each other and of the test's own
+`Targets`/`Domain` — a test naming zero requirements and zero steps is
+valid (e.g. an exploratory or smoke test not yet tied to specific
+tracked work); it still must carry `Targets`/`Domain` like any other
+development artifact. A test naming a real `REQ-`/`STEP-` id in either
+field gets the same generic `dangling-reference` validation as any
+other structured cross-reference — an id that doesn't resolve is
+flagged, no bespoke check needed.
+
+**Many-to-many, not ownership.** Unlike a step's single required
+`Requirement` (§21), a test's `Requirements`/`Steps` lists impose no
+cardinality constraint on the other side — one requirement may be
+verified by several tests, and one test may verify several requirements
+and/or steps at once (e.g. one integration test exercising work spread
+across multiple requirements). Neither field is exclusive: a test may
+name requirements, steps, both, or neither.
+
+**Back-referenced, like a requirement's `Steps` list.** A requirement
+gains a `Tests` field, and a step gains a `Tests` field
+(`templates/requirements.template.md`, `templates/step.template.md`) —
+each the list of `TEST-NNNNNN` that name it, in creation order.
+`/create-test` populates both sides in one action: it fills the new
+test's own `Requirements`/`Steps` fields, and appends the new test's ID
+to the `Tests` field of every requirement/step it just named. Never
+hand-edited directly on the requirement/step side — always kept in sync
+by whichever command changes the test's own links.

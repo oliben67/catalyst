@@ -15,6 +15,7 @@
 | **Status** | planned / in-progress / done / abandoned |
 | **Opened** | YYYY-MM-DD |
 | **Closed** | YYYY-MM-DD — blank until `done` or `abandoned` |
+| **Tests** | `TEST-NNNNNN` list of tests that verify this step — empty until `/create-test` names it; back-populated automatically, never hand-edited (`Rules-of-Rules.md` §22) |
 | **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this step — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Description
@@ -41,4 +42,4 @@ steps explain why here instead.
 
 ## Related
 
-Other `STEP-`/`REQ-` IDs this depends on, blocks, or was split from.
+Other `STEP-`/`REQ-`/`TEST-` IDs this depends on, blocks, or was split from.

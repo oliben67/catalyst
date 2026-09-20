@@ -102,6 +102,14 @@ creates concrete rules for that particular project.
          TEMPLATE-STEP-v1.md
        README.md
        steps.md
+     tests/
+       templates/
+         README.md
+         templates-test.md
+         TEMPLATE-TEST-v1.md
+       README.md
+       tests.md
+       <TEST-NNNNNN-short-summary>.md
      features/
        templates/
          README.md
@@ -214,10 +222,10 @@ creates concrete rules for that particular project.
    already exists in the old, purely in-project shape, and
    `migrations/` (this repository) for migrating an existing deployment
    built under an older layout of this section itself to the current
-   one. The framework only cares that the chain REQ/BUG/HK→rule stays
-   intact — extended upward through epic→story→task only when an agile
-   project-management plugin is active (INV-5, INV-22) — not the folder
-   names.
+   one. The framework only cares that the chain REQ/BUG/HK/TEST→rule
+   stays intact — extended upward through epic→story→task only when an
+   agile project-management plugin is active (INV-5, INV-22) — not the
+   folder names.
    The `domains/` folder nests under `rules/` (`Rules-of-Rules.md` §7) —
    domains exist only to group rules, so they live where rules live, not
    as a top-level sibling. The `features/` folder sits at the root,
@@ -227,8 +235,13 @@ creates concrete rules for that particular project.
    root, alongside `requirements/` — each `STEP-NNNNNN` inside it names
    exactly one parent `REQ-NNNNNN` and records one concrete unit of
    implementation work performed toward it (`Rules-of-Rules.md` §21). The
+   `tests/` folder also sits at the root, alongside `requirements/`/
+   `steps/` — each `TEST-NNNNNN` inside it is a real development
+   artifact (its own `Targets`/`Domain`, not exempt) that may
+   additionally name `(0,n)` requirements and/or `(0,n)` steps it
+   verifies (`Rules-of-Rules.md` §22). The
    `reconciliations/` folder also sits at the root, alongside
-   `requirements/`/`features/`/`steps/` — not nested under `work-items/`
+   `requirements/`/`features/`/`steps/`/`tests/` — not nested under `work-items/`
    — and holds `RECON-NNNNNN` cases opened by `/criterion push`'s merge
    step or manually (`Rules-of-Rules.md` §16).
    `work-items/` itself is not built at all here — it's plugin-only
@@ -376,7 +389,7 @@ creates concrete rules for that particular project.
    deployment and synchronization so the deployed framework always has a
    custom, project-specific landing page. In addition, create a `README.md`
    in every major deployed folder (`rules/`, `rules/domains/`,
-   `requirements/`, `steps/`, `features/`, `reconciliations/`, `workflows/`,
+   `requirements/`, `steps/`, `tests/`, `features/`, `reconciliations/`, `workflows/`,
    `IAM/users/`, `IAM/roles/`, `development/`, `development/roadmaps/`,
    `development/bugs/`, `development/house-keeping/`,
    `development/meta-tags/`) and in every `templates/` subdirectory

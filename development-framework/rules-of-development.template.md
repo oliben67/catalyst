@@ -92,6 +92,7 @@ the command on their behalf.
 | Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNNNN` |
 | Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNNNN` |
 | House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNNNN` |
+| Test | `tests/` | `templates/test.template.md` | `TEST-NNNNNN` |
 | Meta-tag | `meta-tags/` | `templates/meta-tag.template.md` | `TAG-<KEY>-<ARTEFACT-ID>` |
 
 Feature entries (`FEAT-NNNNNN`, folder `features/`, template
@@ -129,11 +130,23 @@ inherits its parent requirement's), but unlike them it's created
 isn't closeable as `done` until every one of its steps is `done` or
 `abandoned`.
 
+Tests (`TEST-NNNNNN`, folder `tests/`, template `templates/test.template.md`)
+join this document's four development-artifact types as of framework
+`0.30.0` — see `Rules-of-Rules.md` §22. Unlike features, roadmap items,
+and steps, a test is **not** exempt from this document's rules: it always
+carries its own `Targets`/`Domain`, vetted the same way a bug or
+requirement is. On top of that, a test may independently name `(0,n)`
+`REQ-NNNNNN` and `(0,n)` `STEP-NNNNNN` it verifies — both optional, and
+neither implies the other. Named requirements/steps get the new test's
+ID appended to their own `Tests` field in the same action — the mirror
+image of a requirement's `Steps` field.
+
 ### Hard rule: individual files and indexes
 
-- **This is a hard requirement.** Bugs, requirements, house-keeping items, and
-  meta-tags must each be stored as their own individual markdown file in the
-  corresponding folder, not only as free-form notes or grouped content.
+- **This is a hard requirement.** Bugs, requirements, house-keeping items,
+  tests, and meta-tags must each be stored as their own individual markdown
+  file in the corresponding folder, not only as free-form notes or grouped
+  content.
 - **This is also a hard requirement.** Every item must be listed in the
   corresponding type index file so the repository has an authoritative catalog
   of the concrete documents that exist.
@@ -141,6 +154,7 @@ isn't closeable as `done` until every one of its steps is `done` or
   - `bugs/bugs.md` for the bug index.
   - `requirements/requirements.md` for the requirements index.
   - `house-keeping/house-keeping.md` for the house-keeping index.
+  - `tests/tests.md` for the test index.
   - `meta-tags/meta-tags.md` for the meta-tag index.
 - These index files are the canonical indexes for their directory and must be kept up to date.
 - **This is a hard requirement.** `development/BACKLOG.md` always
@@ -185,6 +199,10 @@ isn't closeable as `done` until every one of its steps is `done` or
 - **House-keeping**: dev-support tooling/process, not product behavior.
   Still targets a rule where one exists — most commonly a `rr-META-*`
   process rule.
+- **Test**: verifies that a targeted rule actually holds, the same
+  `Targets`/`Domain` requirement as a bug or requirement. Optionally
+  names `(0,n)` requirements and/or `(0,n)` steps it verifies, on top of
+  its own rule target — see `Rules-of-Rules.md` §22.
 - **Meta-tag**: a lightweight annotation attached to an existing artifact.
   It stores one key/value pair whose key is one of `comment`, `version`, or
   `link-to`, and it is saved under the name `tag-<key>-<artefact-id>`.
@@ -198,6 +216,14 @@ The framework exposes the following custom slash commands:
 - `/create-req` or `/create-requirement` — create a new requirement artifact
   immediately, register it in `requirements/requirements.md`, and track it in
   the same workflow.
+- `/create-test` — create a new test artifact immediately, register it in
+  `tests/tests.md`, and track it in the same workflow as any other
+  development artifact. Prompts for a rule target and domain like
+  `/create-bug`/`/create-req` — a test is not exempt from
+  `rules-of-development.md` §1. Optionally accepts `(0,n)` requirements
+  and/or `(0,n)` steps it verifies (`Rules-of-Rules.md` §22); neither is
+  required. Named requirements/steps get the new test's ID appended to
+  their own `Tests` field in the same action.
 - `/create-feature` — create a new feature entry immediately and register it
   in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
   prompts for a rule target or domain — features are not rule-linked (see
@@ -435,6 +461,20 @@ new requirement artifact immediately, register it in
 `requirements/requirements.md`, and track it in the same workflow. If the
 domain or target rule cannot be inferred, prompt for both before creating the
 artifact.
+
+When the user enters `/create-test: ...`, create a new test artifact
+immediately using `templates/test.template.md`, register it in
+`tests/tests.md`, and track it in the same workflow as any other
+development artifact. If the domain or target rule cannot be inferred,
+prompt for both before creating the artifact — a test is not exempt
+from §1 ("no development without a targeted rule"). If the user names
+one or more `REQ-NNNNNN`/`STEP-NNNNNN` this test verifies, populate the
+`Requirements`/`Steps` fields accordingly, and append the new test's own
+ID to each named requirement's/step's own `Tests` field (creating that
+field if this is its first test); if `<REQ-id>`/`<STEP-id>` doesn't
+resolve to an existing artifact, refuse with a clear message rather than
+citing a dangling id. Both fields are optional — a test naming neither
+is valid as long as `Targets`/`Domain` are still set.
 
 When the user enters `/create-feature: ...`, create a new feature entry
 immediately using `templates/features.template.md`, register it in
@@ -936,7 +976,7 @@ from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
 
 ## 6. Development-artifact IDs
 
-Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK)-(NNNNNN)-(userid)`, global per
+Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK|TEST)-(NNNNNN)-(userid)`, global per
 type, sequential, zero-padded 6 digits, never reused, plus the signer's
 `userid` as a trailing suffix from the moment they're signed
 (`Rules-of-Rules.md` §20, INV-26). Meta-tags use a file-name pattern of
@@ -966,6 +1006,9 @@ its individual file and is reflected in the relevant index file.
 - **Step**: not closeable as "done" without its own Verification section
   filled in; `abandoned` requires a reason there instead.
 - **House-keeping**: closeable once its stated verification passes.
+- **Test**: not closeable as "passing" without its own Actual outcome
+  section reflecting a real run; `failing`/`blocked` require the same
+  section explaining why.
 
 ## 8. Retired rules and development work
 

@@ -49,6 +49,7 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `requirements/` → `requirements.md`
       - `steps/` → `steps.md` (empty index allowed — no `STEP-` yet on a
         fresh deployment)
+      - `tests/` → `tests.md`
       - `features/` → `features.md`
       - `reconciliations/` → `reconciliations.md` (empty index allowed
         — no `RECON-` yet on a fresh deployment)

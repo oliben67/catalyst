@@ -56,6 +56,15 @@ opened against it is done or abandoned, so its real implementation history
 stays structured and independently referenceable instead of buried in
 prose.
 
+## Verifying the chain: tests
+
+`TEST-` records are a fourth dev-artifact type alongside `REQ-`/`BUG-`/
+`HK-` — created via `/create-test`, carrying their own targeted rule like
+any other dev artifact, so a test's existence is itself vetted the same
+way a bug or requirement is. On top of that, a test may independently
+name `(0,n)` requirements and `(0,n)` steps it verifies — both optional,
+and a test naming neither is still valid as long as it targets a rule.
+
 ## Accountability: users, roles, signing
 
 Every artifact carries a `Signed-off-by` field, resolved against a

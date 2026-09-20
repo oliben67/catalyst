@@ -138,6 +138,8 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
      the "Version-specific one-time migrations" section below for the
      one-time `Steps` field this introduces on every existing requirement)
    - `steps/` individual step files, if any
+   - `tests/tests.md` (create the folder and index even when empty)
+   - `tests/` individual test files, if any
    - `features/features.md`
    - `features/` individual feature files, if any (create the folder and
      index even when empty — see the "Version-specific one-time
@@ -400,6 +402,16 @@ repository) — not duplicated here. Adds the core `STEP-NNNNNN` entity
 (`steps/`, `/create-step`) recording a requirement's actual implementation
 work, a `Steps` field on every requirement, and generalizes a roadmap
 row's `Linked` field from an implicit single ID to an explicit list.
+
+### From `0.29.0`: `TEST-` entity
+
+Target version `0.30.0`. Full procedure:
+`migrations/0.30.0/add-test-entity.md` (this repository) — not
+duplicated here. Adds `TEST-NNNNNN` as a fourth core development-artifact
+type (own `Targets`/`Domain`, subject to hard rule 1) alongside
+`BUG-`/`REQ-`/`HK-`, with two additional independent `(0,n)` link fields
+(`Requirements`, `Steps`) — pure addition, no existing artifact requires
+retroactive changes.
 
 ## Expected outcome
 

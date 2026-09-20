@@ -265,8 +265,8 @@ faster and is the first thing a summarizer mangles.
   letter, drawn cryptographically at `/user-add` time and regenerated
   on collision against every existing `userid` in the registry
   (`Rules-of-Rules.md` rr-META-011). From that point on, every rule,
-  `BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and `RECON-`
-  ID carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
+  `BUG-`/`REQ-`/`HK-`/`TEST-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and
+  `RECON-` ID carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
   suffix, assigned once at creation and never changed thereafter
   (`Rules-of-Rules.md` rr-META-020). A rule ID's sequence number is
   6-digit, not 3 (`Rules-of-Rules.md` rr-META-003) — zero-padded
@@ -292,6 +292,23 @@ faster and is the first thing a summarizer mangles.
   `Linked` field is a list, not a single ID: a roadmap item of real size
   is expected to decompose into more than one requirement, each
   accumulating its own steps.
+- **INV-28 — Tests are development artifacts with optional (0,n) links.**
+  `TEST-NNNNNN` (`templates/test.template.md`) joined the
+  `(BUG|REQ|HK|TEST)` development-artifact format at framework `0.30.0`
+  — unlike `STEP-`/`FEAT-`/`RM-`, it is **not** exempt from the chain
+  invariant (INV-5): a test always carries its own `Targets`/`Domain`
+  and is subject to `rules-of-development.md` §1. Its own top-level
+  `tests/` folder, sibling of `requirements/`/`steps/`, full INV-20
+  treatment. Two additional, independent `(0,n)` fields — `Requirements`
+  (zero or more `REQ-NNNNNN`) and `Steps` (zero or more `STEP-NNNNNN`)
+  it verifies — both optional; a test naming neither is valid as long as
+  it still carries `Targets`/`Domain`. Many-to-many: one requirement or
+  step may be verified by several tests, and one test may verify several
+  requirements and/or steps at once. Back-referenced on the other side:
+  a requirement and a step each gain their own `Tests` field, listing
+  every `TEST-NNNNNN` that names them — populated automatically by
+  `/create-test` in the same action, never hand-edited
+  (`Rules-of-Rules.md` rr-META-022).
 
 ## Plugins
 

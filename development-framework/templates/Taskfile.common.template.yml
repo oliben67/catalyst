@@ -60,6 +60,11 @@ tasks:
     cmds:
       - '{{.AGENT_CMD}} "/create-step {{.CLI_ARGS}}"'
 
+  create-test:
+    desc: "Create a new test artifact and register it in tests/tests.md"
+    cmds:
+      - '{{.AGENT_CMD}} "/create-test {{.CLI_ARGS}}"'
+
   roadmap-add:
     desc: "Ingest a new named roadmap from a local file: <name> <file>"
     cmds:
