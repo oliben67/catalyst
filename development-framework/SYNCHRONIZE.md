@@ -136,7 +136,9 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    - `requirements/` individual requirement files
    - `steps/steps.md` (create the folder and index even when empty — see
      the "Version-specific one-time migrations" section below for the
-     one-time `Steps` field this introduces on every existing requirement)
+     one-time `Steps` field this introduces on every existing requirement,
+     and separately for the one-time `Steps` field it introduces on every
+     existing bug once a step's `Parent` widens to accept either)
    - `steps/` individual step files, if any
    - `tests/tests.md` (create the folder and index even when empty)
    - `tests/` individual test files, if any
@@ -412,6 +414,15 @@ type (own `Targets`/`Domain`, subject to hard rule 1) alongside
 `BUG-`/`REQ-`/`HK-`, with two additional independent `(0,n)` link fields
 (`Requirements`, `Steps`) — pure addition, no existing artifact requires
 retroactive changes.
+
+### From `0.30.0`: a step's parent widens to requirement or bug
+
+Target version `0.31.0`. Full procedure:
+`migrations/0.31.0/step-parent-bug-or-requirement.md` (this repository) —
+not duplicated here. A step's single required parent field (renamed
+`Requirement` → `Parent`) now accepts a `BUG-NNNNNN` as well as a
+`REQ-NNNNNN`; the bug template gains its own `Steps` field, mirroring
+the requirement's.
 
 ## Expected outcome
 

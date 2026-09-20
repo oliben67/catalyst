@@ -1298,27 +1298,30 @@ correctly keep citing the pre-rename form forever) and
 `development/BACKLOG.md` (INV-14 — machine-regenerated; run
 `/show-backlog` after the rename instead of hand-editing it).
 
-## 21. `rr-META-021` Steps record a requirement's actual implementation work
+## 21. `rr-META-021` Steps record a requirement's or bug's actual implementation work
 
 `STEP-NNNNNN` (`templates/step.template.md`) is the itemized record of one
-concrete unit of work performed toward a specific `REQ-NNNNNN` — the files
-touched, commands run, and how it was verified. It exists so a
-requirement's real implementation history is structured and independently
-referenceable, not only prose buried in its own `## Design / implementation
-plan` section or the journal's free-text `intent`.
+concrete unit of work performed toward a specific `REQ-NNNNNN` or
+`BUG-NNNNNN` — the files touched, commands run, and how it was verified.
+It exists so a requirement's or a bug's real implementation history is
+structured and independently referenceable, not only prose buried in a
+`## Design / implementation plan` / `## Fix plan` section or the
+journal's free-text `intent`.
 
 Format: **`STEP-(NNNNNN)`** — zero-padded 6-digit sequence number, global
-across every requirement, assigned in creation order, never reused — same
-scheme as every other numbered type. Same descriptive-naming requirement as
-every other artifact (`INSTANTIATION-GUIDE.md` §1): name and filename are
+across every requirement and bug, assigned in creation order, never
+reused — same scheme as every other numbered type. Same
+descriptive-naming requirement as every other artifact
+(`INSTANTIATION-GUIDE.md` §1): name and filename are
 `STEP-NNNNNN-<short-summary>` / `STEP-NNNNNN-<short-summary>.md`, never the
 bare ID. Stored one file per instance under `steps/`, top-level, sibling of
 `requirements/`/`features/`/`reconciliations/`/`workflows/`, full INV-20
 treatment (`templates/`, `README.md`, `steps.md` index).
 
-**Always names exactly one parent requirement** — the `Requirement` field,
-required, never blank. A step with no requirement to belong to isn't a
-step; open the requirement first (`/create-req`), then steps under it.
+**Always names exactly one parent — a requirement or a bug** — the
+`Parent` field, required, never blank. A step with nothing to belong to
+isn't a step; open the requirement or bug first (`/create-req`/
+`/create-bug`), then steps under it.
 
 Exempt from:
 
@@ -1327,22 +1330,22 @@ Exempt from:
   rule"), and
 - ever carrying a `Targets` or `Domain` field of its own —
 
-it inherits its parent requirement's already-vetted rule target; a step
-documents *executing* that work, it never asserts a new behavioral claim of
-its own. A step's own `Status` (`planned`/`in-progress`/`done`/`abandoned`)
-tracks that one unit of work's completion, independent of the parent
-requirement's own `Status` — a requirement stays `in-progress` while its
-steps range across every status, and isn't closeable as `done`
+it inherits its parent's already-vetted rule target; a step documents
+*executing* that work, it never asserts a new behavioral claim of its
+own. A step's own `Status` (`planned`/`in-progress`/`done`/`abandoned`)
+tracks that one unit of work's completion, independent of the parent's
+own `Status` — a requirement or bug stays open/`in-progress` while its
+steps range across every status, and isn't closeable as `done`/`fixed`
 (`rules-of-development.md` §7) until every one of its steps is `done` or
 explicitly `abandoned` with a reason.
 
-**A requirement's `Steps` field** (`rules-of-development.md`'s requirement
-template) lists every `STEP-NNNNNN` opened against it, in creation order —
-populated as steps are opened, never guessed or backfilled from unrelated
-work. A requirement with real implementation work underway and zero steps
-recorded is itself incomplete documentation, the same posture
-`rules-of-development.md` §2's `Test plan` requirement already takes
-toward untested rules.
+**A `Steps` field, on both the requirement and the bug template**
+(`rules-of-development.md`) lists every `STEP-NNNNNN` opened against
+that instance, in creation order — populated as steps are opened, never
+guessed or backfilled from unrelated work. A requirement or bug with
+real implementation work underway and zero steps recorded is itself
+incomplete documentation, the same posture `rules-of-development.md`
+§2's `Test plan` requirement already takes toward untested rules.
 
 **Roadmap items decompose the same way, one level up.** A roadmap row's
 `Linked` field (§10) names one or more `FEAT-`/`REQ-NNNNNN` — a roadmap

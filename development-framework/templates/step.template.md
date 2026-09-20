@@ -1,17 +1,17 @@
 # `STEP-NNNNNN` — short title
 
 > One concrete unit of implementation work performed toward a specific
-> requirement — never a rule-linked claim of its own (`Rules-of-Rules.md`
-> §21). Opened as work on a requirement actually starts, not in advance
-> of it; a requirement accumulates zero (not yet started) to many steps
-> over its lifecycle.
+> requirement or bug — never a rule-linked claim of its own
+> (`Rules-of-Rules.md` §21). Opened as work on its parent actually
+> starts, not in advance of it; a requirement or bug accumulates zero
+> (not yet started) to many steps over its lifecycle.
 
 | Field | Value |
 |---|---|
 | **ID** | `STEP-NNNNNN-<userid>` — the userid suffix is the resolved signer's (`Rules-of-Rules.md` §20) |
 | **Name** | short descriptive summary of what this step does, e.g. `parse-corpus-fixtures` — follows Rules of Rules naming conventions |
 | **Filename** | descriptive kebab-case filename, e.g. `STEP-000001-Ab3xR9pQ-parse-corpus-fixtures.md` — prefer specific work over generic labels like `step.md` or `work.md` |
-| **Requirement** | `REQ-NNNNNN` this step implements — **required, never empty** |
+| **Parent** | `REQ-NNNNNN` or `BUG-NNNNNN` this step implements — **required, never empty, exactly one** |
 | **Status** | planned / in-progress / done / abandoned |
 | **Opened** | YYYY-MM-DD |
 | **Closed** | YYYY-MM-DD — blank until `done` or `abandoned` |
@@ -22,7 +22,7 @@
 
 What this concrete unit of work does, and why it's its own step rather
 than folded into another one — usually because it's independently
-verifiable, or a natural checkpoint in the requirement's implementation.
+verifiable, or a natural checkpoint in the parent's implementation.
 
 ## Actions performed
 
@@ -42,4 +42,4 @@ steps explain why here instead.
 
 ## Related
 
-Other `STEP-`/`REQ-`/`TEST-` IDs this depends on, blocks, or was split from.
+Other `STEP-`/`REQ-`/`BUG-`/`TEST-` IDs this depends on, blocks, or was split from.

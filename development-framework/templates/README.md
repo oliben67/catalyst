@@ -14,11 +14,12 @@ This folder contains the reusable document templates that seed the deployed cata
   still means opening a requirement (`requirements.template.md`), not
   editing the feature entry.
 - [`step.template.md`](step.template.md) — a top-level, **non-rule-linked**
-  template sitting *below* a requirement rather than above it: one
-  concrete unit of implementation work performed toward a specific
-  `REQ-NNNNNN` — files touched, commands run, how it was verified. Always
-  names exactly one parent requirement; created via `/create-step` as work
-  actually happens, not in advance of it. See `Rules-of-Rules.md` §21.
+  template sitting *below* a requirement or a bug rather than above it:
+  one concrete unit of implementation work performed toward a specific
+  `REQ-NNNNNN` or `BUG-NNNNNN` — files touched, commands run, how it was
+  verified. Always names exactly one parent (the `Parent` field); created
+  via `/create-step` as work actually happens, not in advance of it. See
+  `Rules-of-Rules.md` §21.
 - [`test.template.md`](test.template.md) — a top-level,
   **rule-linked** development-artifact template alongside
   `bug.template.md`/`requirement.template.md`/`house-keeping.template.md`

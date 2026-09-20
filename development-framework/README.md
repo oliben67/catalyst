@@ -55,11 +55,12 @@ Its row's `Linked` field names every `FEAT-`/`REQ-NNNNNN` currently
 associated with it — a roadmap item of real size is expected to decompose
 into more than one requirement. See `Rules-of-Rules.md` §10.
 
-Sitting *below* a requirement, `STEP-NNNNNN` records (`steps/`) are one
-concrete unit of implementation work performed toward it — files touched,
-commands run, how it was verified — created via `/create-step` as work
-actually happens. A requirement isn't closeable as done until every step
-opened against it is done or abandoned. See `Rules-of-Rules.md` §21.
+Sitting *below* a requirement or a bug, `STEP-NNNNNN` records (`steps/`)
+are one concrete unit of implementation work performed toward it — files
+touched, commands run, how it was verified — created via `/create-step`
+as work actually happens. A requirement or bug isn't closeable as
+done/fixed until every step opened against it is done or abandoned. See
+`Rules-of-Rules.md` §21.
 
 `TEST-NNNNNN` records (`tests/`) join `REQ-`/`BUG-`/`HK-` as a fourth
 rule-targeting dev-artifact type — created via `/create-test`, carrying

@@ -56,7 +56,7 @@ tasks:
       - '{{.AGENT_CMD}} "/create-feature {{.CLI_ARGS}}"'
 
   create-step:
-    desc: "Create a new step against an existing requirement: <REQ-id>"
+    desc: "Create a new step against an existing requirement or bug: <REQ-id|BUG-id>"
     cmds:
       - '{{.AGENT_CMD}} "/create-step {{.CLI_ARGS}}"'
 

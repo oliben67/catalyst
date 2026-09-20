@@ -119,16 +119,17 @@ decompose into **more than one** requirement rather than one oversized
 names every `FEAT-`/`REQ-NNNNNN` currently associated with it, not just one.
 
 Steps (`STEP-NNNNNN`, folder `steps/`, template `templates/step.template.md`)
-sit one level *below* a requirement — see `Rules-of-Rules.md` §21. Each
-names exactly one parent `REQ-NNNNNN` and records one concrete unit of
-implementation work performed toward it (files touched, commands run, how
-it was verified). Like feature entries and roadmap items, a step is exempt
-from this document's rules (no `Targets`, no `Domain` of its own — it
-inherits its parent requirement's), but unlike them it's created
-*during* active implementation, not before it: a requirement worth calling
-`in-progress` is expected to have at least one step opened against it, and
-isn't closeable as `done` until every one of its steps is `done` or
-`abandoned`.
+sit one level *below* a requirement or a bug — see `Rules-of-Rules.md`
+§21. Each names exactly one parent — a `REQ-NNNNNN` or a `BUG-NNNNNN`
+(the `Parent` field) — and records one concrete unit of implementation
+work performed toward it (files touched, commands run, how it was
+verified). Like feature entries and roadmap items, a step is exempt from
+this document's rules (no `Targets`, no `Domain` of its own — it
+inherits its parent's), but unlike them it's created *during* active
+implementation, not before it: a requirement or bug worth calling
+`in-progress` is expected to have at least one step opened against it,
+and isn't closeable as `done`/`fixed` until every one of its steps is
+`done` or `abandoned`.
 
 Tests (`TEST-NNNNNN`, folder `tests/`, template `templates/test.template.md`)
 join this document's four development-artifact types as of framework
@@ -228,12 +229,12 @@ The framework exposes the following custom slash commands:
   in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
   prompts for a rule target or domain — features are not rule-linked (see
   `Rules-of-Rules.md` §9).
-- `/create-step <REQ-id>` — create a new step immediately against an
-  existing requirement, register it in `steps/steps.md`, and append its ID
-  to that requirement's own `Steps` field. Like `/create-feature`, never
-  prompts for a rule target or domain — a step inherits its parent
-  requirement's (see `Rules-of-Rules.md` §21). Refuses if `<REQ-id>` doesn't
-  resolve to an existing requirement.
+- `/create-step <REQ-id|BUG-id>` — create a new step immediately against
+  an existing requirement or bug, register it in `steps/steps.md`, and
+  append its ID to that parent's own `Steps` field. Like `/create-feature`,
+  never prompts for a rule target or domain — a step inherits its
+  parent's (see `Rules-of-Rules.md` §21). Refuses if `<REQ-id|BUG-id>`
+  doesn't resolve to an existing requirement or bug.
 - `/roadmap-add <name> <file>` — ingest a new named roadmap from a local
   file, creating `development/roadmaps/<name>.md` from
   `templates/roadmap.template.md` and registering it in
@@ -492,15 +493,16 @@ the roadmap row's `Linked` list — a feature may reasonably decompose into
 more than one requirement, each added to `Linked` as it's opened, per
 `Rules-of-Rules.md` §21.
 
-When the user enters `/create-step <REQ-id>: ...`, refuse with a clear
-message if `<REQ-id>` doesn't resolve to an existing file under
-`requirements/`. Otherwise create a new step immediately using
-`templates/step.template.md`, register it in `steps/steps.md`, set its
-`Requirement` field to `<REQ-id>`, and append its own `STEP-NNNNNN` ID to
-that requirement's `Steps` field (creating the field if this is the
-requirement's first step). Do not prompt for a domain or rule target —
-neither field exists on this artifact type; it inherits `<REQ-id>`'s own
-`Targets`/`Domain`. New steps start `Status: planned` unless the user says
+When the user enters `/create-step <REQ-id|BUG-id>: ...`, refuse with a
+clear message if `<REQ-id|BUG-id>` doesn't resolve to an existing file
+under `requirements/` or `development/bugs/`. Otherwise create a new
+step immediately using `templates/step.template.md`, register it in
+`steps/steps.md`, set its `Parent` field to `<REQ-id|BUG-id>`, and
+append its own `STEP-NNNNNN` ID to that parent's `Steps` field (creating
+the field if this is its first step). Do not prompt for a domain or rule
+target — neither field exists on this artifact type; it inherits
+`<REQ-id|BUG-id>`'s own `Targets`/`Domain`. New steps start `Status:
+planned` unless the user says
 work is already underway, in which case `in-progress`.
 
 When the user enters `/roadmap-add <name> <file>: ...`, refuse with a clear
@@ -998,7 +1000,9 @@ deployed items whose names or filenames are still only the bare ID.
 Before closing a bug or requirement, ensure the corresponding entry exists in
 its individual file and is reflected in the relevant index file.
 
-- **Bug**: not closeable as "fixed" without its test-plan item landing.
+- **Bug**: not closeable as "fixed" without its test-plan item landing,
+  **and** every `STEP-NNNNNN` in its `Steps` field is `done` or
+  `abandoned` (`Rules-of-Rules.md` §21).
 - **Requirement**: not closeable as "done" until the acceptance criteria and
   rule targets are reflected in the implementation and tests, **and** every
   `STEP-NNNNNN` in its `Steps` field is `done` or `abandoned`

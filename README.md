@@ -48,13 +48,13 @@ standing in for the whole thing.
 
 ## Below the chain: steps
 
-`STEP-` records sit one level under a requirement: one concrete unit of
-implementation work performed toward it — files touched, commands run, how
-it was verified — created via `/create-step` as work actually happens, not
-in advance of it. A requirement isn't closeable as done until every step
-opened against it is done or abandoned, so its real implementation history
-stays structured and independently referenceable instead of buried in
-prose.
+`STEP-` records sit one level under a requirement or a bug: one concrete
+unit of implementation work performed toward it — files touched, commands
+run, how it was verified — created via `/create-step` as work actually
+happens, not in advance of it. A requirement or bug isn't closeable as
+done/fixed until every step opened against it is done or abandoned, so
+its real implementation history stays structured and independently
+referenceable instead of buried in prose.
 
 ## Verifying the chain: tests
 

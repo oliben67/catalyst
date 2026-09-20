@@ -233,8 +233,9 @@ creates concrete rules for that particular project.
    feature entries (see `Rules-of-Rules.md` §9) and is never a
    substitute for `requirements/`. The `steps/` folder also sits at the
    root, alongside `requirements/` — each `STEP-NNNNNN` inside it names
-   exactly one parent `REQ-NNNNNN` and records one concrete unit of
-   implementation work performed toward it (`Rules-of-Rules.md` §21). The
+   exactly one parent, a `REQ-NNNNNN` or a `BUG-NNNNNN`, and records one
+   concrete unit of implementation work performed toward it
+   (`Rules-of-Rules.md` §21). The
    `tests/` folder also sits at the root, alongside `requirements/`/
    `steps/` — each `TEST-NNNNNN` inside it is a real development
    artifact (its own `Targets`/`Domain`, not exempt) that may

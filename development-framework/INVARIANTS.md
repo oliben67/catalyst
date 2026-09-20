@@ -277,19 +277,20 @@ faster and is the first thing a summarizer mangles.
   and are out of scope for this suffix entirely. A user must have a
   `userid` before any entity it signs can be assigned its suffix —
   this ordering is not optional.
-- **INV-27 — Steps record a requirement's actual implementation work.**
-  `STEP-NNNNNN` (`templates/step.template.md`) names exactly one parent
-  `REQ-NNNNNN` and records one concrete unit of implementation work
-  performed toward it — files touched, commands run, how it was
-  verified. Its own top-level `steps/` folder, sibling of
-  `requirements/`, full INV-20 treatment. Exempt from the chain
-  invariant's rule-targeting requirement (INV-5) the same way `FEAT-`/
-  `RM-` are — it inherits its parent requirement's already-vetted rule
-  target rather than asserting one of its own. A requirement's `Steps`
-  field lists every step opened against it; a requirement is not
-  closeable as `done` until every one of its steps is `done` or
-  `abandoned` (`Rules-of-Rules.md` rr-META-021). A roadmap row's
-  `Linked` field is a list, not a single ID: a roadmap item of real size
+- **INV-27 — Steps record a requirement's or bug's actual implementation
+  work.** `STEP-NNNNNN` (`templates/step.template.md`) names exactly one
+  parent — a `REQ-NNNNNN` or a `BUG-NNNNNN`, the `Parent` field — and
+  records one concrete unit of implementation work performed toward it —
+  files touched, commands run, how it was verified. Its own top-level
+  `steps/` folder, sibling of `requirements/`, full INV-20 treatment.
+  Exempt from the chain invariant's rule-targeting requirement (INV-5)
+  the same way `FEAT-`/`RM-` are — it inherits its parent's
+  already-vetted rule target rather than asserting one of its own. Both
+  the requirement and bug templates carry a `Steps` field listing every
+  step opened against that instance; neither is closeable as `done`/
+  `fixed` until every one of its steps is `done` or `abandoned`
+  (`Rules-of-Rules.md` rr-META-021). A roadmap row's `Linked` field is a
+  list, not a single ID: a roadmap item of real size
   is expected to decompose into more than one requirement, each
   accumulating its own steps.
 - **INV-28 — Tests are development artifacts with optional (0,n) links.**
