@@ -11,6 +11,7 @@
 | **Targets** | one or more rule IDs this bug violates — **required, never empty** (see `CODE-OF-CONDUCT.md` §1) |
 | **Domain** | the `DOMAIN` code(s) of the targeted rule(s), from `{{RULES_DIR}}/domains/` |
 | **Area** | short free-text area label |
+| **Steps** | `STEP-NNNNNN` list, in creation order, opened against this bug (`Rules-of-Rules.md` §21) — empty while implementation hasn't started; not closeable as `fixed` until every listed step is `done` or `abandoned` |
 | **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this bug — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Severity scale
@@ -55,4 +56,4 @@ closeable as "fixed" without one.
 
 ## Related
 
-Other `BUG-`/`REQ-`/`HK-` IDs, or rule IDs.
+Other `BUG-`/`REQ-`/`HK-`/`STEP-`/`TEST-` IDs, or rule IDs.

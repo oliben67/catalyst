@@ -63,6 +63,15 @@ the surrounding deploy-procedure text.
         README.md
         steps.md                      # steps catalog
         [...]
+    tests/
+        templates/
+            README.md
+            templates-test.md
+            TEMPLATE-TEST-v1.md
+            ...
+        README.md
+        tests.md                      # tests catalog
+        [...]
     features/
         templates/
             README.md

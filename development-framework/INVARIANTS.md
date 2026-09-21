@@ -31,6 +31,16 @@ faster and is the first thing a summarizer mangles.
   or destructive keep their existing gates untouched. Not a relaxation of
   any of those; it only removes confirmation pauses that were advisory in
   the first place (e.g. `rr-META-011`'s role-mismatch check).
+- **INV-29 — Atomic, real-time artifact updates.** Catalyst's own
+  artifacts (a step's own record, a `Status` field, a journal entry) are
+  updated as the work they describe actually happens, at the smallest
+  atomic unit practical — never reconstructed retroactively in one batch
+  once work is already underway or done. Delayed, batched updating is
+  permitted only when explicitly stated **before** the work begins, by
+  whoever is doing it (agent or human); absent that explicit statement
+  beforehand, real-time atomic updating is the default, not a
+  convenience-driven choice made after the fact
+  (`Rules-of-Rules.md` rr-META-023).
 
 ## Structural
 
@@ -265,8 +275,8 @@ faster and is the first thing a summarizer mangles.
   letter, drawn cryptographically at `/user-add` time and regenerated
   on collision against every existing `userid` in the registry
   (`Rules-of-Rules.md` rr-META-011). From that point on, every rule,
-  `BUG-`/`REQ-`/`HK-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and `RECON-`
-  ID carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
+  `BUG-`/`REQ-`/`HK-`/`TEST-`, `FEAT-`, `RM-`, `STEP-`, `WORKFLOW-`, and
+  `RECON-` ID carries its creator/signer's `userid` as a trailing `-XXXXXXXX`
   suffix, assigned once at creation and never changed thereafter
   (`Rules-of-Rules.md` rr-META-020). A rule ID's sequence number is
   6-digit, not 3 (`Rules-of-Rules.md` rr-META-003) — zero-padded
@@ -277,21 +287,39 @@ faster and is the first thing a summarizer mangles.
   and are out of scope for this suffix entirely. A user must have a
   `userid` before any entity it signs can be assigned its suffix —
   this ordering is not optional.
-- **INV-27 — Steps record a requirement's actual implementation work.**
-  `STEP-NNNNNN` (`templates/step.template.md`) names exactly one parent
-  `REQ-NNNNNN` and records one concrete unit of implementation work
-  performed toward it — files touched, commands run, how it was
-  verified. Its own top-level `steps/` folder, sibling of
-  `requirements/`, full INV-20 treatment. Exempt from the chain
-  invariant's rule-targeting requirement (INV-5) the same way `FEAT-`/
-  `RM-` are — it inherits its parent requirement's already-vetted rule
-  target rather than asserting one of its own. A requirement's `Steps`
-  field lists every step opened against it; a requirement is not
-  closeable as `done` until every one of its steps is `done` or
-  `abandoned` (`Rules-of-Rules.md` rr-META-021). A roadmap row's
-  `Linked` field is a list, not a single ID: a roadmap item of real size
+- **INV-27 — Steps record a requirement's or bug's actual implementation
+  work.** `STEP-NNNNNN` (`templates/step.template.md`) names exactly one
+  parent — a `REQ-NNNNNN` or a `BUG-NNNNNN`, the `Parent` field — and
+  records one concrete unit of implementation work performed toward it —
+  files touched, commands run, how it was verified. Its own top-level
+  `steps/` folder, sibling of `requirements/`, full INV-20 treatment.
+  Exempt from the chain invariant's rule-targeting requirement (INV-5)
+  the same way `FEAT-`/`RM-` are — it inherits its parent's
+  already-vetted rule target rather than asserting one of its own. Both
+  the requirement and bug templates carry a `Steps` field listing every
+  step opened against that instance; neither is closeable as `done`/
+  `fixed` until every one of its steps is `done` or `abandoned`
+  (`Rules-of-Rules.md` rr-META-021). A roadmap row's `Linked` field is a
+  list, not a single ID: a roadmap item of real size
   is expected to decompose into more than one requirement, each
   accumulating its own steps.
+- **INV-28 — Tests are development artifacts with optional (0,n) links.**
+  `TEST-NNNNNN` (`templates/test.template.md`) joined the
+  `(BUG|REQ|HK|TEST)` development-artifact format at framework `0.30.0`
+  — unlike `STEP-`/`FEAT-`/`RM-`, it is **not** exempt from the chain
+  invariant (INV-5): a test always carries its own `Targets`/`Domain`
+  and is subject to `rules-of-development.md` §1. Its own top-level
+  `tests/` folder, sibling of `requirements/`/`steps/`, full INV-20
+  treatment. Two additional, independent `(0,n)` fields — `Requirements`
+  (zero or more `REQ-NNNNNN`) and `Steps` (zero or more `STEP-NNNNNN`)
+  it verifies — both optional; a test naming neither is valid as long as
+  it still carries `Targets`/`Domain`. Many-to-many: one requirement or
+  step may be verified by several tests, and one test may verify several
+  requirements and/or steps at once. Back-referenced on the other side:
+  a requirement and a step each gain their own `Tests` field, listing
+  every `TEST-NNNNNN` that names them — populated automatically by
+  `/create-test` in the same action, never hand-edited
+  (`Rules-of-Rules.md` rr-META-022).
 
 ## Plugins
 

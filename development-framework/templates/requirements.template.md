@@ -29,6 +29,7 @@ more rules. None of those three are optional.
 | **Domain** | the `DOMAIN` code(s) of the targeted/new rule(s), from `{{RULES_DIR}}/domains/` — **required, never free text** |
 | **Feature** | `FEAT-NNNNNN`, if this requirement was motivated by a documented feature — omit if none |
 | **Steps** | `STEP-NNNNNN` list, in creation order, opened against this requirement (`Rules-of-Rules.md` §21) — empty while implementation hasn't started; not closeable as `done` until every listed step is `done` or `abandoned` |
+| **Tests** | `TEST-NNNNNN` list of tests that verify this requirement — empty until `/create-test` names it; back-populated automatically, never hand-edited (`Rules-of-Rules.md` §22) |
 | **Signed-off-by** | name of the registered user (`IAM/users/users.json`) who signed this requirement — see `CODE-OF-CONDUCT.md` §2 |
 
 ## Vetted against existing rules
@@ -127,4 +128,4 @@ rule with no test is not "done" regardless of whether the code exists.
 
 ## Related
 
-Other `BUG-`/`REQ-`/`HK-`/`FEAT-` IDs, or rule IDs.
+Other `BUG-`/`REQ-`/`HK-`/`FEAT-`/`TEST-` IDs, or rule IDs.
