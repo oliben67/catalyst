@@ -1398,3 +1398,33 @@ test's own `Requirements`/`Steps` fields, and appends the new test's ID
 to the `Tests` field of every requirement/step it just named. Never
 hand-edited directly on the requirement/step side — always kept in sync
 by whichever command changes the test's own links.
+
+## 23. `rr-META-023` Artifact updates happen atomically, as work happens
+
+Every catalyst artifact — a step's own record, a `Status` field, a
+journal entry — is updated **as the work it describes actually
+happens**, at the smallest atomic unit practical, not reconstructed
+retroactively in one batch once work is already done. `STEP-NNNNNN`'s
+own definition already states this narrowly ("opened as work on its
+parent actually starts, not in advance of it," §21); this section
+generalizes the same posture to every artifact update, whether the
+agent or a user is narrating their own manual work: a step is opened
+when its unit of work starts and closed when it finishes, not
+backfilled after the fact; a journal entry is appended as each
+qualifying action completes (§12), never accumulated and appended in
+bulk at session end; a `Status` field moves the moment the real-world
+state it tracks moves.
+
+**Delayed, batched updating is allowed — but only when explicitly
+stated before the work begins.** Whoever is about to do the work (agent
+or human) says so up front — "I'll batch these steps and record them
+afterward" — before starting, not as a retroactive justification once
+the work is already underway or finished. Absent that explicit
+statement, real-time, atomic updating is the default; silently
+batching bookkeeping for later convenience is not a judgment call left
+to the agent.
+
+**Added 2026-09-20**
+(`development-framework/migrations/0.32.0/atomic-artifact-updates.md`).
+Behavioural only — no existing artifact's shape or content changes;
+nothing here to retroactively backfill.

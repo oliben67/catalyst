@@ -129,7 +129,8 @@ inherits its parent's), but unlike them it's created *during* active
 implementation, not before it: a requirement or bug worth calling
 `in-progress` is expected to have at least one step opened against it,
 and isn't closeable as `done`/`fixed` until every one of its steps is
-`done` or `abandoned`.
+`done` or `abandoned`. Opened and closed as the work itself happens, not
+batched afterward, per `INVARIANTS.md` INV-29.
 
 Tests (`TEST-NNNNNN`, folder `tests/`, template `templates/test.template.md`)
 join this document's four development-artifact types as of framework

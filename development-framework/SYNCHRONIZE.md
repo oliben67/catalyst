@@ -424,6 +424,15 @@ not duplicated here. A step's single required parent field (renamed
 `REQ-NNNNNN`; the bug template gains its own `Steps` field, mirroring
 the requirement's.
 
+### From `0.31.0`: atomic, real-time artifact updates
+
+Target version `0.32.0`. Full procedure:
+`migrations/0.32.0/atomic-artifact-updates.md` (this repository) — not
+duplicated here. New behavioural meta-rule: every catalyst artifact is
+updated as the work it describes actually happens, not batched
+retroactively, unless delayed updating is explicitly stated before work
+begins. Purely behavioural — no schema change, nothing to backfill.
+
 ## Expected outcome
 
 After synchronization, the deployed framework should reflect the current

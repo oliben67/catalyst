@@ -31,6 +31,16 @@ faster and is the first thing a summarizer mangles.
   or destructive keep their existing gates untouched. Not a relaxation of
   any of those; it only removes confirmation pauses that were advisory in
   the first place (e.g. `rr-META-011`'s role-mismatch check).
+- **INV-29 — Atomic, real-time artifact updates.** Catalyst's own
+  artifacts (a step's own record, a `Status` field, a journal entry) are
+  updated as the work they describe actually happens, at the smallest
+  atomic unit practical — never reconstructed retroactively in one batch
+  once work is already underway or done. Delayed, batched updating is
+  permitted only when explicitly stated **before** the work begins, by
+  whoever is doing it (agent or human); absent that explicit statement
+  beforehand, real-time atomic updating is the default, not a
+  convenience-driven choice made after the fact
+  (`Rules-of-Rules.md` rr-META-023).
 
 ## Structural
 
