@@ -48,13 +48,22 @@ standing in for the whole thing.
 
 ## Below the chain: steps
 
-`STEP-` records sit one level under a requirement: one concrete unit of
-implementation work performed toward it — files touched, commands run, how
-it was verified — created via `/create-step` as work actually happens, not
-in advance of it. A requirement isn't closeable as done until every step
-opened against it is done or abandoned, so its real implementation history
-stays structured and independently referenceable instead of buried in
-prose.
+`STEP-` records sit one level under a requirement or a bug: one concrete
+unit of implementation work performed toward it — files touched, commands
+run, how it was verified — created via `/create-step` as work actually
+happens, not in advance of it. A requirement or bug isn't closeable as
+done/fixed until every step opened against it is done or abandoned, so
+its real implementation history stays structured and independently
+referenceable instead of buried in prose.
+
+## Verifying the chain: tests
+
+`TEST-` records are a fourth dev-artifact type alongside `REQ-`/`BUG-`/
+`HK-` — created via `/create-test`, carrying their own targeted rule like
+any other dev artifact, so a test's existence is itself vetted the same
+way a bug or requirement is. On top of that, a test may independently
+name `(0,n)` requirements and `(0,n)` steps it verifies — both optional,
+and a test naming neither is still valid as long as it targets a rule.
 
 ## Accountability: users, roles, signing
 

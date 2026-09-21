@@ -136,8 +136,12 @@ When the command `/sync-framework [latest|<version>] [--force <scope>]` is enter
    - `requirements/` individual requirement files
    - `steps/steps.md` (create the folder and index even when empty — see
      the "Version-specific one-time migrations" section below for the
-     one-time `Steps` field this introduces on every existing requirement)
+     one-time `Steps` field this introduces on every existing requirement,
+     and separately for the one-time `Steps` field it introduces on every
+     existing bug once a step's `Parent` widens to accept either)
    - `steps/` individual step files, if any
+   - `tests/tests.md` (create the folder and index even when empty)
+   - `tests/` individual test files, if any
    - `features/features.md`
    - `features/` individual feature files, if any (create the folder and
      index even when empty — see the "Version-specific one-time
@@ -400,6 +404,34 @@ repository) — not duplicated here. Adds the core `STEP-NNNNNN` entity
 (`steps/`, `/create-step`) recording a requirement's actual implementation
 work, a `Steps` field on every requirement, and generalizes a roadmap
 row's `Linked` field from an implicit single ID to an explicit list.
+
+### From `0.29.0`: `TEST-` entity
+
+Target version `0.30.0`. Full procedure:
+`migrations/0.30.0/add-test-entity.md` (this repository) — not
+duplicated here. Adds `TEST-NNNNNN` as a fourth core development-artifact
+type (own `Targets`/`Domain`, subject to hard rule 1) alongside
+`BUG-`/`REQ-`/`HK-`, with two additional independent `(0,n)` link fields
+(`Requirements`, `Steps`) — pure addition, no existing artifact requires
+retroactive changes.
+
+### From `0.30.0`: a step's parent widens to requirement or bug
+
+Target version `0.31.0`. Full procedure:
+`migrations/0.31.0/step-parent-bug-or-requirement.md` (this repository) —
+not duplicated here. A step's single required parent field (renamed
+`Requirement` → `Parent`) now accepts a `BUG-NNNNNN` as well as a
+`REQ-NNNNNN`; the bug template gains its own `Steps` field, mirroring
+the requirement's.
+
+### From `0.31.0`: atomic, real-time artifact updates
+
+Target version `0.32.0`. Full procedure:
+`migrations/0.32.0/atomic-artifact-updates.md` (this repository) — not
+duplicated here. New behavioural meta-rule: every catalyst artifact is
+updated as the work it describes actually happens, not batched
+retroactively, unless delayed updating is explicitly stated before work
+begins. Purely behavioural — no schema change, nothing to backfill.
 
 ## Expected outcome
 

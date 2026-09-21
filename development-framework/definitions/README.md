@@ -45,5 +45,6 @@ to definitions instead of instance templates.
 `bug`, `requirement`, `house-keeping`, `rule`, `domain`, `feature`,
 `roadmap`, `user`, `role`, `reconciliation`, `meta-tag`, `journal`,
 `backlog`, `ledger`, `slash-command`, `templates-catalog`, `workflow`,
-`step` — every real, deployed catalyst entity type. (`section.template.md`
-under `templates/` is vestigial and unused — it has no definition here.)
+`step`, `test` — every real, deployed catalyst entity type.
+(`section.template.md` under `templates/` is vestigial and unused — it
+has no definition here.)
