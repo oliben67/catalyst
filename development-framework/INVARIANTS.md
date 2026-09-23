@@ -45,11 +45,15 @@ faster and is the first thing a summarizer mangles.
 ## Structural
 
 - **INV-5 — Chain invariant.** No work without a traceable link down to a
-  documented rule: `REQ`/`BUG`/`HK` → rule → domain. Every document,
-  domain, and rule has a stable, permanent, never-reused ID. Extended
-  upward through `epic → story → task →` when an agile
-  project-management plugin is active (INV-22) — `work-items/` doesn't
-  exist otherwise, so the chain can't reach through it; without one
+  documented grounding artifact (e.g., `rule` for software engineering,
+  `policy` for governance modules): `REQ`/`BUG`/`HK` → rule → domain.
+  Generalized across Catalyst Modules (`MODULE-SPECIFICATION.md`): an active
+  module declares its `grounding_type` and each ETD specifies `grounding`
+  as `required` (linking directly to grounding type), `inherited` (inheriting
+  parent link), or `none`. Every document, domain, and rule has a stable,
+  permanent, never-reused ID. Extended upward through `epic → story → task →`
+  when an agile project-management plugin is active (INV-22) — `work-items/`
+  doesn't exist otherwise, so the chain can't reach through it; without one
   active, `REQ`/`BUG`/`HK` chains directly to rule → domain, the same
   way house-keeping's "no rule applies" is already a legitimate,
   explicit answer.
@@ -204,9 +208,11 @@ faster and is the first thing a summarizer mangles.
   `TEMPLATE-<TYPE>-vN.md` — files only, never a subfolder, never edited
   in place once a newer version exists) and its own `README.md`; the
   artifact-type root itself accepts files and folders at any depth for
-  the actual artifacts. Domains nest under `rules/domains/` (they exist
-  only to group rules). `IAM/users/`, `IAM/roles/` replace bare
-  `development/users.json`/`roles.json`, and carry the same `templates/`
+  the actual artifacts. Artifact types, their storage directories, and
+  relationships are defined by Entity Type Definitions (ETDs) in the active
+  module manifest (`MODULE-SPECIFICATION.md`). Domains nest under
+  `rules/domains/` (they exist only to group rules). `IAM/users/`, `IAM/roles/`
+  replace bare `development/users.json`/`roles.json`, and carry the same `templates/`
   treatment as every other type — `TEMPLATE-USERS-vN.json`/
   `TEMPLATE-ROLES-vN.json` version the registry's seed shape, since each
   registry is one JSON array rather than one-file-per-instance.

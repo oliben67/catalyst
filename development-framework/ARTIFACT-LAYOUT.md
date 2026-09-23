@@ -116,6 +116,13 @@ the surrounding deploy-procedure text.
                 ...
             README.md
             roles.json                   # roles registry (one JSON array)
+    modules/                             # Process Modules & ETD schemas (MODULE-SPECIFICATION.md)
+        <module-id>/
+            module.yaml                  # Module manifest
+            schemas/                     # ETD schema definitions (.yaml)
+            templates/                   # Document markdown templates
+            commands/                    # Module slash commands (.md)
+            skills/                      # Agent skills exported by module
     plugins/                             # unaffected by INV-20 — a plugin owns its own layout
         <type>/
             [...]

@@ -64,6 +64,13 @@ creates concrete rules for that particular project.
      definitions/
        README.md
        <type>.md
+     modules/
+       <module-id>/
+         module.yaml
+         schemas/
+         templates/
+         commands/
+         skills/
      rules/
        templates/
          README.md

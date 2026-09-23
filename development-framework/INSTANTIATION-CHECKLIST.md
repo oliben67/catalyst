@@ -61,6 +61,7 @@ from drifting. The guide holds the rationale; this holds the checks.
       - `IAM/roles/` → `templates/` (`TEMPLATE-ROLES-v1.json` from
         `templates/roles.template.json`) then `roles.json` seeded from
         it (default agile-role mapping, INV-16)
+      - `modules/` → seeded with `software-engineering` module manifest (`module.yaml`), schemas, templates, and slash command specifications (`MODULE-SPECIFICATION.md`)
       - `development/roadmaps/` → `roadmaps.md` (empty index allowed,
         INV-15 — individual named roadmaps created later via
         `/roadmap-add`)
