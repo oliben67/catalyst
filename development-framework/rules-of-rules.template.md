@@ -173,7 +173,7 @@ unindexed notes is not permitted.
 ## 6. `rr-META-006` Development artifacts have their own ID scheme
 
 If the deployed framework is missing `version.txt`, or if its version is
-lower than this framework's own `development-framework/version.txt`, the
+lower than this framework's own `version.txt`, the
 deployed framework must be synchronized before further work proceeds. See
 [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
@@ -280,7 +280,7 @@ unrelated domain even if the original is later emptied out or retired
 
 The framework version is tracked in `version.txt` at the framework root.
 If a deployed framework has no `version.txt`, or its version is lower than
-this framework's own `development-framework/version.txt`, it is considered
+this framework's own `version.txt`, it is considered
 out of date and must be synchronized using [`SYNCHRONIZE.md`](SYNCHRONIZE.md).
 
 **`work-items/` is not part of the core deployed layout.** Unlike
