@@ -108,8 +108,9 @@ anything into the target project:
 
 1. `development-framework/INVARIANTS.md` — the hard rules, in full.
 2. `development-framework/README.md` — the four-layer model.
-3. `development-framework/INSTANTIATION-GUIDE.md` — the full deploy steps.
-4. `development-framework/INSTANTIATION-CHECKLIST.md` — the tickable version you
+3. `development-framework/MODULE-SPECIFICATION.md` — the module specification & ETD schemas.
+4. `development-framework/INSTANTIATION-GUIDE.md` — the full deploy steps.
+5. `development-framework/INSTANTIATION-CHECKLIST.md` — the tickable version you
    will actually execute against.
 
 Then execute the instantiation by **working the checklist**, not from memory of

@@ -1,0 +1,76 @@
+id: software-engineering
+name: Software Engineering Process Module
+version: 1.0.0
+description: Standard software engineering process module governing rules, requirements, bugs, tests, steps, features, roadmaps, workflows, and reconciliations.
+grounding_type: rule
+
+entity_types:
+  - id: BUG
+    schema: schemas/bug.yaml
+  - id: REQ
+    schema: schemas/requirement.yaml
+  - id: HK
+    schema: schemas/house-keeping.yaml
+  - id: TEST
+    schema: schemas/test.yaml
+  - id: STEP
+    schema: schemas/step.yaml
+  - id: FEAT
+    schema: schemas/feature.yaml
+  - id: RM
+    schema: schemas/roadmap.yaml
+  - id: WORKFLOW
+    schema: schemas/workflow.yaml
+  - id: RECON
+    schema: schemas/reconciliation.yaml
+
+commands:
+  - name: create-req
+    description: Create a new rule-linked requirement artifact
+    argument_hint: "[<rule-id>]"
+    spec_path: commands/create-req.md
+  - name: create-bug
+    description: Create a new rule-linked bug artifact
+    argument_hint: "[<rule-id>]"
+    spec_path: commands/create-bug.md
+  - name: create-test
+    description: Create a new rule-linked test artifact
+    argument_hint: "[<rule-id>]"
+    spec_path: commands/create-test.md
+  - name: create-feature
+    description: Create a new feature artifact
+    spec_path: commands/create-feature.md
+  - name: create-step
+    description: Create a new step artifact under a requirement or bug
+    argument_hint: "<parent-id>"
+    spec_path: commands/create-step.md
+  - name: check-rules
+    description: Validate chain completeness across all dev artifacts
+    spec_path: commands/check-rules.md
+  - name: show-backlog
+    description: Display work item and artifact backlog
+    spec_path: commands/show-backlog.md
+  - name: cut-release
+    description: Cut a release for catalyst or a submodule
+    argument_hint: "[submodule <name>]"
+    spec_path: commands/cut-release.md
+
+templates:
+  - entity_type: BUG
+    template_path: templates/bug.template.md
+  - entity_type: REQ
+    template_path: templates/requirement.template.md
+  - entity_type: HK
+    template_path: templates/house-keeping.template.md
+  - entity_type: TEST
+    template_path: templates/test.template.md
+  - entity_type: STEP
+    template_path: templates/step.template.md
+  - entity_type: FEAT
+    template_path: templates/feature.template.md
+  - entity_type: RM
+    template_path: templates/roadmap.template.md
+  - entity_type: WORKFLOW
+    template_path: templates/workflow.template.md
+  - entity_type: RECON
+    template_path: templates/reconciliation.template.md

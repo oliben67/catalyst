@@ -1,6 +1,7 @@
 {
   "project_name": "catalyst",
-  "framework_version": "0.17.0",
+  "framework_version": "0.32.1",
+  "module": "software-engineering",
   "agent": "claude-code",
   "agent-source": "/Users/oliviersteck/.claude/projects/-Users-oliviersteck-sources-catalyst/.criterion",
   "repoed": true,
@@ -9,5 +10,5 @@
   "created_by": "Olivier Steck",
   "criterion_branch": "criterion",
   "created": "2026-08-23",
-  "updated": "2026-09-15"
+  "updated": "2026-09-24"
 }

@@ -1,0 +1,48 @@
+id_prefix: TEST
+name: Test
+plural_name: Tests
+folder: tests
+grounding: required
+grounding_field: Targets
+
+fields:
+  - name: ID
+    kind: text
+    required: true
+  - name: Status
+    kind: enum
+    required: true
+    allowed_values:
+      - Draft
+      - Active
+      - Passing
+      - Failing
+      - Disabled
+  - name: Targets
+    kind: ref-list
+    required: true
+    target_type: rule
+  - name: Domain
+    kind: ref
+    required: true
+    target_type: domain
+  - name: Requirements
+    kind: ref-list
+    required: false
+    target_type: REQ
+    backref: Tests
+  - name: Steps
+    kind: ref-list
+    required: false
+    target_type: STEP
+
+workflow:
+  initial: Draft
+  states:
+    - Draft
+    - Active
+    - Passing
+    - Failing
+    - Disabled
+  closed_states:
+    - Passing

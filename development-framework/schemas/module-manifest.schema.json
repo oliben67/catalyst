@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://catalyst.framework/schemas/module-manifest.schema.json",
+  "title": "Catalyst Module Manifest Schema",
+  "description": "JSON schema for validating module.yaml files in Catalyst framework modules.",
+  "type": "object",
+  "required": ["id", "name", "version", "description", "grounding_type", "entity_types"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Unique lowercase hyphenated module identifier."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable module name."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer format version string."
+    },
+    "description": {
+      "type": "string",
+      "description": "Concise summary of module domain and capabilities."
+    },
+    "grounding_type": {
+      "type": "string",
+      "description": "Primary grounding artifact type (e.g. rule, policy)."
+    },
+    "entity_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "schema"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]+$",
+            "description": "Uppercase entity ID prefix."
+          },
+          "schema": {
+            "type": "string",
+            "description": "Path to ETD schema file relative to module root."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "spec_path"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Slash command name without leading slash."
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of command action."
+          },
+          "argument_hint": {
+            "type": "string",
+            "description": "CLI hint for command arguments."
+          },
+          "spec_path": {
+            "type": "string",
+            "description": "Path to command specification file relative to module root."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "spec_path"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of exported agent skill."
+          },
+          "spec_path": {
+            "type": "string",
+            "description": "Path to skill definition SKILL.md file relative to module root."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_type", "template_path"],
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "description": "Entity type prefix matching an entity_types entry."
+          },
+          "template_path": {
+            "type": "string",
+            "description": "Path to markdown template relative to module root."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,56 @@
+id_prefix: REQ
+name: Requirement
+plural_name: Requirements
+folder: requirements
+grounding: required
+grounding_field: Targets
+
+fields:
+  - name: ID
+    kind: text
+    required: true
+  - name: Status
+    kind: enum
+    required: true
+    allowed_values:
+      - Draft
+      - Proposed
+      - Vetted
+      - Active
+      - Completed
+      - Abandoned
+  - name: Targets
+    kind: ref-list
+    required: true
+    target_type: rule
+  - name: Domain
+    kind: ref
+    required: true
+    target_type: domain
+  - name: Feature
+    kind: ref
+    required: false
+    target_type: FEAT
+    backref: Requirements
+  - name: Tests
+    kind: ref-list
+    required: false
+    target_type: TEST
+    backref: Requirements
+  - name: Steps
+    kind: ref-list
+    required: false
+    target_type: STEP
+
+workflow:
+  initial: Draft
+  states:
+    - Draft
+    - Proposed
+    - Vetted
+    - Active
+    - Completed
+    - Abandoned
+  closed_states:
+    - Completed
+    - Abandoned

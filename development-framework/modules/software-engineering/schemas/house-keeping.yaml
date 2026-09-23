@@ -1,0 +1,33 @@
+id_prefix: HK
+name: House-keeping
+plural_name: House-keeping Items
+folder: house-keeping
+grounding: required
+grounding_field: Targets
+
+fields:
+  - name: ID
+    kind: text
+    required: true
+  - name: Status
+    kind: enum
+    required: true
+    allowed_values:
+      - Open
+      - Completed
+  - name: Targets
+    kind: ref-list
+    required: true
+    target_type: rule
+  - name: Domain
+    kind: ref
+    required: true
+    target_type: domain
+
+workflow:
+  initial: Open
+  states:
+    - Open
+    - Completed
+  closed_states:
+    - Completed
