@@ -1,0 +1,32 @@
+id_prefix: RM
+name: Roadmap
+plural_name: Roadmaps
+folder: roadmaps
+grounding: none
+
+fields:
+  - name: ID
+    kind: text
+    required: true
+  - name: Status
+    kind: enum
+    required: true
+    allowed_values:
+      - Not triaged
+      - Triaged
+      - In progress
+      - Done
+  - name: Linked
+    kind: ref
+    required: false
+    target_type: FEAT
+
+workflow:
+  initial: Not triaged
+  states:
+    - Not triaged
+    - Triaged
+    - In progress
+    - Done
+  closed_states:
+    - Done

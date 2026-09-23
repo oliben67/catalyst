@@ -1,0 +1,16 @@
+id: sample-process
+name: Sample Process Module
+version: 1.0.0
+description: Minimal non-software engineering process module for testing kernel isolation.
+grounding_type: policy
+
+entity_types:
+  - id: POLICY
+    schema: schemas/policy.yaml
+  - id: TASK
+    schema: schemas/task.yaml
+
+commands:
+  - name: create-policy
+    description: Create a new policy document
+    spec_path: commands/create-policy.md

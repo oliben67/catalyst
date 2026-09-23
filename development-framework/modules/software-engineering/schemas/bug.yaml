@@ -1,0 +1,44 @@
+id_prefix: BUG
+name: Bug
+plural_name: Bugs
+folder: bugs
+grounding: required
+grounding_field: Targets
+
+fields:
+  - name: ID
+    kind: text
+    required: true
+  - name: Status
+    kind: enum
+    required: true
+    allowed_values:
+      - Open
+      - Under Review
+      - Fixed
+      - Closed
+      - WontFix
+  - name: Targets
+    kind: ref-list
+    required: true
+    target_type: rule
+  - name: Domain
+    kind: ref
+    required: true
+    target_type: domain
+  - name: Steps
+    kind: ref-list
+    required: false
+    target_type: STEP
+
+workflow:
+  initial: Open
+  states:
+    - Open
+    - Under Review
+    - Fixed
+    - Closed
+    - WontFix
+  closed_states:
+    - Closed
+    - WontFix

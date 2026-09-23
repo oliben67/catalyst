@@ -108,6 +108,8 @@ project carries. See `Rules-of-Rules.md` §13.
 |---|---|
 | [`rules-of-rules.template.md`](rules-of-rules.template.md) | Generic meta-rules: conflict-checking, done-bar, ID scheme, domain standard, retirement. Copy to `<project>/rules/Rules-of-Rules.md` and fill in placeholders. |
 | [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
+| [`MODULE-SPECIFICATION.md`](MODULE-SPECIFICATION.md) | Standard specification for Catalyst Process Modules, Module Manifests (`module.yaml`), Entity Type Definitions (`.yaml`), and layout. |
+| [`schemas/`](schemas/) | Machine-readable JSON schemas (`module-manifest.schema.json`, `entity-type-definition.schema.json`) for module and ETD validation. |
 | [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, step, test, feature, reconciliation, house-keeping, meta-tag, domain, workflow, slash-command, backlog, roadmap, roles, users, journal). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
 | [`version.txt`](../version.txt) | Current framework version (at framework root). |
