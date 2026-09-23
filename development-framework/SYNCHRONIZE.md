@@ -24,13 +24,13 @@ immediately.
 ## Version rule
 
 - Current framework version: see this repository's own
-  `development-framework/version.txt`.
+  `version.txt`.
 - The source of truth for the latest framework version is the `release`
   branch of `git@github.com:oliben67/catalyst.git` (or
   `https://github.com/oliben67/catalyst.git`).
 - The deployed framework must have a `version.txt` file.
 - If `version.txt` is missing or contains a version lower than this
-  framework's own `development-framework/version.txt`, treat the
+  framework's own `version.txt`, treat the
   deployment as out of date and synchronize it.
 
 ## Slash-command behavior for `/sync-framework`
@@ -437,4 +437,4 @@ begins. Purely behavioural — no schema change, nothing to backfill.
 
 After synchronization, the deployed framework should reflect the current
 framework's rules, templates, and file structure, and its version should be
-at least this framework's own `development-framework/version.txt`.
+at least this framework's own `version.txt`.

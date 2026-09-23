@@ -110,7 +110,7 @@ project carries. See `Rules-of-Rules.md` §13.
 | [`rules-of-development.template.md`](rules-of-development.template.md) | Generic standards for bug/requirement/house-keeping/meta-tag artifacts. Copy to `<project>/CODE-OF-CONDUCT.md`. |
 | [`templates/`](templates/) | Generic per-item-type document templates (bug, requirement, step, test, feature, reconciliation, house-keeping, meta-tag, domain, workflow, slash-command, backlog, roadmap, roles, users, journal). |
 | [`SYNCHRONIZE.md`](SYNCHRONIZE.md) | Rules for synchronizing this framework with deployed projects when versions are missing or outdated. |
-| [`version.txt`](version.txt) | Current framework version. |
+| [`version.txt`](../version.txt) | Current framework version (at framework root). |
 | [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md) | Step-by-step: how to stand this framework up in a new (or existing) project. |
 | [`ARTIFACT-LAYOUT.md`](ARTIFACT-LAYOUT.md) | Clean, standalone reference tree for the deployed uniform artifact-type layout (`Rules-of-Rules.md` §15, INV-20) — the shape alone, without the deploy-procedure prose. |
 | [`migrations/`](migrations/) | One-time migration plans for bringing an existing deployment up to a framework version that changed the deployed shape. |
