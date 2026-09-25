@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-"""Package framework and modules into versioned zipped archives with manifests.
+"""Package the kernel and modules into versioned zipped archives with manifests.
 
-1. Module software-engineering:
+The catalyst framework is the kernel (framework/kernel/, everything
+independent of process modules) plus its process modules
+(framework/modules/). Each ships as its own versioned release.
+
+1. Module software-engineering, from its own repository checked out as a
+   sibling of catalyst (../catalyst-software-engineering/). Modules are
+   full repositories, not catalyst submodules; skipped if not checked out.
    - Zips the module contents (excluding .git, node_modules, catalyst output).
    - Includes manifest.json inside the zip and alongside it.
-   - Saves to framework/modules/software-engineering/catalyst/module/software-engineering/v[version]/
-   - Commits and pushes changes to origin main for the submodule.
+   - Saves to <module repo>/catalyst/modules/software-engineering/v[version]/
+   - Commits and pushes changes to origin main of the module repository.
 
-2. Catalyst Framework (without modules):
-   - Zips framework contents excluding framework/modules/.
+2. Catalyst Kernel:
+   - Zips framework/kernel/.
    - Includes manifest.json inside the zip and alongside it.
-   - Saves to catalyst/framework/v[version]/ at the root workspace.
+   - Saves to catalyst/kernel/v[version]/ at the root workspace.
 """
 from __future__ import annotations
 
@@ -21,6 +27,12 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# Process modules live in their own repositories, checked out next to catalyst.
+MODULE_REPO_DIRNAME = "catalyst-software-engineering"
+
+
+def module_repo_dir(root: Path) -> Path:
+    return root.parent / MODULE_REPO_DIRNAME
 
 
 def run_cmd(cmd: list[str], cwd: Path) -> str:
@@ -28,13 +40,15 @@ def run_cmd(cmd: list[str], cwd: Path) -> str:
     return res.stdout.strip()
 
 
-def package_software_engineering_module(root: Path) -> Path:
-    module_dir = root / "framework" / "modules" / "software-engineering"
+def package_software_engineering_module(root: Path) -> Path | None:
+    module_dir = module_repo_dir(root)
+    if not module_dir.is_dir():
+        print(f"Skipping software-engineering module: not checked out at {module_dir}")
+        return None
     version_file = module_dir / "version.txt"
     version = version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else "1.0.0"
 
-    fw_version_file = root / "version.txt"
-    fw_version = fw_version_file.read_text(encoding="utf-8").strip() if fw_version_file.is_file() else "0.33.0"
+    kernel_version = read_kernel_version(root)
 
     dest_dir = module_dir / "catalyst" / "modules" / "software-engineering" / f"v{version}"
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -44,7 +58,7 @@ def package_software_engineering_module(root: Path) -> Path:
         "name": "Software Engineering Process Module",
         "version": version,
         "description": "Standard software engineering process module governing rules, requirements, bugs, tests, steps, features, roadmaps, workflows, and reconciliations.",
-        "frameworkVersion": f">={fw_version}",
+        "kernelVersion": f">={kernel_version}",
         "entry": "ui/index.js"
     }
 
@@ -78,14 +92,14 @@ def package_software_engineering_module(root: Path) -> Path:
 
     print(f"Packaged software-engineering module v{version} -> {dest_dir}")
 
-    # Commit and push in submodule
+    # Commit and push in the module repository
     try:
         run_cmd(["git", "add", "catalyst"], cwd=module_dir)
         status = run_cmd(["git", "status", "--porcelain"], cwd=module_dir)
         if status:
             run_cmd(["git", "commit", "-m", f"Release software-engineering module v{version}"], cwd=module_dir)
             run_cmd(["git", "push", "origin", "main"], cwd=module_dir)
-            print("Committed and pushed module release to git@github.com:oliben67/calatalyst-software-engineering.git")
+            print(f"Committed and pushed module release from {module_dir}")
         else:
             print("No changes to commit in software-engineering module repository.")
     except Exception as exc:
@@ -94,19 +108,24 @@ def package_software_engineering_module(root: Path) -> Path:
     return dest_dir
 
 
-def package_framework(root: Path) -> Path:
-    fw_dir = root / "framework"
-    fw_version_file = root / "version.txt"
-    fw_version = fw_version_file.read_text(encoding="utf-8").strip() if fw_version_file.is_file() else "0.33.0"
+def read_kernel_version(root: Path) -> str:
+    """The kernel version: catalyst's root version.txt."""
+    version_file = root / "version.txt"
+    return version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else "0.35.0"
 
-    dest_dir = root / "catalyst" / "framework" / f"v{fw_version}"
+
+def package_kernel(root: Path) -> Path:
+    kernel_dir = root / "framework" / "kernel"
+    kernel_version = read_kernel_version(root)
+
+    dest_dir = root / "catalyst" / "kernel" / f"v{kernel_version}"
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     manifest_data = {
-        "id": "catalyst-framework",
-        "name": "Catalyst Framework",
-        "version": fw_version,
-        "description": "Core Catalyst Framework specification, templates, definitions, and plugins without modules."
+        "id": "catalyst-kernel",
+        "name": "Catalyst Kernel",
+        "version": kernel_version,
+        "description": "Catalyst kernel: the module-independent part of the framework (specifications, templates, definitions, and plugins)."
     }
 
     manifest_json_bytes = json.dumps(manifest_data, indent=2).encode("utf-8")
@@ -116,28 +135,28 @@ def package_framework(root: Path) -> Path:
     manifest_file.write_bytes(manifest_json_bytes)
 
     # Save zip
-    zip_path = dest_dir / f"framework-v{fw_version}.zip"
+    zip_path = dest_dir / f"kernel-v{kernel_version}.zip"
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         # Add manifest.json to zip
         zf.writestr("manifest.json", manifest_json_bytes)
 
-        # Add framework contents EXCLUDING modules/
-        for file in fw_dir.rglob("*"):
+        # Add kernel contents
+        for file in kernel_dir.rglob("*"):
             if not file.is_file():
                 continue
-            rel_path = file.relative_to(fw_dir)
+            rel_path = file.relative_to(kernel_dir)
             parts = rel_path.parts
-            if parts[0] == "modules" or any(p.startswith(".") or p in ("node_modules", "dist", "catalyst") for p in parts):
+            if any(p.startswith(".") or p in ("node_modules", "dist", "catalyst") for p in parts):
                 continue
             zf.write(file, arcname=str(rel_path))
 
     # Remove legacy unversioned zip if present
-    canonical_zip_path = dest_dir / "framework.zip"
+    canonical_zip_path = dest_dir / "kernel.zip"
     if canonical_zip_path.is_file():
         canonical_zip_path.unlink()
 
-    print(f"Packaged framework (without modules) v{fw_version} -> {dest_dir}")
+    print(f"Packaged kernel v{kernel_version} -> {dest_dir}")
     return dest_dir
 
 
@@ -149,28 +168,28 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
     root_readme = cantica_dir / "README.md"
     root_readme.write_text(
         "# CanticaTech Release Artifacts Repository\n\n"
-        "This repository serves as the central distribution repository for CanticaTech release artifacts, specifications, framework releases, and process modules.\n\n"
+        "This repository serves as the central distribution repository for CanticaTech release artifacts, specifications, kernel releases, and process modules.\n\n"
         "## Repository Structure\n\n"
-        "- **[catalyst/](catalyst/README.md)**: Official release archives, versioned manifests, and distribution packages for the Catalyst Framework and process modules.\n",
+        "- **[catalyst/](catalyst/README.md)**: Official release archives, versioned manifests, and distribution packages for the Catalyst kernel and process modules.\n",
         encoding="utf-8"
     )
 
     # 2. catalyst/README.md
     cat_readme = catalyst_dir / "README.md"
     cat_readme.write_text(
-        "# Catalyst Framework & Module Releases\n\n"
-        "This directory contains official versioned release packages and manifests for the Catalyst Framework specification and its associated process modules.\n\n"
+        "# Catalyst Kernel & Module Releases\n\n"
+        "This directory contains official versioned release packages and manifests for the Catalyst framework: its kernel and its process modules.\n\n"
         "## Release Categories\n\n"
-        "- **[framework/](framework/README.md)**: Catalyst Framework core releases (specifications, templates, definitions, and plugins without modules).\n"
+        "- **[kernel/](kernel/README.md)**: Catalyst kernel releases (the module-independent part of the framework: specifications, templates, definitions, and plugins).\n"
         "- **[modules/](modules/README.md)**: Catalyst Process Modules (e.g. Software Engineering process module).\n",
         encoding="utf-8"
     )
 
-    # 3. catalyst/framework/README.md
-    fw_dir = catalyst_dir / "framework"
-    fw_dir.mkdir(parents=True, exist_ok=True)
-    fw_releases = []
-    for v_dir in sorted(fw_dir.glob("v*"), reverse=True):
+    # 3. catalyst/kernel/README.md
+    kernel_dir = catalyst_dir / "kernel"
+    kernel_dir.mkdir(parents=True, exist_ok=True)
+    kernel_releases = []
+    for v_dir in sorted(kernel_dir.glob("v*"), reverse=True):
         if not v_dir.is_dir():
             continue
         manifest_file = v_dir / "manifest.json"
@@ -179,29 +198,29 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
                 m_data = json.loads(manifest_file.read_text(encoding="utf-8"))
                 v_name = v_dir.name
                 version = m_data.get("version", v_name.lstrip("v"))
-                desc = m_data.get("description", "Catalyst Framework release")
-                zip_file = f"{v_name}/framework-{v_name}.zip"
+                desc = m_data.get("description", "Catalyst kernel release")
+                zip_file = f"{v_name}/kernel-{v_name}.zip"
                 manifest_rel = f"{v_name}/manifest.json"
-                fw_releases.append(f"| `{v_name}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
+                kernel_releases.append(f"| `{v_name}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
             except Exception:
                 pass
 
-    fw_readme_lines = [
-        "# Catalyst Framework Releases",
+    kernel_readme_lines = [
+        "# Catalyst Kernel Releases",
         "",
-        "This directory contains versioned releases of the Catalyst Framework (core specification, templates, definitions, and plugins without modules).",
+        "This directory contains versioned releases of the Catalyst kernel (the module-independent part of the framework: specifications, templates, definitions, and plugins).",
         "",
-        "## Available Framework Releases",
+        "## Available Kernel Releases",
         "",
         "| Version | Manifest | Archive | Description |",
         "| ------- | -------- | ------- | ----------- |",
     ]
-    if fw_releases:
-        fw_readme_lines.extend(fw_releases)
+    if kernel_releases:
+        kernel_readme_lines.extend(kernel_releases)
     else:
-        fw_readme_lines.append("| *(none)* | - | - | - |")
+        kernel_readme_lines.append("| *(none)* | - | - | - |")
 
-    (fw_dir / "README.md").write_text("\n".join(fw_readme_lines) + "\n", encoding="utf-8")
+    (kernel_dir / "README.md").write_text("\n".join(kernel_readme_lines) + "\n", encoding="utf-8")
 
     # 4. catalyst/modules/README.md & 5. catalyst/modules/<module>/README.md
     mod_root_dir = catalyst_dir / "modules"
@@ -229,17 +248,18 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
                     m_data = json.loads(manifest_file.read_text(encoding="utf-8"))
                     v_name = v_dir.name
                     mod_name = m_data.get("name", mod_id)
-                    fw_req = m_data.get("frameworkVersion", "*")
+                    # "frameworkVersion" is the pre-0.35.0 name of "kernelVersion".
+                    kernel_req = m_data.get("kernelVersion", m_data.get("frameworkVersion", "*"))
                     desc = m_data.get("description", f"{mod_name} release")
                     zip_file = f"{v_name}/{mod_id}-{v_name}.zip"
                     manifest_rel = f"{v_name}/manifest.json"
-                    mod_releases.append(f"| `{v_name}` | `{fw_req}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
+                    mod_releases.append(f"| `{v_name}` | `{kernel_req}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
 
                     if latest_info is None:
                         latest_info = {
                             "name": mod_name,
                             "version": v_name,
-                            "fw_req": fw_req,
+                            "kernel_req": kernel_req,
                             "rel_dir": f"{mod_id}/",
                         }
                 except Exception:
@@ -253,7 +273,7 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
             "",
             "## Available Releases",
             "",
-            "| Version | Framework Requirement | Manifest | Archive | Description |",
+            "| Version | Kernel Requirement | Manifest | Archive | Description |",
             "| ------- | --------------------- | -------- | ------- | ----------- |",
         ]
         if mod_releases:
@@ -265,17 +285,17 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
 
         if latest_info:
             module_overview_rows.append(
-                f"| {latest_info['name']} | `{latest_info['version']}` | `{latest_info['fw_req']}` | [`{latest_info['rel_dir']}`]({latest_info['rel_dir']}README.md) |"
+                f"| {latest_info['name']} | `{latest_info['version']}` | `{latest_info['kernel_req']}` | [`{latest_info['rel_dir']}`]({latest_info['rel_dir']}README.md) |"
             )
 
     mod_overview_lines = [
         "# Catalyst Process Modules",
         "",
-        "This directory contains versioned process modules for the Catalyst Framework.",
+        "This directory contains versioned process modules for the Catalyst framework.",
         "",
         "## Available Process Modules",
         "",
-        "| Module | Latest Version | Framework Requirement | Directory |",
+        "| Module | Latest Version | Kernel Requirement | Directory |",
         "| ------ | -------------- | --------------------- | --------- |",
     ]
     if module_overview_rows:
@@ -292,27 +312,24 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
         print(f"Warning: cantica-tech repository directory not found at {cantica_dir}")
         return None
 
-    fw_version_file = root / "version.txt"
-    fw_version = fw_version_file.read_text(encoding="utf-8").strip() if fw_version_file.is_file() else "0.34.0"
+    kernel_version = read_kernel_version(root)
 
-    module_dir = root / "framework" / "modules" / "software-engineering"
+    module_dir = module_repo_dir(root)
     version_file = module_dir / "version.txt"
     mod_version = version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else "1.0.0"
 
     # Source directories
-    fw_src = root / "catalyst" / "framework" / f"v{fw_version}"
+    kernel_src = root / "catalyst" / "kernel" / f"v{kernel_version}"
     mod_src = module_dir / "catalyst" / "modules" / "software-engineering" / f"v{mod_version}"
 
     # Target directories in cantica-tech
-    fw_dest = cantica_dir / "catalyst" / "framework" / f"v{fw_version}"
+    kernel_dest = cantica_dir / "catalyst" / "kernel" / f"v{kernel_version}"
     mod_dest = cantica_dir / "catalyst" / "modules" / "software-engineering" / f"v{mod_version}"
 
-    fw_dest.mkdir(parents=True, exist_ok=True)
-    mod_dest.mkdir(parents=True, exist_ok=True)
-
     # Copy release files and clean up obsolete ones
-    for src, dest in [(fw_src, fw_dest), (mod_src, mod_dest)]:
+    for src, dest in [(kernel_src, kernel_dest), (mod_src, mod_dest)]:
         if src.is_dir():
+            dest.mkdir(parents=True, exist_ok=True)
             src_names = {f.name for f in src.glob("*") if f.is_file()}
             for f in dest.glob("*"):
                 if f.is_file() and f.name not in src_names:
@@ -331,7 +348,10 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
         run_cmd(["git", "add", "catalyst"], cwd=cantica_dir)
         status = run_cmd(["git", "status", "--porcelain"], cwd=cantica_dir)
         if status:
-            run_cmd(["git", "commit", "-m", f"Deploy release: framework v{fw_version}, software-engineering module v{mod_version}"], cwd=cantica_dir)
+            released = f"kernel v{kernel_version}"
+            if mod_src.is_dir():
+                released += f", software-engineering module v{mod_version}"
+            run_cmd(["git", "commit", "-m", f"Deploy release: {released}"], cwd=cantica_dir)
             run_cmd(["git", "push", "origin", "main"], cwd=cantica_dir)
             print("Committed and pushed release to git@github.com:oliben67/cantica-tech.git")
         else:
@@ -345,7 +365,7 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
 def main() -> int:
     print("Starting release packaging...")
     package_software_engineering_module(ROOT)
-    package_framework(ROOT)
+    package_kernel(ROOT)
     deploy_to_cantica_tech(ROOT)
     print("Release packaging and deployment completed successfully.")
     return 0

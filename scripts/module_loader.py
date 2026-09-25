@@ -475,6 +475,7 @@ def load_module(project_root: Path | str | None = None, module_id: str | None = 
             pr / ".criterion" / "modules" / target_id,
             pr / "modules" / target_id,
             pr / "framework" / "modules" / target_id,
+            pr.parent / f"catalyst-{target_id}",
         ])
 
     # Also search relative to this file's repository
@@ -482,6 +483,8 @@ def load_module(project_root: Path | str | None = None, module_id: str | None = 
     search_dirs.extend([
         repo_root / "framework" / "modules" / target_id,
         repo_root / "modules" / target_id,
+        # A module's own repository, checked out next to catalyst.
+        repo_root.parent / f"catalyst-{target_id}",
     ])
 
     for mdir in search_dirs:

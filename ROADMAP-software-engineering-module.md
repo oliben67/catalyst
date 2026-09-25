@@ -73,7 +73,7 @@ Convert hardcoded prose definitions of all 9 software engineering entities into 
 - `RECON` (Reconciliation item schema).
 
 ### 3.2 Prompts & Commands Extraction
-Move software development slash commands and skills out of core framework templates into `modules/software-engineering/`:
+Move software development slash commands and skills out of kernel templates into `modules/software-engineering/`:
 - Slash commands: `/create-req`, `/create-bug`, `/create-test`, `/create-feature`, `/create-step`, `/check-rules`, `/show-backlog`, `/cut-release`.
 - Prompt templates and agent instructions.
 
@@ -113,7 +113,7 @@ Package `modules/software-engineering/` inside the Catalyst framework repository
 
 ### 6.1 Project Pointer Cutover
 - Update `.catalyst` project pointers to explicitly declare `module: software-engineering`.
-- Update framework version and migration script (`SYNCHRONIZE.md` & `migrations/`) for upgrading existing deployments seamlessly.
+- Update kernel version and migration script (`SYNCHRONIZE.md` & `migrations/`) for upgrading existing deployments seamlessly.
 
 ### 6.2 Documentation & Instantiation Synchronization
 - Update `INSTANTIATION-GUIDE.md`, `INSTANTIATION-CHECKLIST.md`, `BOOTSTRAP.md`, `CLAUDE.md`, and top-level `README.md` to reflect the kernel + module architecture.

@@ -1,5 +1,5 @@
 ---
-description: Protect an item from /sync-framework by recording its path in the root .frozen file
+description: Protect an item from /sync-kernel by recording its path in the root .frozen file
 argument-hint: <item-id|item-path|type|template-name>
 ---
 
@@ -11,5 +11,5 @@ Input: $ARGUMENTS
    item path, a type, or a template name.
 2. Append that path to the root-level `.frozen` file if not already
    present.
-3. Report success. The item stays protected from `/sync-framework` until
+3. Report success. The item stays protected from `/sync-kernel` until
    explicitly removed from `.frozen` or re-synced with an override.

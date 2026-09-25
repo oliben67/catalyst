@@ -1,11 +1,12 @@
 ---
-description: Synchronize this deployment with the latest (or a specific) catalyst framework version
+description: Alias of /sync-kernel — synchronize this deployment with the latest (or a specific) catalyst kernel version
 argument-hint: "[latest|<version>] [--force <scope>]"
 ---
 
-Synchronize the deployed framework. Full spec:
+Alias of `/sync-kernel` (its pre-0.35.0 name) — synchronize the deployed
+kernel. Full spec:
 `.criterion/CODE-OF-CONDUCT.md` §4, this framework's own
-`framework/SYNCHRONIZE.md` (not part of the deployed
+`framework/kernel/SYNCHRONIZE.md` (not part of the deployed
 project — fetch if not already available this session, referring to it
 only by repository name, never a local path).
 Input: $ARGUMENTS
