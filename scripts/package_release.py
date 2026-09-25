@@ -36,7 +36,7 @@ def package_software_engineering_module(root: Path) -> Path:
     fw_version_file = root / "version.txt"
     fw_version = fw_version_file.read_text(encoding="utf-8").strip() if fw_version_file.is_file() else "0.33.0"
 
-    dest_dir = module_dir / "catalyst" / "module" / "software-engineering" / f"v{version}"
+    dest_dir = module_dir / "catalyst" / "modules" / "software-engineering" / f"v{version}"
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     manifest_data = {
@@ -162,7 +162,7 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
         "This directory contains official versioned release packages and manifests for the Catalyst Framework specification and its associated process modules.\n\n"
         "## Release Categories\n\n"
         "- **[framework/](framework/README.md)**: Catalyst Framework core releases (specifications, templates, definitions, and plugins without modules).\n"
-        "- **[module/](module/README.md)**: Catalyst Process Modules (e.g. Software Engineering process module).\n",
+        "- **[modules/](modules/README.md)**: Catalyst Process Modules (e.g. Software Engineering process module).\n",
         encoding="utf-8"
     )
 
@@ -203,8 +203,8 @@ def update_cantica_tech_readmes(cantica_dir: Path) -> None:
 
     (fw_dir / "README.md").write_text("\n".join(fw_readme_lines) + "\n", encoding="utf-8")
 
-    # 4. catalyst/module/README.md & 5. catalyst/module/<module>/README.md
-    mod_root_dir = catalyst_dir / "module"
+    # 4. catalyst/modules/README.md & 5. catalyst/modules/<module>/README.md
+    mod_root_dir = catalyst_dir / "modules"
     mod_root_dir.mkdir(parents=True, exist_ok=True)
 
     module_overview_rows = []
@@ -301,11 +301,11 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
 
     # Source directories
     fw_src = root / "catalyst" / "framework" / f"v{fw_version}"
-    mod_src = module_dir / "catalyst" / "module" / "software-engineering" / f"v{mod_version}"
+    mod_src = module_dir / "catalyst" / "modules" / "software-engineering" / f"v{mod_version}"
 
     # Target directories in cantica-tech
     fw_dest = cantica_dir / "catalyst" / "framework" / f"v{fw_version}"
-    mod_dest = cantica_dir / "catalyst" / "module" / "software-engineering" / f"v{mod_version}"
+    mod_dest = cantica_dir / "catalyst" / "modules" / "software-engineering" / f"v{mod_version}"
 
     fw_dest.mkdir(parents=True, exist_ok=True)
     mod_dest.mkdir(parents=True, exist_ok=True)

@@ -28,7 +28,7 @@ def test_package_release_framework_and_modules(tmp_path: Path, monkeypatch):
     pr.package_framework(tmp_path)
 
     # 1. Verify module output
-    mod_release_dir = mod_dir / "catalyst" / "module" / "software-engineering" / "v1.0.0"
+    mod_release_dir = mod_dir / "catalyst" / "modules" / "software-engineering" / "v1.0.0"
     assert mod_release_dir.is_dir()
 
     manifest_file = mod_release_dir / "manifest.json"
@@ -72,6 +72,6 @@ def test_package_release_framework_and_modules(tmp_path: Path, monkeypatch):
     assert (cantica_fw_dir / "manifest.json").is_file()
     assert (cantica_fw_dir / "framework-v0.33.0.zip").is_file()
 
-    cantica_mod_dir = cantica_dir / "catalyst" / "module" / "software-engineering" / "v1.0.0"
+    cantica_mod_dir = cantica_dir / "catalyst" / "modules" / "software-engineering" / "v1.0.0"
     assert (cantica_mod_dir / "manifest.json").is_file()
     assert (cantica_mod_dir / "software-engineering-v1.0.0.zip").is_file()
