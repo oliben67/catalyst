@@ -115,7 +115,7 @@ never as something an ordinary deployment carries around.
 
 ## Extensible via plugins
 
-Plugins add ongoing capability without touching the framework core — each
+Plugins add ongoing capability without touching the kernel — each
 lives in its own repository (never this one, with one exception: schemas
 and plugins still maturing live under `plugins/_prototyping/` until they
 graduate out), is gated behind explicit activation (`/catalyzer`), and

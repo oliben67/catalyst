@@ -55,7 +55,7 @@ def test_load_module_fallback(tmp_path: Path):
     assert "REQ" in manifest.entity_types
 
 
-def test_load_bundled_software_engineering_module():
+def test_load_software_engineering_module():
     repo_root = Path(__file__).resolve().parent.parent
     manifest = load_module(project_root=repo_root, module_id="software-engineering")
     assert manifest.id == "software-engineering"

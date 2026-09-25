@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat framework/INVARIANTS.md"
+            "command": "cat framework/kernel/INVARIANTS.md"
           }
         ]
       }
