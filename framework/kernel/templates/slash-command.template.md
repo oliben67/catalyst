@@ -58,7 +58,7 @@ every command through this artifact-creation shape:
   `ANALYSIS-PLAYBOOK.md`) that isn't part of the deployed project — fetch
   it if not already available this session, and refer to it only by
   repository name, never a local path (INV-1).
-- **`/catalyzer`** resolves plugins against `plugins/<type>/catalog.md`
+- **`/catalyzer`** resolves plugins against `framework/kernel/plugins/<type>/catalog.md`
   **in this framework's own repository**, not the deployed project — say
   so explicitly in that command's file so it isn't confused with the
   deployed-project-relative paths every other command uses.

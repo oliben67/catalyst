@@ -59,6 +59,9 @@ def package_software_engineering_module(root: Path) -> Path | None:
         "version": version,
         "description": "Standard software engineering process module governing rules, requirements, bugs, tests, steps, features, roadmaps, workflows, and reconciliations.",
         "kernelVersion": f">={kernel_version}",
+        # Legacy name of kernelVersion. Extension builds before catalyst-ui
+        # 0.31.0 only read this field and skip manifests without it.
+        "frameworkVersion": f">={kernel_version}",
         "entry": "ui/index.js"
     }
 
