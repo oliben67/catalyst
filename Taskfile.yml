@@ -3,9 +3,9 @@
 #
 # Catalyst-operation dispatch tasks (create-bug, check-rules, sync-framework,
 # ...) come from Taskfile.common.yml, deployed inside .criterion/ (agent-owned
-# space, INV-6 — not this repo's own tree) from development-framework/
+# space, INV-6 — not this repo's own tree) from framework/
 # templates/Taskfile.common.template.yml, refreshed by /sync-framework, not
-# hand-edited here. See development-framework/migrations/0.19.0/
+# hand-edited here. See framework/migrations/0.19.0/
 # taskfile-into-criterion.md for why it moved out of this repo's own root.
 
 version: "3"
@@ -78,6 +78,15 @@ tasks:
     desc: "Run every validation script plus the test suite (what CI runs)"
     cmds:
       - task: check:deployment
+      - task: check:command-parity
+      - task: check:plugins
+      - task: check:plugin-contracts
+      - task: test
+
+  release:
+    desc: "Package and release framework and modules into versioned zipped archives with manifests"
+    cmds:
+      - python3 scripts/package_release.py
       - task: check:command-parity
       - task: check:plugins
       - task: check:plugin-contracts

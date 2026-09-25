@@ -15,7 +15,7 @@ and falling back when a capability is absent.
 ## 0. Hard rules (read first, re-read on every re-ground)
 
 These are non-negotiable and apply for the entire session. They are restated in
-`development-framework/INVARIANTS.md`; that file is the canonical copy.
+`framework/INVARIANTS.md`; that file is the canonical copy.
 
 1. **Repo-scoped references only.** When referring to catalyst, never mention a
    local drive, local folder, or local path. Refer to it only as the git
@@ -76,8 +76,8 @@ consistent.
 | **Parallel sub-agents** (background workers) | Use them for the four-eyes analysis passes and audits. | Run each pass sequentially as separate, context-isolated turns; do not let one pass see the other's output before reconciliation. |
 | **Agent-owned per-project storage** (a data directory this agent already maintains per project, outside the project's own tree — e.g. Claude Code's per-project config space) | Build `.criterion/` there; record its path as `agent-source` in `<app-name>.catalyst` (hard rule 6). | Build `.criterion/` directly inside the target project instead, and add it to that project's own `.gitignore` — never committed. `<app-name>.catalyst`'s `agent-source` then just names the in-project path. |
 | **Persistent memory store** | Additionally cache the deployment note there for fast recall (framework name, deployed project, resolved `agent-source`, date — see `INSTANTIATION-GUIDE.md` §6). Optional: a nice-to-have, not load-bearing. | No problem: `<app-name>.catalyst` (project root, always tracked) and `.criterion/DEPLOYMENT.md` (inside the working copy — `repoed`, `catalyst_repo`, `catalyst_repo_url`, `created_by`, see `Rules-of-Rules.md` §13) are read fresh each session regardless. |
-| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/criterion create`, `/criterion get`, `/criterion push`, `/project create`, `/project remove`, `/project export`, `/project import`, `/create-board`, `/create-workflow`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
-| **`/dogfood`** — not part of the set above | Only ever exposed when working on catalyst's own repository (`development-framework/` present), never materialized into a deployed project. See `Rules-of-Rules.md` §13. | Same — this one has no deployed fallback, because it has nothing to run against outside catalyst's own repo. |
+| **Slash commands** (`/create-bug`, `/create-req`, `/create-feature`, `/roadmap-add`, `/roadmap-remove`, `/roadmap-update`, `/roadmap-merge`, `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/journal`, `/journal-restore`, `/criterion create`, `/criterion get`, `/criterion push`, `/project create`, `/project remove`, `/project export`, `/project import`, `/switch-agent`, `/create-board`, `/create-workflow`, `/commands`, `/meta-tag`, `/status`, `/run-analysis`, `/help`, `/catalyzer`) | Register/expose them as the framework defines. | Expose each as a named procedure you recognize when the user types the same token in plain text, and list them in the deployed `README.md`. |
+| **`/dogfood`** — not part of the set above | Only ever exposed when working on catalyst's own repository (`framework/` present), never materialized into a deployed project. See `Rules-of-Rules.md` §13. | Same — this one has no deployed fallback, because it has nothing to run against outside catalyst's own repo. |
 | **Repo file read/write** | — | This is the baseline requirement. If you cannot read and write files in the target repo, stop: catalyst cannot be installed. |
 
 State, in one line to the user, which mode you resolved to (e.g. "running without
@@ -90,9 +90,14 @@ When an agent starts a session or assumes governance of a project previously man
 2. Compare the running agent's identifier (`agent`, e.g. `copilot`, `claude-code`, etc.) against `<app-name>.catalyst`'s `agent` field.
 3. If they differ (or if `agent-source` has changed):
    - Update `<app-name>.catalyst`: set `agent` to the running agent's name, resolve the current agent's `agent-source` directory path per §1 above, and update `updated` to the current date (`YYYY-MM-DD`).
-   - If the `.criterion/` working copy existed in the old `agent-source` location and is not present in the new location, copy or move `.criterion/` to the new `agent-source` path.
+   - If the `.criterion/` working copy existed in the old `agent-source` location, mirror it into the new `agent-source` path: the new location must end up an exact copy of the old one — nothing added, nothing left over — overwriting whatever is already there if needed.
    - Update project root `Taskfile.yml`: set `CRITERION_DIR` to match the newly resolved `agent-source` path.
    - Update Framework Memory / Deployment Target Note in persistent memory with the current agent name, resolved `agent-source` directory, and date.
+
+If this automatic check is ever skipped or only partially applies (e.g. a
+compacted session drops it, or `agent-source` gets updated but the pointer's
+`agent` field doesn't), `/switch-agent [agent-id]` runs the same procedure
+on demand — see `CODE-OF-CONDUCT.md` §4.
 
 ---
 
@@ -101,16 +106,17 @@ When an agent starts a session or assumes governance of a project previously man
 Read these framework files from this repository, in this order, before writing
 anything into the target project:
 
-1. `development-framework/INVARIANTS.md` — the hard rules, in full.
-2. `development-framework/README.md` — the four-layer model.
-3. `development-framework/INSTANTIATION-GUIDE.md` — the full deploy steps.
-4. `development-framework/INSTANTIATION-CHECKLIST.md` — the tickable version you
+1. `framework/INVARIANTS.md` — the hard rules, in full.
+2. `framework/README.md` — the four-layer model.
+3. `framework/MODULE-SPECIFICATION.md` — the module specification & ETD schemas.
+4. `framework/INSTANTIATION-GUIDE.md` — the full deploy steps.
+5. `framework/INSTANTIATION-CHECKLIST.md` — the tickable version you
    will actually execute against.
 
 Then execute the instantiation by **working the checklist**, not from memory of
 the guide:
 
-1. Open `development-framework/INSTANTIATION-CHECKLIST.md`. Create the deployment
+1. Open `framework/INSTANTIATION-CHECKLIST.md`. Create the deployment
    ledger from it (§3) with every item `[ ] pending`.
 2. Discover the project name and optional layout: look for a project-local
    `dev-instructions.yaml`. If present, read its `name` (and optional `layout`);
@@ -133,7 +139,7 @@ the guide:
 
 For an existing codebase with no prior rules, follow the retrofit path
 (`INSTANTIATION-GUIDE.md §4`) and, once the skeleton exists, offer to run
-`development-framework/ANALYSIS-PLAYBOOK.md` to bootstrap the first real rules.
+`framework/ANALYSIS-PLAYBOOK.md` to bootstrap the first real rules.
 For a codebase with no code yet — greenfield: stack, tooling, dev environment,
 CI all still to be chosen — follow the greenfield path
 (`INSTANTIATION-GUIDE.md §3`) instead, which establishes those decisions as the
@@ -146,7 +152,7 @@ first rules before any application code is written.
 A long install or analysis run will dilute these instructions out of your context
 unless you re-anchor. Two mechanisms, both mandatory:
 
-**Deployment ledger.** Copy `development-framework/templates/ledger.template.md`
+**Deployment ledger.** Copy `framework/templates/ledger.template.md`
 to `.criterion/.ledger/<task>.todo.md` in the target repo. Read it before each
 unit of work; after each unit, mark the item done/blocked and append any newly
 discovered subtasks. This turns "remembering the steps" into a written, inspectable
@@ -154,7 +160,7 @@ record you can self-correct against.
 
 **Re-ground cadence.** After every 5 completed ledger items, **or** immediately
 after any context compaction/summarization, re-read
-`development-framework/INVARIANTS.md` and the active checklist before continuing.
+`framework/INVARIANTS.md` and the active checklist before continuing.
 The invariants file is deliberately short so this is cheap.
 
 Before declaring any task done: re-read the checklist and confirm every item is

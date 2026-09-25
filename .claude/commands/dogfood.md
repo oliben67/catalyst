@@ -4,7 +4,7 @@ argument-hint: "[recreate]"
 ---
 
 Dogfood catalyst's own repository. Full spec:
-`development-framework/rules-of-rules.template.md` §13 ("`/dogfood` is
+`framework/rules-of-rules.template.md` §13 ("`/dogfood` is
 catalyst-development-only") and, for the `recreate` mode, §18
 ("Recreation drift check").
 Input: $ARGUMENTS
@@ -52,7 +52,7 @@ verifying catalyst's own rules against catalyst's own actual state.
 
 This is the same procedure `/criterion push` runs inline against an
 incoming branch before merging, in any repoed deployment
-(`development-framework/rules-of-rules.template.md` §13) — described
+(`framework/rules-of-rules.template.md` §13) — described
 there directly rather than depending on this command, since this command
 doesn't exist outside catalyst's own repo. Running `/dogfood` here
 standalone never touches `criterion` or any branch on its own — step 7

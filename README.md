@@ -16,7 +16,7 @@ Work items    EPIC ─▶ STORY ─▶ TASK / SPIKE / SPRINT   (agile process la
                         ▼
 Dev artifacts        REQ- / BUG- / HK- / TAG-          (rule-linked work)
                         ▼
-Rules            (prefix)-(DOMAIN)-(NNN)                (documented behavior)
+Rules          (prefix)-(DOMAIN)-(NNNNNN)-(userid)      (documented behavior)
                         ▼
 Rules of rules   the meta-rules governing all of the above
 ```
@@ -41,8 +41,29 @@ future product direction before it's ready to be measured against anything.
 They can themselves be bulk-ingested: `/roadmap-add`/`-update`/`-merge` pull
 an external roadmap (one or many, tracked independently) into `RM-` items
 with their own status, triaged into `FEAT-` entries and, once work actually
-starts, promoted to a `REQ-` — never a `BUG-` — the same way any other new
-work enters the chain.
+starts, promoted to one or more `REQ-` — never a `BUG-` — the same way any
+other new work enters the chain. A roadmap item of real size is expected to
+decompose into more than one requirement rather than one oversized `REQ-`
+standing in for the whole thing.
+
+## Below the chain: steps
+
+`STEP-` records sit one level under a requirement or a bug: one concrete
+unit of implementation work performed toward it — files touched, commands
+run, how it was verified — created via `/create-step` as work actually
+happens, not in advance of it. A requirement or bug isn't closeable as
+done/fixed until every step opened against it is done or abandoned, so
+its real implementation history stays structured and independently
+referenceable instead of buried in prose.
+
+## Verifying the chain: tests
+
+`TEST-` records are a fourth dev-artifact type alongside `REQ-`/`BUG-`/
+`HK-` — created via `/create-test`, carrying their own targeted rule like
+any other dev artifact, so a test's existence is itself vetted the same
+way a bug or requirement is. On top of that, a test may independently
+name `(0,n)` requirements and `(0,n)` steps it verifies — both optional,
+and a test naming neither is still valid as long as it targets a rule.
 
 ## Accountability: users, roles, signing
 
