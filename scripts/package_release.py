@@ -56,7 +56,6 @@ def package_software_engineering_module(root: Path) -> Path:
 
     # Save zip
     zip_path = dest_dir / f"software-engineering-v{version}.zip"
-    canonical_zip_path = dest_dir / "software-engineering.zip"
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         # Add manifest.json to zip
@@ -72,8 +71,10 @@ def package_software_engineering_module(root: Path) -> Path:
                 continue
             zf.write(file, arcname=str(rel_path))
 
-    # Also create canonical software-engineering.zip copy
-    canonical_zip_path.write_bytes(zip_path.read_bytes())
+    # Remove legacy unversioned zip if present
+    canonical_zip_path = dest_dir / "software-engineering.zip"
+    if canonical_zip_path.is_file():
+        canonical_zip_path.unlink()
 
     print(f"Packaged software-engineering module v{version} -> {dest_dir}")
 
@@ -116,7 +117,6 @@ def package_framework(root: Path) -> Path:
 
     # Save zip
     zip_path = dest_dir / f"framework-v{fw_version}.zip"
-    canonical_zip_path = dest_dir / "framework.zip"
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         # Add manifest.json to zip
@@ -132,8 +132,10 @@ def package_framework(root: Path) -> Path:
                 continue
             zf.write(file, arcname=str(rel_path))
 
-    # Also create canonical framework.zip copy
-    canonical_zip_path.write_bytes(zip_path.read_bytes())
+    # Remove legacy unversioned zip if present
+    canonical_zip_path = dest_dir / "framework.zip"
+    if canonical_zip_path.is_file():
+        canonical_zip_path.unlink()
 
     print(f"Packaged framework (without modules) v{fw_version} -> {dest_dir}")
     return dest_dir
@@ -163,9 +165,13 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
     fw_dest.mkdir(parents=True, exist_ok=True)
     mod_dest.mkdir(parents=True, exist_ok=True)
 
-    # Copy release files
+    # Copy release files and clean up obsolete ones
     for src, dest in [(fw_src, fw_dest), (mod_src, mod_dest)]:
         if src.is_dir():
+            src_names = {f.name for f in src.glob("*") if f.is_file()}
+            for f in dest.glob("*"):
+                if f.is_file() and f.name not in src_names:
+                    f.unlink()
             for f in src.glob("*"):
                 if f.is_file():
                     (dest / f.name).write_bytes(f.read_bytes())
