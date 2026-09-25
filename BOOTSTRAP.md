@@ -15,7 +15,7 @@ and falling back when a capability is absent.
 ## 0. Hard rules (read first, re-read on every re-ground)
 
 These are non-negotiable and apply for the entire session. They are restated in
-`framework/INVARIANTS.md`; that file is the canonical copy.
+`framework/kernel/INVARIANTS.md`; that file is the canonical copy.
 
 1. **Repo-scoped references only.** When referring to catalyst, never mention a
    local drive, local folder, or local path. Refer to it only as the git
@@ -24,7 +24,9 @@ These are non-negotiable and apply for the entire session. They are restated in
    a project, install it into that project immediately, using the instantiation
    procedure — do not wait to be asked again.
 3. **Name it "catalyst".** After the first install, always call it "catalyst" or
-   "catalyst framework" in all guidance, memory, and discussion.
+   "catalyst framework" in all guidance, memory, and discussion. Its
+   module-independent part (`framework/kernel/`) is **the kernel**; the
+   framework is the kernel plus its process modules.
 4. **Never push without explicit assent.** Never push anything in this project
    (or catalyst) without the user's explicit go-ahead.
 5. **The chain invariant.** No work happens without a traceable link down to a
@@ -103,20 +105,21 @@ on demand — see `CODE-OF-CONDUCT.md` §4.
 
 ## 2. Install procedure
 
-Read these framework files from this repository, in this order, before writing
-anything into the target project:
+Read these kernel files from this repository, in this order, before writing
+anything into the target project (the kernel lives under `framework/kernel/`;
+process modules are versioned separately — `MODULE-SPECIFICATION.md`):
 
-1. `framework/INVARIANTS.md` — the hard rules, in full.
-2. `framework/README.md` — the four-layer model.
-3. `framework/MODULE-SPECIFICATION.md` — the module specification & ETD schemas.
-4. `framework/INSTANTIATION-GUIDE.md` — the full deploy steps.
-5. `framework/INSTANTIATION-CHECKLIST.md` — the tickable version you
+1. `framework/kernel/INVARIANTS.md` — the hard rules, in full.
+2. `framework/kernel/README.md` — the four-layer model.
+3. `framework/kernel/MODULE-SPECIFICATION.md` — the module specification & ETD schemas.
+4. `framework/kernel/INSTANTIATION-GUIDE.md` — the full deploy steps.
+5. `framework/kernel/INSTANTIATION-CHECKLIST.md` — the tickable version you
    will actually execute against.
 
 Then execute the instantiation by **working the checklist**, not from memory of
 the guide:
 
-1. Open `framework/INSTANTIATION-CHECKLIST.md`. Create the deployment
+1. Open `framework/kernel/INSTANTIATION-CHECKLIST.md`. Create the deployment
    ledger from it (§3) with every item `[ ] pending`.
 2. Discover the project name and optional layout: look for a project-local
    `dev-instructions.yaml`. If present, read its `name` (and optional `layout`);
@@ -139,7 +142,7 @@ the guide:
 
 For an existing codebase with no prior rules, follow the retrofit path
 (`INSTANTIATION-GUIDE.md §4`) and, once the skeleton exists, offer to run
-`framework/ANALYSIS-PLAYBOOK.md` to bootstrap the first real rules.
+`framework/kernel/ANALYSIS-PLAYBOOK.md` to bootstrap the first real rules.
 For a codebase with no code yet — greenfield: stack, tooling, dev environment,
 CI all still to be chosen — follow the greenfield path
 (`INSTANTIATION-GUIDE.md §3`) instead, which establishes those decisions as the
@@ -152,7 +155,7 @@ first rules before any application code is written.
 A long install or analysis run will dilute these instructions out of your context
 unless you re-anchor. Two mechanisms, both mandatory:
 
-**Deployment ledger.** Copy `framework/templates/ledger.template.md`
+**Deployment ledger.** Copy `framework/kernel/templates/ledger.template.md`
 to `.criterion/.ledger/<task>.todo.md` in the target repo. Read it before each
 unit of work; after each unit, mark the item done/blocked and append any newly
 discovered subtasks. This turns "remembering the steps" into a written, inspectable
@@ -160,7 +163,7 @@ record you can self-correct against.
 
 **Re-ground cadence.** After every 5 completed ledger items, **or** immediately
 after any context compaction/summarization, re-read
-`framework/INVARIANTS.md` and the active checklist before continuing.
+`framework/kernel/INVARIANTS.md` and the active checklist before continuing.
 The invariants file is deliberately short so this is cheap.
 
 Before declaring any task done: re-read the checklist and confirm every item is

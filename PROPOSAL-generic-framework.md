@@ -20,7 +20,7 @@ Two threads, tightly coupled:
    project management types (e.g. Agile Scrum, ITIL service management, legal/compliance,
    product management). The actual artifact types + prompt workflows +
    interdependencies should be a **design-time choice** an architect/admin makes
-   per deployment, not something hardcoded into the framework's core kernel source.
+   per deployment, not something hardcoded into the kernel's source.
 
 These aren't separate problems. The repetition *is*, almost entirely, the
 cost of every entity type being hand-authored prose baked into the
@@ -51,7 +51,7 @@ touched, by hand, every time:
 - `INSTANTIATION-GUIDE.md`, `INSTANTIATION-CHECKLIST.md`,
   `ARTIFACT-LAYOUT.md` — each got its own tree/checklist edit.
 - Three separate top-level READMEs (`README.md`,
-  `framework/README.md`, `templates/README.md`) — each
+  `framework/kernel/README.md`, `templates/README.md`) — each
   separately re-describes the same new type in its own words.
 - A new `.claude/commands/create-<type>.md`.
 
@@ -93,7 +93,7 @@ framework's own prose:
   truth a tool could read, generate from, or validate against.
 - Existing **software development prompts and commands** (such as slash
   commands defined in `.claude/commands/`, agent skills, and workflow
-  prompts) are baked directly into core framework prose rather than being
+  prompts) are baked directly into kernel prose rather than being
   isolated into a standalone module.
 - Adding a type currently means **editing the framework's own source**
   (`framework/*.template.md`) and cutting a framework
@@ -146,7 +146,7 @@ A **profile** is a named bundle containing Entity Type Definitions (ETDs), a cho
 The framework ships `software-development` as the **default module/profile**,
 authored via ETDs and modular prompts like everything else — dogfooding the new mechanism to
 define the old one, rather than keeping two parallel systems.
-An architect/admin creates a new type or adapts a process by writing ETD files or attaching a prompt module in their own deployment. No framework version bump, no migration, no asking an
+An architect/admin creates a new type or adapts a process by writing ETD files or attaching a prompt module in their own deployment. No kernel version bump, no migration, no asking an
 agent to hand-edit `framework/`. That *is* "design-time
 choice, their own way."
 
@@ -154,7 +154,7 @@ choice, their own way."
 
 - The human-facing document template (field table + sections) —
   generated once from the ETD, not authored separately.
-- `/create-<type>` and workflow prompt behaviors — parameterized by the active prompt module and ETDs. Generic command handlers or modular prompt definitions (like `.claude/commands/` files) read the ETDs and module configuration; no hand-written framework core prose per type or process.
+- `/create-<type>` and workflow prompt behaviors — parameterized by the active prompt module and ETDs. Generic command handlers or modular prompt definitions (like `.claude/commands/` files) read the ETDs and module configuration; no hand-written kernel prose per type or process.
 - Validation — orphan/registered/grounding/dangling-reference checks,
   today hand-written per type in `validator.ts`-equivalent logic,
   become one generic pass parameterized by the ETD.
@@ -171,7 +171,7 @@ first, regardless of the bigger decision:
 
 1. **One canonical entity registry, everything else references it.**
    Collapse the 6 hand-maintained "here's the list of types" copies
-   (top-level `README.md`, `framework/README.md`,
+   (top-level `README.md`, `framework/kernel/README.md`,
    `templates/README.md`, `INSTANTIATION-GUIDE.md`,
    `INSTANTIATION-CHECKLIST.md`, `ARTIFACT-LAYOUT.md`) into one source
    — under the new model, that's literally "the set of ETD files in the

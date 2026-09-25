@@ -31,9 +31,9 @@ def load_submodule_entries(root: Path) -> list[tuple[str, str]]:
 
 def validate_plugin_structure(root: Path) -> list[str]:
     errors: list[str] = []
-    plugin_root = root / 'framework' / 'plugins' / 'repository'
+    plugin_root = root / 'framework' / 'kernel' / 'plugins' / 'repository'
     if not plugin_root.exists():
-        return ['framework/plugins/repository directory is missing']
+        return ['framework/kernel/plugins/repository directory is missing']
 
     for path in sorted(plugin_root.iterdir()):
         if not path.is_dir():
@@ -53,7 +53,7 @@ def validate_plugin_structure(root: Path) -> list[str]:
 def validate_submodule_policy(root: Path) -> list[str]:
     errors: list[str] = []
     entries = load_submodule_entries(root)
-    plugin_entries = [(name, path) for name, path in entries if path.startswith('framework/plugins/')]
+    plugin_entries = [(name, path) for name, path in entries if path.startswith('framework/kernel/plugins/')]
     for _, path in plugin_entries:
         if not (root / path).exists():
             errors.append(f'{path} is not present in the workspace')
@@ -77,7 +77,7 @@ def parse_submodule_status(status: str, plugin_paths: set[str]) -> list[str]:
 
 def validate_plugin_sources(root: Path) -> list[str]:
     entries = load_submodule_entries(root)
-    plugin_paths = {path for _, path in entries if path.startswith('framework/plugins/')}
+    plugin_paths = {path for _, path in entries if path.startswith('framework/kernel/plugins/')}
     try:
         status = run_git(['submodule', 'status'], cwd=root)
     except subprocess.CalledProcessError as exc:

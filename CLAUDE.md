@@ -11,26 +11,26 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
 - **Persistent memory:** record the deployment target note there.
 - **Slash commands:** create one native command file per entry in
   `CODE-OF-CONDUCT.md` §4 (the deployed copy of
-  `framework/rules-of-development.template.md` §4 — that's the
+  `framework/kernel/rules-of-development.template.md` §4 — that's the
   canonical, complete list; never hand-maintain a shortlist elsewhere, it
   drifts out of sync with the real command set). For each command:
   - Path: `.claude/commands/<name>.md`, in the **target project's** root
     — not this framework repository. `/create-req`'s alias
     `/create-requirement` gets its own file too.
   - Shape: follow
-    `framework/templates/slash-command.template.md` — minimal
+    `framework/kernel/templates/slash-command.template.md` — minimal
     frontmatter (`description`, `argument-hint` only; don't reach for
     less-certain frontmatter fields without verifying the running Claude
     Code version actually supports them first), with a body that points
     back to the deployed `CODE-OF-CONDUCT.md` §4 as the canonical spec
     rather than duplicating its behavior inline, so the command stays
-    correct across a `/sync-framework` without needing its own edit.
+    correct across a `/sync-kernel` without needing its own edit.
   - This is part of the instantiation procedure itself
     (`INSTANTIATION-GUIDE.md` §1 step 5, `INSTANTIATION-CHECKLIST.md`'s
     Discoverability section) — not an optional add-on once everything else
     is deployed.
 - **Taskfiles:** deploy
-  `framework/templates/Taskfile.common.template.yml` as
+  `framework/kernel/templates/Taskfile.common.template.yml` as
   `Taskfile.common.yml` **inside `.criterion/`** (agent-owned space per
   INV-6 — never the target project's own tree, unlike `.claude/commands/`
   which stays project-root only because Claude Code's own fixed discovery
