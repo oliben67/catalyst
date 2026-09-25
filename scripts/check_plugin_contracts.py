@@ -12,7 +12,7 @@ plugin's version.txt and the catalog pin:
   - UUID is a well-formed UUID
   - Active is a boolean (true|false)
   - Version matches the plugin's own version.txt
-  - Version/Tag in plugins/<type>/catalog.md matches version.txt (catalog pin)
+  - Version/Tag in framework/kernel/plugins/<type>/catalog.md matches version.txt (catalog pin)
 
 Provenance (INV-11) is only partially covered: check_plugins.py verifies a
 plugin is checked out as a submodule at all. origin_url()/normalize_url()
@@ -65,7 +65,7 @@ def read_version_txt(plugin_dir: Path) -> str | None:
 
 
 def parse_catalog_pins(type_dir: Path) -> dict[str, dict[str, str]]:
-    """Parse plugins/<type>/catalog.md table → {plugin_name: {release, tag}}."""
+    """Parse framework/kernel/plugins/<type>/catalog.md table → {plugin_name: {release, tag}}."""
     catalog = type_dir / "catalog.md"
     pins: dict[str, dict[str, str]] = {}
     if not catalog.is_file():

@@ -302,8 +302,9 @@ the seven currently exist anywhere.
   `definitions/<entity-type>/` folder.
 - `/catalyzer <subcommand>` — manage plugin installation and activation through
   the framework interface. Every subcommand resolves plugins against the
-  registry file `plugins/<type>/catalog.md` (currently only
-  `plugins/repository/catalog.md`, since the repository type is the only
+  registry file `framework/kernel/plugins/<type>/catalog.md` in catalyst's
+  own repository (currently only `framework/kernel/plugins/repository/catalog.md`,
+  since the repository type is the only
   plugin type defined at this time), which is the sole source of truth for
   which plugins are registered, their git repository URL, the release/tag
   that ships with the current catalyst release, and their kernel-version
@@ -646,7 +647,8 @@ report the old version number moving to the new one.
 
 Every `/catalyzer` subcommand resolves plugin identity, repository URL, and
 version information exclusively from the `catalog.md` registry of the
-relevant plugin type (e.g. `plugins/repository/catalog.md`); a plugin
+relevant plugin type in catalyst's own repository (e.g.
+`framework/kernel/plugins/repository/catalog.md`); a plugin
 name with no matching entry in the registry is unregistered, and any
 subcommand invoked against it must be refused with a message that the plugin
 is not registered. When the user enters `/catalyzer list`, read every plugin
