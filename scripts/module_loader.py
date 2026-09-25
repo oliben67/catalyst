@@ -474,13 +474,13 @@ def load_module(project_root: Path | str | None = None, module_id: str | None = 
         search_dirs.extend([
             pr / ".criterion" / "modules" / target_id,
             pr / "modules" / target_id,
-            pr / "development-framework" / "modules" / target_id,
+            pr / "framework" / "modules" / target_id,
         ])
 
     # Also search relative to this file's repository
     repo_root = Path(__file__).resolve().parent.parent
     search_dirs.extend([
-        repo_root / "development-framework" / "modules" / target_id,
+        repo_root / "framework" / "modules" / target_id,
         repo_root / "modules" / target_id,
     ])
 

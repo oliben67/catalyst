@@ -11,14 +11,14 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
 - **Persistent memory:** record the deployment target note there.
 - **Slash commands:** create one native command file per entry in
   `CODE-OF-CONDUCT.md` §4 (the deployed copy of
-  `development-framework/rules-of-development.template.md` §4 — that's the
+  `framework/rules-of-development.template.md` §4 — that's the
   canonical, complete list; never hand-maintain a shortlist elsewhere, it
   drifts out of sync with the real command set). For each command:
   - Path: `.claude/commands/<name>.md`, in the **target project's** root
     — not this framework repository. `/create-req`'s alias
     `/create-requirement` gets its own file too.
   - Shape: follow
-    `development-framework/templates/slash-command.template.md` — minimal
+    `framework/templates/slash-command.template.md` — minimal
     frontmatter (`description`, `argument-hint` only; don't reach for
     less-certain frontmatter fields without verifying the running Claude
     Code version actually supports them first), with a body that points
@@ -30,7 +30,7 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
     Discoverability section) — not an optional add-on once everything else
     is deployed.
 - **Taskfiles:** deploy
-  `development-framework/templates/Taskfile.common.template.yml` as
+  `framework/templates/Taskfile.common.template.yml` as
   `Taskfile.common.yml` **inside `.criterion/`** (agent-owned space per
   INV-6 — never the target project's own tree, unlike `.claude/commands/`
   which stays project-root only because Claude Code's own fixed discovery

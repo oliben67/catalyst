@@ -1,7 +1,7 @@
 # Roadmap: Modularization & Separation of Software Engineering
 
 **Status:** Draft / Proposed  
-**Target Framework:** Catalyst (`development-framework/`)  
+**Target Framework:** Catalyst (`framework/`)  
 **Objective:** Decouple all Software Engineering-specific concepts (entity types, templates, slash commands, agent skills, validators, and rule invariants) into a standalone, pluggable module (`software-engineering`). Upon completion of this roadmap, Catalyst's kernel will be fully process-agnostic, and all existing software engineering workflows will function with **100% feature parity and identical behavior**.
 
 ---
