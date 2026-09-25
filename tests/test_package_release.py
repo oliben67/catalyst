@@ -40,7 +40,8 @@ def test_package_release_kernel_and_modules(tmp_path: Path, monkeypatch):
     assert manifest_data["id"] == "software-engineering"
     assert manifest_data["version"] == "1.0.0"
     assert manifest_data["kernelVersion"] == ">=0.33.0"
-    assert "frameworkVersion" not in manifest_data
+    # Kept for extension builds that predate kernelVersion.
+    assert manifest_data["frameworkVersion"] == ">=0.33.0"
 
     zip_file = mod_release_dir / "software-engineering-v1.0.0.zip"
     assert zip_file.is_file()
