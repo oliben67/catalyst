@@ -141,6 +141,151 @@ def package_framework(root: Path) -> Path:
     return dest_dir
 
 
+def update_cantica_tech_readmes(cantica_dir: Path) -> None:
+    catalyst_dir = cantica_dir / "catalyst"
+    catalyst_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Root cantica-tech/README.md
+    root_readme = cantica_dir / "README.md"
+    root_readme.write_text(
+        "# CanticaTech Release Artifacts Repository\n\n"
+        "This repository serves as the central distribution repository for CanticaTech release artifacts, specifications, framework releases, and process modules.\n\n"
+        "## Repository Structure\n\n"
+        "- **[catalyst/](catalyst/README.md)**: Official release archives, versioned manifests, and distribution packages for the Catalyst Framework and process modules.\n",
+        encoding="utf-8"
+    )
+
+    # 2. catalyst/README.md
+    cat_readme = catalyst_dir / "README.md"
+    cat_readme.write_text(
+        "# Catalyst Framework & Module Releases\n\n"
+        "This directory contains official versioned release packages and manifests for the Catalyst Framework specification and its associated process modules.\n\n"
+        "## Release Categories\n\n"
+        "- **[framework/](framework/README.md)**: Catalyst Framework core releases (specifications, templates, definitions, and plugins without modules).\n"
+        "- **[module/](module/README.md)**: Catalyst Process Modules (e.g. Software Engineering process module).\n",
+        encoding="utf-8"
+    )
+
+    # 3. catalyst/framework/README.md
+    fw_dir = catalyst_dir / "framework"
+    fw_dir.mkdir(parents=True, exist_ok=True)
+    fw_releases = []
+    for v_dir in sorted(fw_dir.glob("v*"), reverse=True):
+        if not v_dir.is_dir():
+            continue
+        manifest_file = v_dir / "manifest.json"
+        if manifest_file.is_file():
+            try:
+                m_data = json.loads(manifest_file.read_text(encoding="utf-8"))
+                v_name = v_dir.name
+                version = m_data.get("version", v_name.lstrip("v"))
+                desc = m_data.get("description", "Catalyst Framework release")
+                zip_file = f"{v_name}/framework-{v_name}.zip"
+                manifest_rel = f"{v_name}/manifest.json"
+                fw_releases.append(f"| `{v_name}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
+            except Exception:
+                pass
+
+    fw_readme_lines = [
+        "# Catalyst Framework Releases",
+        "",
+        "This directory contains versioned releases of the Catalyst Framework (core specification, templates, definitions, and plugins without modules).",
+        "",
+        "## Available Framework Releases",
+        "",
+        "| Version | Manifest | Archive | Description |",
+        "| ------- | -------- | ------- | ----------- |",
+    ]
+    if fw_releases:
+        fw_readme_lines.extend(fw_releases)
+    else:
+        fw_readme_lines.append("| *(none)* | - | - | - |")
+
+    (fw_dir / "README.md").write_text("\n".join(fw_readme_lines) + "\n", encoding="utf-8")
+
+    # 4. catalyst/module/README.md & 5. catalyst/module/<module>/README.md
+    mod_root_dir = catalyst_dir / "module"
+    mod_root_dir.mkdir(parents=True, exist_ok=True)
+
+    module_overview_rows = []
+
+    for mod_dir in sorted(mod_root_dir.iterdir()):
+        if not mod_dir.is_dir():
+            continue
+        mod_id = mod_dir.name
+        mod_v_dirs = sorted(mod_dir.glob("v*"), reverse=True)
+        if not mod_v_dirs:
+            continue
+
+        mod_releases = []
+        latest_info = None
+
+        for v_dir in mod_v_dirs:
+            if not v_dir.is_dir():
+                continue
+            manifest_file = v_dir / "manifest.json"
+            if manifest_file.is_file():
+                try:
+                    m_data = json.loads(manifest_file.read_text(encoding="utf-8"))
+                    v_name = v_dir.name
+                    mod_name = m_data.get("name", mod_id)
+                    fw_req = m_data.get("frameworkVersion", "*")
+                    desc = m_data.get("description", f"{mod_name} release")
+                    zip_file = f"{v_name}/{mod_id}-{v_name}.zip"
+                    manifest_rel = f"{v_name}/manifest.json"
+                    mod_releases.append(f"| `{v_name}` | `{fw_req}` | [`{manifest_rel}`]({manifest_rel}) | [`{zip_file}`]({zip_file}) | {desc} |")
+
+                    if latest_info is None:
+                        latest_info = {
+                            "name": mod_name,
+                            "version": v_name,
+                            "fw_req": fw_req,
+                            "rel_dir": f"{mod_id}/",
+                        }
+                except Exception:
+                    pass
+
+        # Write module-specific README
+        mod_readme_lines = [
+            f"# {latest_info['name'] if latest_info else mod_id} Releases",
+            "",
+            f"This directory contains versioned releases for the `{mod_id}` process module.",
+            "",
+            "## Available Releases",
+            "",
+            "| Version | Framework Requirement | Manifest | Archive | Description |",
+            "| ------- | --------------------- | -------- | ------- | ----------- |",
+        ]
+        if mod_releases:
+            mod_readme_lines.extend(mod_releases)
+        else:
+            mod_readme_lines.append("| *(none)* | - | - | - | - |")
+
+        (mod_dir / "README.md").write_text("\n".join(mod_readme_lines) + "\n", encoding="utf-8")
+
+        if latest_info:
+            module_overview_rows.append(
+                f"| {latest_info['name']} | `{latest_info['version']}` | `{latest_info['fw_req']}` | [`{latest_info['rel_dir']}`]({latest_info['rel_dir']}README.md) |"
+            )
+
+    mod_overview_lines = [
+        "# Catalyst Process Modules",
+        "",
+        "This directory contains versioned process modules for the Catalyst Framework.",
+        "",
+        "## Available Process Modules",
+        "",
+        "| Module | Latest Version | Framework Requirement | Directory |",
+        "| ------ | -------------- | --------------------- | --------- |",
+    ]
+    if module_overview_rows:
+        mod_overview_lines.extend(module_overview_rows)
+    else:
+        mod_overview_lines.append("| *(none)* | - | - | - |")
+
+    (mod_root_dir / "README.md").write_text("\n".join(mod_overview_lines) + "\n", encoding="utf-8")
+
+
 def deploy_to_cantica_tech(root: Path) -> Path | None:
     cantica_dir = root.parent / "cantica-tech"
     if not cantica_dir.is_dir():
@@ -175,6 +320,9 @@ def deploy_to_cantica_tech(root: Path) -> Path | None:
             for f in src.glob("*"):
                 if f.is_file():
                     (dest / f.name).write_bytes(f.read_bytes())
+
+    # Update README documentation and release tables in cantica-tech
+    update_cantica_tech_readmes(cantica_dir)
 
     print(f"Deployed release artifacts to cantica-tech repository at {cantica_dir}")
 
