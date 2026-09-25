@@ -33,9 +33,9 @@ immediately.
   framework's own `version.txt`, treat the
   deployment as out of date and synchronize it.
 
-## Slash-command behavior for `/sync-kernel`
+## Slash-command behavior for `/sync-framework`
 
-When the command `/sync-kernel [latest|<version>] [--force <scope>]` is entered:
+When the command `/sync-framework [latest|<version>] [--force <scope>]` is entered:
 
 1. If the first argument is `latest`, inspect the `release` branch and resolve
    the newest available tagged release. If a specific version is supplied,
@@ -101,7 +101,7 @@ When the command `/sync-kernel [latest|<version>] [--force <scope>]` is entered:
     installed plugin's directory contents as a side effect of the sync.
     If a plugin's row or directory would otherwise be missing, that is a
     `/catalyzer activate`/`download` action for the user to take
-    afterward; `/sync-kernel` must never perform or silently correct it.
+    afterward; `/sync-framework` must never perform or silently correct it.
 13. At the end of the synchronization run, perform a four-eyes verification
    pass: one sub-agent verifies the deployment against the checklist in
    [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md), and a second
@@ -327,7 +327,7 @@ Target version `0.19.0`. Full procedure:
 duplicated here. `Taskfile.common.yml` relocates from the target
 project's own root into `.criterion/` (agent-owned space, INV-6), and
 its dispatch becomes agent-generic (`{{.AGENT_CMD}}` instead of a
-hardcoded `claude -p`) — only a deployment that ran `/sync-kernel` or
+hardcoded `claude -p`) — only a deployment that ran `/sync-framework` or
 was first instantiated while on exactly `0.18.0` needs this; anything
 older simply gets the new shape fresh, no migration involved.
 

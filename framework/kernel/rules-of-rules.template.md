@@ -735,7 +735,7 @@ against it.
 `/criterion push --force`, on a contributor branch, skips vetting and
 merging for *this one push* and overwrites `criterion` directly with
 the local state anyway — the same destructive-shortcut shape as
-`/sync-kernel --force`, and gated the same way access to anything
+`/sync-framework --force`, and gated the same way access to anything
 destructive is gated in this framework: **refused for anyone other than
 the repo's recorded `created_by` user.** Every other contributor only
 ever gets the vetted-and-merged path. Meaningless (and unnecessary) in
@@ -744,7 +744,7 @@ default.
 
 ### What this is not
 
-Not a replacement for `/sync-kernel` (that synchronizes the *framework
+Not a replacement for `/sync-framework` (that synchronizes the *framework
 template* into a deployment; this synchronizes one deployment's *own
 state* across its contributors) and not a substitute for the journal
 (§12) — a `criterion` merge is itself a change subject to the same

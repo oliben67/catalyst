@@ -2,7 +2,7 @@
 
 One-time migration plans for bringing an existing deployment up to a
 kernel version that changed the deployed *shape* — not ordinary
-template/rule content updates, which `/sync-kernel` already handles
+template/rule content updates, which `/sync-framework` already handles
 on every run. Each file here is what `SYNCHRONIZE.md`'s "Version-specific
 one-time migrations" section (step 10 of its slash-command behavior)
 points to, so the detailed procedure lives in one place instead of being

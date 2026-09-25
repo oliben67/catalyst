@@ -10,7 +10,7 @@ This file becomes the literal prompt Claude Code runs when the user types
 `/{{command-name}}`. Keep it a **thin, procedural pointer back to
 `CODE-OF-CONDUCT.md` §4** — the canonical behavior spec — rather than
 duplicating that spec's prose here. That's what keeps the command correct
-across a `/sync-kernel` without needing its own edit: if the framework
+across a `/sync-framework` without needing its own edit: if the framework
 changes what `/create-bug` does, the deployed `CODE-OF-CONDUCT.md` gets
 synced and this file's instructions ("follow §4") are still accurate
 unchanged.
@@ -53,7 +53,7 @@ every command through this artifact-creation shape:
   `/show-backlog`, `/help`) don't create anything — steps 1–4 become
   "resolve what's being asked for, read the relevant index/rule files,
   report findings" instead.
-- **`/sync-kernel` and `/run-analysis`** additionally need this
+- **`/sync-framework` and `/run-analysis`** additionally need this
   framework's own repository content (`SYNCHRONIZE.md`,
   `ANALYSIS-PLAYBOOK.md`) that isn't part of the deployed project — fetch
   it if not already available this session, and refer to it only by
@@ -67,4 +67,4 @@ every command through this artifact-creation shape:
 
 - [`../rules-of-development.template.md`](../rules-of-development.template.md) §4 — the canonical command list and per-command behavior spec.
 - [`../../../CLAUDE.md`](../../../CLAUDE.md) — the "Slash commands" entry this template exists to satisfy.
-- [`../SYNCHRONIZE.md`](../SYNCHRONIZE.md) §6 — what happens to these files on `/sync-kernel`.
+- [`../SYNCHRONIZE.md`](../SYNCHRONIZE.md) §6 — what happens to these files on `/sync-framework`.
