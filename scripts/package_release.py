@@ -139,11 +139,61 @@ def package_framework(root: Path) -> Path:
     return dest_dir
 
 
+def deploy_to_cantica_tech(root: Path) -> Path | None:
+    cantica_dir = root.parent / "cantica-tech"
+    if not cantica_dir.is_dir():
+        print(f"Warning: cantica-tech repository directory not found at {cantica_dir}")
+        return None
+
+    fw_version_file = root / "version.txt"
+    fw_version = fw_version_file.read_text(encoding="utf-8").strip() if fw_version_file.is_file() else "0.34.0"
+
+    module_dir = root / "framework" / "modules" / "software-engineering"
+    version_file = module_dir / "version.txt"
+    mod_version = version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else "1.0.0"
+
+    # Source directories
+    fw_src = root / "catalyst" / "framework" / f"v{fw_version}"
+    mod_src = module_dir / "catalyst" / "module" / "software-engineering" / f"v{mod_version}"
+
+    # Target directories in cantica-tech
+    fw_dest = cantica_dir / "catalyst" / "framework" / f"v{fw_version}"
+    mod_dest = cantica_dir / "catalyst" / "module" / "software-engineering" / f"v{mod_version}"
+
+    fw_dest.mkdir(parents=True, exist_ok=True)
+    mod_dest.mkdir(parents=True, exist_ok=True)
+
+    # Copy release files
+    for src, dest in [(fw_src, fw_dest), (mod_src, mod_dest)]:
+        if src.is_dir():
+            for f in src.glob("*"):
+                if f.is_file():
+                    (dest / f.name).write_bytes(f.read_bytes())
+
+    print(f"Deployed release artifacts to cantica-tech repository at {cantica_dir}")
+
+    # Commit and push in cantica-tech
+    try:
+        run_cmd(["git", "add", "catalyst"], cwd=cantica_dir)
+        status = run_cmd(["git", "status", "--porcelain"], cwd=cantica_dir)
+        if status:
+            run_cmd(["git", "commit", "-m", f"Deploy release: framework v{fw_version}, software-engineering module v{mod_version}"], cwd=cantica_dir)
+            run_cmd(["git", "push", "origin", "main"], cwd=cantica_dir)
+            print("Committed and pushed release to git@github.com:oliben67/cantica-tech.git")
+        else:
+            print("No changes to commit in cantica-tech repository.")
+    except Exception as exc:
+        print(f"Warning: Git commit/push in cantica-tech repository failed: {exc}")
+
+    return cantica_dir
+
+
 def main() -> int:
     print("Starting release packaging...")
     package_software_engineering_module(ROOT)
     package_framework(ROOT)
-    print("Release packaging completed successfully.")
+    deploy_to_cantica_tech(ROOT)
+    print("Release packaging and deployment completed successfully.")
     return 0
 
 
