@@ -62,3 +62,16 @@ def test_package_release_framework_and_modules(tmp_path: Path, monkeypatch):
         assert "README.md" in namelist
         assert "INVARIANTS.md" in namelist
         assert not any(n.startswith("modules/") for n in namelist)
+
+    # 3. Verify cantica-tech deployment
+    cantica_dir = tmp_path.parent / "cantica-tech"
+    cantica_dir.mkdir()
+    pr.deploy_to_cantica_tech(tmp_path)
+
+    cantica_fw_dir = cantica_dir / "catalyst" / "framework" / "v0.33.0"
+    assert (cantica_fw_dir / "manifest.json").is_file()
+    assert (cantica_fw_dir / "framework-v0.33.0.zip").is_file()
+
+    cantica_mod_dir = cantica_dir / "catalyst" / "module" / "software-engineering" / "v1.0.0"
+    assert (cantica_mod_dir / "manifest.json").is_file()
+    assert (cantica_mod_dir / "software-engineering-v1.0.0.zip").is_file()
