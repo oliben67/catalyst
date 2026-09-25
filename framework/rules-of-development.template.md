@@ -1,0 +1,1060 @@
+# Rules of Development — template
+
+> Copy to `CODE-OF-CONDUCT.md` in the project root and resolve every
+> `{{PLACEHOLDER}}`. See [`INSTANTIATION-GUIDE.md`](INSTANTIATION-GUIDE.md).
+
+Standards for how development work — bugs, requirements, house-keeping, and
+meta-tags — gets proposed, tracked, and closed. Subordinate to
+[`{{RULES_DIR}}/Rules-of-Rules.md`]({{RULES_DIR}}/Rules-of-Rules.md):
+that file governs the rules themselves; this file governs the work items
+that reference those rules.
+
+---
+
+## 1. No development without a targeted rule
+
+**No bug, requirement, house-keeping work, or meta-tag may start without
+citing one or more existing rule IDs in its `Targets` field when the tag is
+used to annotate a rule-linked artifact.** If no rule currently covers the
+behavior in question:
+
+1. Define the rule(s) first, as a normal edit to the relevant rule
+document.
+2. That definition must satisfy `Rules-of-Rules.md` §1 (conflict check)
+and follow the ID scheme in §3.
+3. Only then open the `BUG-`/`REQ-`/`HK-` item, citing the new ID(s).
+
+House-keeping is the one category where "no rule applies" is a legitimate
+answer (pure repo hygiene with no bearing on any documented behavior or
+process) — but it must be stated explicitly, not left blank.
+
+## 2. Users, roles, and signing
+
+`IAM/users/users.json` is a JSON array of registered users
+(`{name, roles, registered, active, notes, userid}`, plus `git_username`
+once a repoed deployment resolves it — `Rules-of-Rules.md` §13), managed
+only by
+`/user-add`/`/user-remove`/`/user-modify`/`/user-assign-role`/`/user-list`
+— see §4. Once a user has a `git_username`, every `Signed-off-by`/journal
+`actor` written for them uses that, never `name`. Each user has one or
+more roles drawn from
+`IAM/roles/roles.json`, a JSON array of `{name, actions}` objects
+mapping each role to the actions/commands it's expected to perform.
+`roles.json` is seeded with a default agile-role mapping
+(`templates/roles.template.json`) and then extended via `/role-add`
+(new role) or `/role-modify` (change an existing role's actions).
+
+**This is JSON, not hand-edited markdown, precisely because it's managed
+exclusively by commands** — the same reasoning that keeps
+`development/BACKLOG.md` machine-only, just with structured data instead
+of a regenerated document.
+
+**Hard requirement: `IAM/users/users.json` must always have at least
+one entry with `"active": true`.** A project with nobody registered has
+nobody to sign work. `/user-remove` must refuse rather than silently
+drop the last active user to zero — this specific case isn't advisory,
+since it would break this hard requirement (INV-25's
+fundamental-invariant exception to acting without asking).
+
+**Beyond that one hard requirement, this role model is advisory, not an
+access-control system, and per INV-25 it never pauses for authorization
+either.** Catalyst has no way to verify who is actually typing, so a
+role mismatch is noted, never a block or a confirmation prompt:
+
+1. Before an artifact-creating or work-item-status-changing command
+   completes, resolve who is signing it: the user established earlier
+   this session, or ask if not yet established (don't guess from git
+   config — confirm with the user).
+2. Look up that name in `IAM/users/users.json`. If unregistered, proceed
+   anyway, noting that the signer isn't registered — `/user-add` can
+   register them properly as a follow-up, but doesn't gate this write.
+3. Look up their role(s) in `IAM/roles/roles.json` and check whether the
+   action being performed is one that role covers. If it isn't, proceed
+   anyway — never refuse outright — noting the mismatch.
+4. Fill the artifact's `Signed-off-by` field with the user's name
+   (carrying forward any unregistered-signer or role-mismatch note from
+   steps 2-3) and proceed.
+5. Append that same signer's `userid` as this entity's own id suffix
+   (`Rules-of-Rules.md` §20, INV-26) — the same moment, never a separate
+   step done later. If the signer has no `userid` yet (unregistered, or
+   registered before INV-26 existed), register them and assign one
+   first; an entity is never assigned a suffixed id ahead of its signer.
+
+Every dev-artifact, feature entry, roadmap item, and work item carries a
+`Signed-off-by` field for this reason (see each type's template). It
+records who actually signed the artifact, which may differ from who typed
+the command on their behalf.
+
+## 3. Standard document types
+
+| Type | Folder | Template | ID prefix |
+|---|---|---|---|
+| Bug | `bugs/` | `templates/bug.template.md` | `BUG-NNNNNN` |
+| Requirement | `requirements/` | `templates/requirements.template.md` | `REQ-NNNNNN` |
+| House-keeping | `house-keeping/` | `templates/house-keeping.template.md` | `HK-NNNNNN` |
+| Test | `tests/` | `templates/test.template.md` | `TEST-NNNNNN` |
+| Meta-tag | `meta-tags/` | `templates/meta-tag.template.md` | `TAG-<KEY>-<ARTEFACT-ID>` |
+
+Feature entries (`FEAT-NNNNNN`, folder `features/`, template
+`templates/features.template.md` → `TEMPLATE-FEATURE.md`) are a related
+but **separate, non-rule-linked** scheme — see `Rules-of-Rules.md` §9.
+They document possible future work, are not one of the four
+development-artifact types above, and are exempt from this document's
+rules (no `Targets`, no `Domain`, never "done" against a rule). When a
+new feature actually needs to be developed, open a `REQ-NNNNNN`
+requirement — never a `BUG-NNNNNN` — to track it.
+
+Roadmap items (`RM-NNNNNN`, table rows inside `development/roadmaps/<name>.md`
+files — one file per named roadmap, template `templates/roadmap.template.md`,
+index `development/roadmaps/roadmaps.md`) sit one level above feature
+entries — see `Rules-of-Rules.md` §10. They are populated by
+`/roadmap-add`/`/roadmap-update`/`/roadmap-merge` from an external source
+file rather than created one at a time, and are exempt from this document's
+rules the same way feature entries are (no `Targets`, no `Domain`, never
+"done" against a rule). Formalizing a roadmap item means opening a
+`FEAT-NNNNNN` for it via `/create-feature`, citing the `RM-NNNNNN` ID in the
+feature's `Roadmap` field. A roadmap item of real size is expected to
+decompose into **more than one** requirement rather than one oversized
+`REQ-NNNNNN` standing in for the whole item — its row's `Linked` field
+names every `FEAT-`/`REQ-NNNNNN` currently associated with it, not just one.
+
+Steps (`STEP-NNNNNN`, folder `steps/`, template `templates/step.template.md`)
+sit one level *below* a requirement or a bug — see `Rules-of-Rules.md`
+§21. Each names exactly one parent — a `REQ-NNNNNN` or a `BUG-NNNNNN`
+(the `Parent` field) — and records one concrete unit of implementation
+work performed toward it (files touched, commands run, how it was
+verified). Like feature entries and roadmap items, a step is exempt from
+this document's rules (no `Targets`, no `Domain` of its own — it
+inherits its parent's), but unlike them it's created *during* active
+implementation, not before it: a requirement or bug worth calling
+`in-progress` is expected to have at least one step opened against it,
+and isn't closeable as `done`/`fixed` until every one of its steps is
+`done` or `abandoned`. Opened and closed as the work itself happens, not
+batched afterward, per `INVARIANTS.md` INV-29.
+
+Tests (`TEST-NNNNNN`, folder `tests/`, template `templates/test.template.md`)
+join this document's four development-artifact types as of framework
+`0.30.0` — see `Rules-of-Rules.md` §22. Unlike features, roadmap items,
+and steps, a test is **not** exempt from this document's rules: it always
+carries its own `Targets`/`Domain`, vetted the same way a bug or
+requirement is. On top of that, a test may independently name `(0,n)`
+`REQ-NNNNNN` and `(0,n)` `STEP-NNNNNN` it verifies — both optional, and
+neither implies the other. Named requirements/steps get the new test's
+ID appended to their own `Tests` field in the same action — the mirror
+image of a requirement's `Steps` field.
+
+### Hard rule: individual files and indexes
+
+- **This is a hard requirement.** Bugs, requirements, house-keeping items,
+  tests, and meta-tags must each be stored as their own individual markdown
+  file in the corresponding folder, not only as free-form notes or grouped
+  content.
+- **This is also a hard requirement.** Every item must be listed in the
+  corresponding type index file so the repository has an authoritative catalog
+  of the concrete documents that exist.
+- Each item directory must also contain an index file named after the item type:
+  - `bugs/bugs.md` for the bug index.
+  - `requirements/requirements.md` for the requirements index.
+  - `house-keeping/house-keeping.md` for the house-keeping index.
+  - `tests/tests.md` for the test index.
+  - `meta-tags/meta-tags.md` for the meta-tag index.
+- These index files are the canonical indexes for their directory and must be kept up to date.
+- **This is a hard requirement.** `development/BACKLOG.md` always
+  exists — seeded from `templates/backlog.template.md` on first deploy —
+  as the go-to document for developers to review work to be done and
+  current status. It is not hand-maintained: `/show-backlog` regenerates
+  it in full every time it runs, so it never drifts from the real
+  indexes — including every `development/roadmaps/<name>.md`. See
+  `INVARIANTS.md` INV-14.
+- **This is also a hard requirement.** `development/roadmaps/` and its
+  `roadmaps.md` index always exist (empty is fine — individual named
+  roadmaps are created only via `/roadmap-add`). Within any
+  `development/roadmaps/<name>.md` that does exist, only the
+  `/roadmap-add`/`-update`/`-merge`/`-remove` commands and `/show-backlog`
+  (Status/Linked refresh) ever change it; hand-editing anything but a
+  row's Notes column is pointless, the same way hand-editing `BACKLOG.md`
+  is. See `INVARIANTS.md` INV-15.
+- **This is a hard requirement, stricter than the others above.**
+  `IAM/users/users.json` and `IAM/roles/roles.json` always exist, and
+  `users.json` must contain **at least one entry with `"active": true`** —
+  not "empty is fine," since a project with nobody registered has nobody
+  to sign work. Both files are managed only by the `/user-*`/`/role-*`
+  commands (§2, §4), never hand-edited. See `INVARIANTS.md` INV-16.
+- **This is a hard requirement.** `development/journal.jsonl` always
+  exists (empty is fine). Once a line is appended it is never edited,
+  deleted, or reordered — stricter than every other "never hand-edited"
+  rule above, since even the commands that write to it only ever append.
+  See `INVARIANTS.md` INV-17 and §9.
+
+- **Bug**: an existing ✅ rule doesn't actually hold in the running system,
+  or formalizes an already-known ⚠️/❌ rule into trackable, closeable work.
+  Never introduces a new rule by itself.
+- **Requirement**: an explicit, tracked requirement that captures
+  user/business behavior that must be implemented and tested — this is the
+  artifact to open when a new feature needs to be developed, never a bug.
+  It must be vetted against every existing rule document (`Rules-of-Rules.md`
+  §1 conflict check) before it's opened, it always carries a `Domain`, and it
+  always answers — targets and/or proposes — one or more rules (and, if
+  needed, a new domain — see `Rules-of-Rules.md` §6/§7) inline in the
+  requirement doc so rule and requirement are reviewed together. None of
+  those three are optional.
+- **House-keeping**: dev-support tooling/process, not product behavior.
+  Still targets a rule where one exists — most commonly a `rr-META-*`
+  process rule.
+- **Test**: verifies that a targeted rule actually holds, the same
+  `Targets`/`Domain` requirement as a bug or requirement. Optionally
+  names `(0,n)` requirements and/or `(0,n)` steps it verifies, on top of
+  its own rule target — see `Rules-of-Rules.md` §22.
+- **Meta-tag**: a lightweight annotation attached to an existing artifact.
+  It stores one key/value pair whose key is one of `comment`, `version`, or
+  `link-to`, and it is saved under the name `tag-<key>-<artefact-id>`.
+
+## 4. Slash-command entry points
+
+The framework exposes the following custom slash commands:
+
+- `/create-bug` — create a new bug artifact immediately, register it in
+  `bugs/bugs.md`, and track it in the same workflow as any other bug.
+- `/create-req` or `/create-requirement` — create a new requirement artifact
+  immediately, register it in `requirements/requirements.md`, and track it in
+  the same workflow.
+- `/create-test` — create a new test artifact immediately, register it in
+  `tests/tests.md`, and track it in the same workflow as any other
+  development artifact. Prompts for a rule target and domain like
+  `/create-bug`/`/create-req` — a test is not exempt from
+  `rules-of-development.md` §1. Optionally accepts `(0,n)` requirements
+  and/or `(0,n)` steps it verifies (`Rules-of-Rules.md` §22); neither is
+  required. Named requirements/steps get the new test's ID appended to
+  their own `Tests` field in the same action.
+- `/create-feature` — create a new feature entry immediately and register it
+  in `features/features.md`. Unlike `/create-bug`/`/create-req`, this never
+  prompts for a rule target or domain — features are not rule-linked (see
+  `Rules-of-Rules.md` §9).
+- `/create-step <REQ-id|BUG-id>` — create a new step immediately against
+  an existing requirement or bug, register it in `steps/steps.md`, and
+  append its ID to that parent's own `Steps` field. Like `/create-feature`,
+  never prompts for a rule target or domain — a step inherits its
+  parent's (see `Rules-of-Rules.md` §21). Refuses if `<REQ-id|BUG-id>`
+  doesn't resolve to an existing requirement or bug.
+- `/roadmap-add <name> <file>` — ingest a new named roadmap from a local
+  file, creating `development/roadmaps/<name>.md` from
+  `templates/roadmap.template.md` and registering it in
+  `development/roadmaps/roadmaps.md` (see `Rules-of-Rules.md` §10).
+  Refuses if `<name>` already exists — use `/roadmap-update` or
+  `/roadmap-merge` instead.
+- `/roadmap-remove <name>` — delete `development/roadmaps/<name>.md` and
+  its `roadmaps.md` entry if no row is linked to a `FEAT-`/`REQ-`;
+  otherwise retire it in place (never hard-deletes a linked roadmap).
+- `/roadmap-update <name> <file>` — re-ingest `<file>` as the new full,
+  authoritative version of an existing named roadmap: add new rows,
+  update matched rows, flag (never delete) rows missing from the new
+  file.
+- `/roadmap-merge <name> <update file>` — fold a partial delta file into
+  an existing named roadmap: add/update only the rows the delta
+  mentions, without flagging anything as missing.
+- `/user-add <name> <role>` — register a new user in
+  `IAM/users/users.json` with an initial role from
+  `IAM/roles/roles.json`. Refuses if `<name>` is already registered —
+  use `/user-modify`/`/user-assign-role` instead.
+- `/user-remove <name>` — set `<name>`'s `active` field to `false` in
+  `IAM/users/users.json`. Never deletes the entry (see §2). Refuses if
+  this would leave zero active users (hard rule, §2).
+- `/user-modify <name> <field> <value>` — edit `<name>`'s `notes` or
+  `active` field. Refuses for `roles` (use `/user-assign-role`) and for
+  identity/audit fields (`name`, `registered`).
+- `/user-assign-role <name> <role>` — add `<role>` to `<name>`'s `roles`
+  array (additive; doesn't remove their other roles).
+- `/user-list [--role <role>] [--active-only]` — list registered users,
+  optionally filtered.
+- `/role-add <role> <actions>` — add a new role entry to
+  `IAM/roles/roles.json`. Refuses if `<role>` already exists — use
+  `/role-modify` instead.
+- `/role-modify <role> <actions>` — replace an existing role's `actions`.
+  Refuses if `<role>` doesn't exist — use `/role-add` instead.
+**`/create-epic`, `/create-story`, `/create-task`, `/create-spike`,
+`/create-sprint`, `/create-board`, `/create-workflow` are not core
+commands.** `work-items/` and its seven artifact types are
+plugin-territory (`Rules-of-Rules.md` §8, INV-22) — these commands only
+exist in a deployment once a project-management-type plugin extending
+`plugins/_prototyping/project-management/agile/`'s schema is activated;
+that plugin's own `working-contract.md` `## Contributes` section is
+their spec, not this document. No concrete plugin exists yet, so none of
+the seven currently exist anywhere.
+- `/meta-tag` — create a new meta-tag artifact, save it as
+  `tag-<key>-<artefact-id>`, register it in `meta-tags/meta-tags.md`, and
+  link it to the specified artifact.
+- `/list <type> [--filter ...]` — list artifacts, work items, rules, or
+  templates of the requested type. Use `all` to list everything. Each
+  `--filter` is a property filter expressed as `key=value` or
+  `key="value*"`; filters apply across the selected collection. If the
+  requested type is `template`, the command requires an additional
+  `--type <template-type>` argument to identify which template family to
+  inspect.
+- `/freeze <item-id|item-path|type|template-name>` — protect the resolved
+  item from `/sync-framework` by recording its file path in a root-level
+  `.frozen` file. The command accepts one of four argument forms: an item
+  ID, an item path, a type, or a template name.
+- `/migrate-definition <entity-type> <version>` — the only way to move a
+  deployed `definitions/<entity-type>.md` forward once it exists
+  (`INVARIANTS.md` INV-23: ordinary `/sync-framework` never touches one
+  that already exists). Refuses if `<entity-type>` isn't a real entity
+  type, or if `<version>` doesn't exist for it in this framework's own
+  `definitions/<entity-type>/` folder.
+- `/catalyzer <subcommand>` — manage plugin installation and activation through
+  the framework interface. Every subcommand resolves plugins against the
+  registry file `plugins/<type>/catalog.md` (currently only
+  `plugins/repository/catalog.md`, since the repository type is the only
+  plugin type defined at this time), which is the sole source of truth for
+  which plugins are registered, their git repository URL, the release/tag
+  that ships with the current catalyst release, and their framework-version
+  compatibility. Each catalog entry has a `Compatibility` field: a bare `*`
+  means the plugin is compatible with every framework version — the default
+  for a registered plugin, and never grounds for `/sync-framework` to
+  deactivate it. A future convention allows specific version constraints in
+  that field instead, expressed with the same range syntax used in a
+  dependency lock file, to mark a plugin as excluded from named framework
+  versions. Supported subcommands:
+  - `list` — list all available plugins by type, read from each type's
+    `catalog.md`, including each plugin's repository URL, pinned
+    release/tag, and compatibility.
+  - `activate <name> <version|latest>` — download or update the plugin to the
+    specified version (or `latest`) and activate it. This command requires a
+    version argument.
+  - `download <name> <version|latest>` — download the plugin into the
+    framework without activating it. The plugin remains installed and inactive
+    until it is explicitly activated.
+  - `deactivate <name>` — deactivate a plugin by its registered name, remove
+    it from memory, and mark it inactive.
+  - `upgrade <name|latest>` — upgrade an already installed plugin to a
+    specified version or to the latest available version.
+  - `downgrade <name> <version>` — downgrade an already installed plugin to
+    the specified version.
+  Plugins are not loaded into memory unless they are explicitly activated via
+  this command, and on framework startup the framework must scan the installed
+  plugin list and activate only those marked active. This is a hard rule.
+  The framework defines the interface and lifecycle contract; the plugin itself
+  owns its implementation details, operational guidance, and domain-specific
+  behavior. Each plugin must live in its own repository, with no exceptions,
+  and during framework deployment or synchronization plugins must be pulled
+  directly from that plugin repository rather than from this repository.
+- `/criterion create <name> <git-info>` — bootstrap a repoed deployment
+  (`Rules-of-Rules.md` §13, `INVARIANTS.md` INV-18): register or create
+  the dedicated repo (confirm explicitly first if `<git-info>` already
+  has *unrelated* content — a different deployment's own state, not a
+  rejoin of this one), then ask which branch this actor will push to and
+  record it as `criterion_branch` in `<app-name>.catalyst`, then push
+  local `.criterion/` as the first commit on its `criterion`
+  branch. Also resolves the current actor's `git_username` and migrates
+  their prior `Signed-off-by` occurrences to it (never the journal — see
+  §9/§13). Called again against the same repo with a different `<name>`,
+  branches instead of refusing: a new branch off `criterion`, named
+  `<name>` in its branch-safe form.
+- `/criterion get <repo> <username>` — join an already-repoed
+  deployment: download `<repo>`'s `criterion` branch and check out
+  `<username>.criterion` (branch-safe form) from it as this user's
+  local `.criterion/`. `<username>` is this user's `git_username`,
+  same identity-migration treatment as `create`. Also asks which branch
+  to push to and records `criterion_branch`, same as `create`.
+- `/criterion push [--force]` — refuses if not yet repoed (point to
+  `/criterion create`), or asks for and records `criterion_branch`
+  first if this deployment predates that field. If `criterion_branch`
+  is a real contributor branch (the default —
+  `<git_username>.criterion`, or the branch-safe form of `name`):
+  vet the pushed state against `criterion` (`/check-rules` + a
+  four-eyes sub-agent pass), AI-merge where a plain merge can't resolve
+  it, update both branches, and refresh the local `.criterion/` to
+  match; `--force` skips vetting for this one push and overwrites
+  `criterion` directly anyway — refused for anyone but the repo's
+  `created_by` user. If `criterion_branch` **is** `criterion`
+  itself (single-maintainer mode, e.g. catalyst's own self-dogfooding):
+  every push overwrites `criterion` directly, no vetting, no merge —
+  the normal behavior in this mode, not a `--force`-only shortcut —
+  still refused for anyone but `created_by`. After a `/dogfood` run that
+  ends clean or ends with fixes applied and reverified, offer this
+  command (`create` if not yet repoed, `push` otherwise) as the natural
+  next step — never run it automatically.
+- `/reconcile <RECON-id> accept|accept-with-edits|reject|propose <text>`
+  — resolve, or move toward resolving, an open reconciliation case
+  (`Rules-of-Rules.md` §16, `INVARIANTS.md` INV-21): `accept` merges its
+  `Proposed` content into the `Entity` it names as-is, `accept-with-edits`
+  appends a new `Revisions` row first and merges that instead, `reject`
+  leaves `criterion` unchanged and flags the proposer's local copy for
+  reverting — each sets `Status` to the matching `Resolved-*` value,
+  fills `Resolved`/`Resolver`, and registers the outcome in
+  `reconciliations/reconciliations.md`. `propose <text>` instead appends
+  `<text>` as a new `Revisions` row and moves `Status` to `Under Review`
+  without resolving anything. **Genuinely role-gated, not advisory**: the
+  actor's `reconciliation` field in `IAM/roles/roles.json` must be `full`
+  for the three resolving verbs — `propose`-level actors may only use
+  `propose`, and `none`-level actors are refused on any verb. If the case
+  names a `Workflow` (`WORKFLOW-NNNNNN`, `Rules-of-Rules.md` §19), read
+  its `## Steps`/`## Gates / exit criteria` before choosing a verb.
+- `/project create <project name>` — install a fresh catalyst deployment
+  here (`Rules-of-Rules.md` §14): resolve `agent-source`, build the
+  working copy there, and write `<app-name>.catalyst` at this project's
+  root. Refuses if a deployment already exists here.
+- `/project remove <project name> [force]` — un-link the local
+  `<app-name>.catalyst` pointer; the working copy, memory note, and any
+  `criterion` repo are left untouched (retire in place). `force`
+  additionally deletes the working copy at `agent-source` and this
+  agent's memory note for the project — confirm explicitly first; never
+  touches a `criterion` repo.
+- `/project export <project name> [export filename]` — bundle every file
+  under the working copy, plus its pointer fields (minus
+  `agent-source`), into one JSON export. Default filename:
+  `<project name>-catalyst-export-<UTC timestamp>.json`.
+- `/project import <export filename> [force]` — install a bundle into
+  the current project. Refuses if a deployment already exists here,
+  unless `force` is given, in which case it overwrites the existing one
+  — confirm explicitly first.
+- `/switch-agent [agent-id]` — force the agent-switch procedure (hard
+  rule 6, `BOOTSTRAP.md` §1.1, `Rules-of-Rules.md` §14's Agent switching
+  procedure) to run now, regardless of whether the running agent's
+  identity already appears to match `<app-name>.catalyst`'s `agent`
+  field. The manual escape hatch for when the automatic per-session
+  check is skipped or only partially completes (e.g. `agent-source`
+  already relocated but the pointer's `agent` field never updated to
+  match). Resolves `agent-source` for `<agent-id>` (defaulting to the
+  running agent's own identifier if omitted) per `BOOTSTRAP.md` §1,
+  updates `<app-name>.catalyst` (`agent`, `agent-source`, `updated`)
+  unconditionally, mirrors `.criterion/` into the resolved location if
+  it existed elsewhere (exact copy, overwriting the destination — never
+  a partial merge), updates `Taskfile.yml`'s `CRITERION_DIR`, and
+  refreshes persistent framework memory.
+- `/status` — update an artifact or work item's `Status` field.
+- `/audit <file-name>` — analyze the change-impact of the specified file by
+  checking the current repository state, the file's role in the framework,
+  and the rules or artifacts that depend on it, then return a concise impact
+  summary.
+- `/run-analysis` — open and execute the analysis playbook from
+  `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
+  returning the resulting analysis summary.
+- `/sync-framework [latest|<version>]` — synchronize the deployed framework
+  with the requested framework version. If the argument is `latest`, use the
+  newest framework version available from the framework source. If no argument
+  is provided, synchronize against the currently installed local version.
+- `/check-rules` — verify that rules, domains, and artifact links remain
+  consistent and do not conflict.
+- `/commands list [--filter ...]` — list every slash command available in
+  this deployment (name, one-line purpose), sourced from this document's
+  §4. `/help` with no argument delegates here for its command listing
+  rather than re-describing it.
+- `/show-backlog` — summarize open work, blockers, and missing links,
+  refresh `development/BACKLOG.md` with the result, and refresh every
+  active `development/roadmaps/<name>.md`'s Status/Linked columns from
+  the `FEAT-`/`REQ-` each row is linked to.
+- `/journal [--since <date>] [--artifact <id>] [--actor <name>] [--rule
+  <id>]` — read-only: filter and report `development/journal.jsonl`
+  entries. Never writes to the journal (see §9).
+- `/journal-restore <timestamp>` — read-only: reconstruct the tree as it
+  stood at `<timestamp>` into a side directory, from the journal's
+  before/after file hashes (`Rules-of-Rules.md` §12). Never overwrites the
+  live working tree.
+- `/help` — return help documentation for the framework or for a specific
+  command when provided.
+
+When the user enters `/create-bug: ...`, create a new bug artifact immediately,
+register it in `bugs/bugs.md`, and track it in the same workflow as any other
+bug. If the domain cannot be inferred from context, prompt for the domain and
+rule before creating the artifact.
+
+When the user enters `/create-req:` or `/create-requirement: ...`, create a
+new requirement artifact immediately, register it in
+`requirements/requirements.md`, and track it in the same workflow. If the
+domain or target rule cannot be inferred, prompt for both before creating the
+artifact.
+
+When the user enters `/create-test: ...`, create a new test artifact
+immediately using `templates/test.template.md`, register it in
+`tests/tests.md`, and track it in the same workflow as any other
+development artifact. If the domain or target rule cannot be inferred,
+prompt for both before creating the artifact — a test is not exempt
+from §1 ("no development without a targeted rule"). If the user names
+one or more `REQ-NNNNNN`/`STEP-NNNNNN` this test verifies, populate the
+`Requirements`/`Steps` fields accordingly, and append the new test's own
+ID to each named requirement's/step's own `Tests` field (creating that
+field if this is its first test); if `<REQ-id>`/`<STEP-id>` doesn't
+resolve to an existing artifact, refuse with a clear message rather than
+citing a dangling id. Both fields are optional — a test naming neither
+is valid as long as `Targets`/`Domain` are still set.
+
+When the user enters `/create-feature: ...`, create a new feature entry
+immediately using `templates/features.template.md`, register it in
+`features/features.md`, and track it as idea/roadmap content, not
+rule-linked development work. Do not prompt for a domain or rule target —
+neither field exists on this artifact type. If this feature formalizes an
+existing roadmap row (in any `development/roadmaps/<name>.md`), cite that
+row's `RM-NNNNNN` ID in the new feature's `Roadmap` field and set the row's
+`Status` to `Triaged` and `Linked` to the new `FEAT-NNNNNN` (the row's first
+linked entry). If the user later asks to start building a registered
+feature, create a `REQ-NNNNNN` requirement instead (prompting for
+domain/target rule as usual), link it back to the `FEAT-NNNNNN` entry's
+`Requirement(s)` field, and **append** (never replace) that `REQ-NNNNNN` to
+the roadmap row's `Linked` list — a feature may reasonably decompose into
+more than one requirement, each added to `Linked` as it's opened, per
+`Rules-of-Rules.md` §21.
+
+When the user enters `/create-step <REQ-id|BUG-id>: ...`, refuse with a
+clear message if `<REQ-id|BUG-id>` doesn't resolve to an existing file
+under `requirements/` or `development/bugs/`. Otherwise create a new
+step immediately using `templates/step.template.md`, register it in
+`steps/steps.md`, set its `Parent` field to `<REQ-id|BUG-id>`, and
+append its own `STEP-NNNNNN` ID to that parent's `Steps` field (creating
+the field if this is its first step). Do not prompt for a domain or rule
+target — neither field exists on this artifact type; it inherits
+`<REQ-id|BUG-id>`'s own `Targets`/`Domain`. New steps start `Status:
+planned` unless the user says
+work is already underway, in which case `in-progress`.
+
+When the user enters `/roadmap-add <name> <file>: ...`, refuse with a clear
+message if `development/roadmaps/<name>.md` already exists (point to
+`/roadmap-update`/`/roadmap-merge`). Otherwise read `<file>` from the
+local filesystem, identify its distinct items, and create
+`development/roadmaps/<name>.md` from `templates/roadmap.template.md` with
+one `RM-NNNNNN` row per item (`Description`: a sentence or two summarizing
+the item, drawn from `<file>` — not a restatement of `Title`; `Status: Not
+triaged`, `Linked: *(none)*`), IDs continuing the global sequence across
+every existing named roadmap — never reused, never guessed. Register the
+new roadmap in `development/roadmaps/roadmaps.md`, then report the
+roadmap name and the IDs assigned.
+
+When the user enters `/roadmap-remove <name>`, refuse with a clear message
+if `development/roadmaps/<name>.md` does not exist. If every row's `Linked`
+field is empty, delete the file and its `roadmaps.md` entry outright and
+report that. If any row has a non-empty `Linked` field, do **not** delete
+anything — instead add a `Retired` field (today's date) to the file, mark
+its `roadmaps.md` entry `retired`, leave every row and `RM-NNNNNN` ID exactly
+as they are, and tell the user it was retired rather than removed because
+removing it would break a live `FEAT-`/`REQ-` cross-reference.
+
+When the user enters `/roadmap-update <name> <file>: ...`, refuse with a
+clear message if `development/roadmaps/<name>.md` does not exist (point to
+`/roadmap-add`). Otherwise treat `<file>` as the new full, authoritative
+version of this roadmap: add a new `RM-NNNNNN` row for each item not already
+present (with its own `Description`, same rule as `/roadmap-add`), update
+the `Title`/`Description`/`Notes` of any row that matches an item in
+`<file>` by title/description similarity (ask the user rather than
+guessing when a match is ambiguous), and flag — in `Notes`, never by
+deleting — any existing row whose item no longer appears in `<file>`.
+Update the file's `Source` and `Last updated` fields, then report a short
+summary of what was added/updated/flagged.
+
+When the user enters `/roadmap-merge <name> <update file>: ...`, refuse
+with a clear message if `development/roadmaps/<name>.md` does not exist
+(point to `/roadmap-add`). Otherwise treat `<update file>` as a partial
+delta, not the full roadmap: apply the same add/update matching rule as
+`/roadmap-update` for only the items `<update file>` actually contains,
+but do not compare against or flag any row it doesn't mention, and do not
+change the `Source` field — only `Last updated`. Report a short summary of
+what was added/updated.
+
+When the user enters `/user-add <name> <role>: ...`, refuse with a clear
+message if `<name>` already has an entry in `IAM/users/users.json`
+(point to `/user-modify`/`/user-assign-role`). If `IAM/users/users.json`
+or `IAM/roles/roles.json` doesn't exist yet, create them from the
+deployment's own current `IAM/users/templates/TEMPLATE-USERS-vN.json`
+and `IAM/roles/templates/TEMPLATE-ROLES-vN.json` (the highest `N`
+present). If `<role>` isn't one of the roles listed in
+`IAM/roles/roles.json`, ask whether to use an existing role or run
+`/role-add` for `<role>` first. Otherwise append a new entry (`registered`:
+today, `active: true`, `roles: [<role>]`) and report it. If this is the
+project's first registered user, note that the hard "at least one active
+user" requirement (§2) is now satisfied.
+
+When the user enters `/user-remove <name>`, refuse with a clear message if
+`<name>` has no entry in `IAM/users/users.json`. If `<name>` is the only
+`active: true` entry, refuse — this would leave the project with zero
+active users (hard rule, §2, INV-25's fundamental-invariant exception to
+acting without asking) — and point at `/user-add` for a replacement
+first. Otherwise set that entry's `active`
+field to `false` — never delete it, since existing `Signed-off-by`
+references on already-signed artifacts must stay resolvable. Report the
+result.
+
+When the user enters `/user-modify <name> <field> <value>: ...`, refuse
+with a clear message if `<name>` has no entry in `IAM/users/users.json`
+(point to `/user-add`). Refuse if `<field>` is `roles` (point to
+`/user-assign-role`) or `name`/`registered` (identity/audit fields, never
+edited in place). Refuse if `<field>` is `active` set to `false` (point to
+`/user-remove`, which also checks the "at least one active user" rule).
+Otherwise update `<field>` to `<value>` and report the result.
+
+When the user enters `/user-assign-role <name> <role>: ...`, refuse with a
+clear message if `<name>` has no entry in `IAM/users/users.json` (point
+to `/user-add`). If `<role>` isn't one of the roles listed in
+`IAM/roles/roles.json`, ask whether to use an existing role or run
+`/role-add` for `<role>` first. If `<name>`'s `roles` array already
+contains `<role>`, say so and make no change. Otherwise append `<role>` to
+that array and report the result.
+
+When the user enters `/user-list [--role <role>] [--active-only]`, read
+`IAM/users/users.json`. If it doesn't exist, say so rather than
+inventing users. Apply `--role`/`--active-only` filters if given, and
+report the matching entries. If none match, say so rather than inventing
+matches.
+
+When the user enters `/role-add <role> <actions>: ...`, refuse with a
+clear message if `<role>` already has an entry in
+`IAM/roles/roles.json` (point to `/role-modify`). If
+`IAM/roles/roles.json` doesn't exist yet, create it from the
+deployment's own current `IAM/roles/templates/TEMPLATE-ROLES-vN.json`
+first. Otherwise append a new entry
+(`name: <role>`, `actions: <actions>`) and report it.
+
+When the user enters `/role-modify <role> <actions>: ...`, refuse with a
+clear message if `<role>` has no entry in `IAM/roles/roles.json` (point
+to `/role-add`). Otherwise replace that entry's `actions` and report the
+result. This never retroactively changes a `Signed-off-by` value already
+recorded on an existing artifact.
+
+The seven work-item creation commands (§4) have no procedure here —
+they're plugin-contributed, not core; see whichever
+project-management-type plugin's own `working-contract.md` is active.
+
+When the user enters `/meta-tag <artefact-id>`, create a new meta-tag artifact
+immediately, save it as `tag-<key>-<artefact-id>`, register it in
+`meta-tags/meta-tags.md`, and link it to the specified artifact. If the key
+is not supplied explicitly, prompt for it.
+
+When the user enters `/list <type> [--filter ...]`, inspect the relevant
+catalogs and return the matching items. If `type` is `all`, inspect every
+supported collection and apply the same filters there. If `type` is
+`template`, require `--type <template-type>` and list the matching templates
+for that family. If no items match, return an empty result rather than
+inventing matches.
+
+When the user enters `/freeze <item-id|item-path|type|template-name>`, resolve
+the item to its backing file path, append that path to the root-level
+`.frozen` file if it is not already present, and report success. The item is
+then protected from automatic framework synchronization until it is
+explicitly removed from `.frozen` or re-synchronized with an override.
+
+When the user enters `/migrate-definition <entity-type> <version>`, first
+confirm `<entity-type>` names a real entity type (this framework's source
+has a `definitions/<entity-type>/` folder for it — see `definitions/
+README.md`'s "Entity types covered" list); if not, refuse and name the
+valid types. Obtain this framework's current source content the same way
+`/sync-framework` does (`SYNCHRONIZE.md`'s "Version rule" — the `release`
+branch of the catalyst repository), and check whether `definitions/
+<entity-type>/DEFINITION-<ENTITY-TYPE>-v<version>.md` exists there. If it
+does not, refuse and report the highest version number that does exist for
+that type instead of guessing or rounding to the nearest one. If it does,
+overwrite the deployed `.criterion/definitions/<entity-type>.md` with that
+exact version's content — this is the one and only way that file ever
+changes once deployed, per `SYNCHRONIZE.md`'s definitions carve-out — and
+report the old version number moving to the new one.
+
+Every `/catalyzer` subcommand resolves plugin identity, repository URL, and
+version information exclusively from the `catalog.md` registry of the
+relevant plugin type (e.g. `plugins/repository/catalog.md`); a plugin
+name with no matching entry in the registry is unregistered, and any
+subcommand invoked against it must be refused with a message that the plugin
+is not registered. When the user enters `/catalyzer list`, read every plugin
+type's `catalog.md` and return the available plugins grouped by type,
+each with its registered repository URL, pinned release/tag, and
+compatibility. When the user
+enters `/catalyzer activate <name> <version|latest>`, look up `<name>` in the
+registry to resolve its repository URL, then download or update the plugin
+into the framework at `plugins/<type>/` from that repository if it is not
+already present, then load it into memory: read that plugin's own
+`working-contract.md` and fulfill its Operational-loop section — starting
+whatever persistent sub-agent or process it describes — always targeting
+the deployed project's own repository root (the project this activation is
+happening within), never the catalyst framework's own repository or the
+plugin's installation directory. The command requires a version
+argument; if the user supplies `latest`, resolve the newest available version
+for that plugin from its repository rather than from the pinned tag in the
+registry. If a plugin with the same name is already loaded, replace it in
+memory with the new instance. When the user enters
+`/catalyzer download <name> <version|latest>`, resolve `<name>` against the
+registry the same way, then download the plugin into the framework without
+activating it; the installed plugin remains inactive until it is explicitly
+activated later. A plugin is considered invalid for activation unless its root
+directory contains both a `README.md` file and a `working-contract.md` file;
+if either file is missing, refuse activation and report the missing
+requirement. When the user enters `/catalyzer deactivate <name>`, leave the
+plugin installed in the framework but mark it inactive and flush it from
+memory. When the user enters `/catalyzer upgrade <name|latest>`, resolve the
+plugin's repository URL from the registry, then update the plugin to the
+requested version or to the latest available version from that repository.
+When the user enters `/catalyzer downgrade <name> <version>`, resolve the
+plugin's repository URL from the registry, then downgrade the plugin to the
+specified version. Plugins must remain inactive until they are explicitly
+activated, and only the repository plugin type exists at this time. On
+framework startup, the framework must scan the installed plugins and activate
+each one whose `active` metadata flag is true the same way `/catalyzer
+activate` loads a plugin into memory (see above). This is a hard rule.
+
+When the user enters `/criterion create <name> <git-info>: ...`: if
+`.criterion/DEPLOYMENT.md` doesn't yet show `repoed: true`, this is the first-call
+bootstrap — check whether `<git-info>` already exists: if it does,
+inspect its content before registering it as-is — if it's genuinely this
+same deployment's own prior state (a real rejoin), proceed; if it holds
+*unrelated* content (a different project's own `.criterion/`
+deployment), that's not a rejoin, stop and confirm explicitly with the
+user before doing anything, the same tier of confirmation as creating a
+new repo; if `<git-info>` doesn't exist yet, create it there under
+`<name>` — this is an externally-visible, hard-to-reverse action, so
+confirm with the user before creating it, distinct from the general
+push-assent already implied by invoking this command. Write `repoed:
+true`, `catalyst_repo: <name>`, `catalyst_repo_url: <git-info>`,
+`created_by: <the current Signed-off-by actor>` to
+`.criterion/DEPLOYMENT.md`, **ask which branch this actor will push
+to** — the actor's own `<branch-safe-name>.criterion` is the
+suggested default, but `criterion` itself is a valid choice too (see
+`/criterion push` below for what that changes) — and write the answer
+as `criterion_branch` in both `.criterion/DEPLOYMENT.md` and
+`<app-name>.catalyst`. Then push the current local `.criterion/`
+state as the first commit on a `criterion` branch there. Nothing is
+vetted on this first push. If `.criterion/DEPLOYMENT.md` **already**
+shows `repoed: true`: don't refuse — if `<git-info>` matches the
+registered `catalyst_repo_url`, create a new branch off `criterion`'s
+current state named `<name>` in its branch-safe form (§13) and stop
+there (no repo mutation, no `.criterion/DEPLOYMENT.md` change); if `<git-info>`
+names a different repo, confirm explicitly with the user before doing
+anything, since that's an unusual second-repo scenario rather than
+ordinary branching. On the first-call path only, also run the identity
+migration below, then report the result.
+
+When the user enters `/criterion get <repo> <username>: ...`, validate
+`<username>` against the branch-safe-name rule (§13) — refuse with a
+suggested alternative if it doesn't survive sanitization uniquely against
+already-registered users. Download `<repo>`'s `criterion` branch content
+and check out `<username>.criterion` (branch-safe form) from it as
+this user's local `.criterion/`, creating a `IAM/users/users.json`
+entry for them first if one doesn't already exist. **Ask which branch
+this actor will push to**, same as `create` above (the just-created
+`<username>.criterion` is the default), and record
+`criterion_branch`. Then run the identity migration below for this
+user, and report the result.
+
+**Identity migration** (part of both `/criterion create`'s first call
+and `/criterion get`): set `git_username` on the current user's
+`IAM/users/users.json` entry to their resolved git identity (`git
+config user.name`, branch-safe form, for `create`; the given `<username>`
+for `get`). Rewrite every existing artifact's `Signed-off-by` field that
+currently names this user's old `name` to their new `git_username` —
+from this point on, every `Signed-off-by`/journal `actor` written for
+them uses `git_username`, never `name`. **Never rewrite the journal
+itself** (`Rules-of-Rules.md` §12, INV-17 — entries are immutable, no
+exception for this either); instead append one new entry (`action:
+"update"`, `intent` describing the migration) covering every artifact
+file actually rewritten.
+
+When the user enters `/criterion push [--force]`, refuse with a clear
+message if `.criterion/DEPLOYMENT.md` doesn't show `repoed: true` (point to
+`/criterion create`). If no `criterion_branch` is recorded yet (a
+deployment from before this field existed), ask now — same question as
+`/criterion create`'s — and record the answer before continuing.
+
+**If `criterion_branch` names a real contributor branch**
+(`<git_username>.criterion` if the actor has one, otherwise the
+branch-safe form of `name`): push local `.criterion/` there in the
+repoed repository (creating that branch on their first push), **scoped
+to artifact files whose `Signed-off-by` names the current actor** —
+check the actor's `roles` array in `IAM/users/users.json` against
+`IAM/roles/roles.json`; if it includes the `Admin` role, skip scoping
+and push everything. Otherwise leave out any artifact file signed by
+someone else, and report which files (if any) were excluded and why.
+Shared registries/indexes (`rules.md`, `requirements.md`,
+`roadmaps.md`, `BACKLOG.md`, `IAM/users/users.json`,
+`IAM/roles/roles.json`) and the journal aren't signed by one person and
+are never filtered by this rule. This scopes what gets pushed; it never
+refuses the command outright. If `--force` is given: refuse unless the
+current actor matches
+`.criterion/DEPLOYMENT.md`'s `created_by`; otherwise confirm with the user, then
+overwrite `criterion` directly from local state and skip everything
+below. Otherwise: (1) vet the incoming branch against `criterion` —
+`/check-rules` plus an independent four-eyes sub-agent pass checking
+whether the incoming state still matches what its own rules claim;
+disagreement between the two sub-agents, or a flagged violation, stops
+here rather than proceeding silently; (2) merge —
+attempt a normal merge first, and only where that leaves a conflict
+(git-level, vetting-flagged, or a rights-mismatch against the actor's
+role in `IAM/roles/roles.json`), have a sub-agent propose a resolution
+guided by `Rules-of-Rules.md` §1's conflict-check principle. Where
+that's itself contested, or genuinely irreconcilable, open a
+`RECON-NNNNNN` instead of guessing which side wins (`Rules-of-Rules.md`
+§16, resolved later via `/reconcile`) — that one entity stays unmerged,
+everything else in the push proceeds; (3) update both `criterion` (the
+merge commit) and the
+contributor's own branch (fast-forwarded to match); (4) pull the updated
+`criterion` down and overwrite the local `.criterion/` directory
+and this session's in-memory record of it.
+
+**If `criterion_branch` *is* `criterion` itself** (single-maintainer
+mode): push local `.criterion/` state directly onto `criterion`,
+overwriting it — every time, no vetting, no merge, not gated behind
+`--force`. Still refuse unless the current actor matches
+`.criterion/DEPLOYMENT.md`'s `created_by`. This is the expected mode
+for catalyst's own self-dogfooding, offered as the natural follow-up
+after a `/dogfood` run ends clean or ends with fixes applied and
+reverified — `/dogfood`'s own four-eyes audit is what already vetted the
+state, so repeating that check on push would be redundant.
+
+Report the result either way.
+
+When the user enters `/project create <project name>: ...`, refuse if a
+`<app-name>.catalyst` pointer or an in-project `.criterion/` already
+exists at this project's root — point to `/project import ... force`
+instead. Otherwise run the instantiation procedure
+(`INSTANTIATION-GUIDE.md`): resolve `agent-source` (`BOOTSTRAP.md` §1),
+build the working copy there, then write `<app-name>.catalyst` from
+`templates/catalyst-pointer.template.json` with `<project name>` and the
+resolved `agent-source`. Report the result; per hard rule 4, nothing is
+committed automatically.
+
+When the user enters `/project remove <project name> [force]: ...`,
+without `force`: delete this project's `<app-name>.catalyst` (and, on
+the in-project fallback, stop treating that `.criterion/` as active)
+— nothing else. The working copy at `agent-source`, this agent's memory
+note, and any `criterion` repo are left exactly as they are (never
+delete, retire in place — `Rules-of-Rules.md` §14). With `force`: this is
+externally-visible within this agent's own state and hard to reverse, so
+confirm explicitly with the user first, distinct from the general assent
+already implied by invoking this command; then additionally delete the
+working copy at `agent-source` and this agent's memory note for the
+project. Never delete a `criterion` repo — that is a separate,
+possibly multi-contributor, externally-hosted artifact outside a local
+removal's scope, regardless of `force`.
+
+When the user enters `/project export <project name> [export filename]:
+...`, resolve `agent-source` for `<project name>` and read every file
+under its working copy into one JSON bundle keyed by path relative to
+`.criterion/`, plus the pointer fields from `<app-name>.catalyst`
+(all but `agent-source`, which is meaningless outside this machine).
+Write it to `<export filename>` if given, else
+`<project name>-catalyst-export-<UTC timestamp>.json` in the current
+directory. Report the result.
+
+When the user enters `/project import <export filename> [force]: ...`,
+without `force`: refuse if a `<app-name>.catalyst` pointer or an
+in-project `.criterion/` already exists at the current project's
+root — point to the `force` form instead. Otherwise (or with `force`,
+after confirming explicitly with the user what will be overwritten):
+parse the bundle, resolve a **fresh** `agent-source` (never the
+exporting machine's original), materialize every bundled file there,
+then write `<app-name>.catalyst` carrying the bundle's pointer fields
+over as-is (`repoed`, `catalyst_repo`, `catalyst_repo_url`,
+`created_by`) with `agent-source` set to the new location. Append one
+journal entry for the import (`action: "import"`), then report the
+result.
+
+When the user enters `/status <artefact-id> <status> [force]`, update the
+artifact's `Status` field. If the supplied status is one of the valid statuses
+for that artifact type, change it normally. If the status is invalid and the
+command includes the word `force`, change it to that invalid value anyway. If
+the status is invalid and `force` is not supplied, respond that the status
+change is impossible and do not modify the artifact. If the artifact ID does
+not resolve to an existing artifact, state that the artifact cannot be found.
+
+Each plugin must be defined by the following minimum metadata fields: `name`,
+`description`, `uuid`, `version`, `active`, and `type`. The plugin definition
+template must be updated to include these fields and to record the plugin's
+current state in the framework. The framework must read the plugin's
+`active` flag at startup and activate only the plugins marked active; this is
+mandatory and must not be bypassed. All plugin-specific functionality,
+operational guidance, and implementation details must live inside the plugin
+package itself; the framework only defines the interface and lifecycle contract.
+
+When the user enters `/audit <file-name>`, inspect the repository and the
+current framework state to determine the impact of changes against the named
+file. The command must identify whether the file is a rule, template,
+artifact, plugin contract, or other framework asset; inspect related indexes,
+references, and dependent artifacts; and return a concise summary of likely
+impact, affected areas, and any blocking concerns. If the file cannot be
+resolved, report that it was not found and do not invent a result.
+
+When the user enters `/run-analysis`, open and execute the analysis playbook
+from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
+returning the resulting analysis summary. If the playbook is missing, report
+that it is unavailable and do not invent missing content.
+
+When the user enters `/sync-framework [latest|<version>] [--force <scope>]`,
+inspect the requested framework version, compare it with the deployed
+framework, and synchronize any missing or outdated files and version
+information. If the first argument is `latest`, resolve the newest available
+framework version from the framework source. If no version argument is
+provided, synchronize against the currently installed local version. Before
+synchronizing an item, check the root-level `.frozen` file. If the item's
+path is listed there, skip it unless the command includes one of the valid
+overrides: `--force <type>`, `--force <item-id>`, or `--force all`. When an
+item is refreshed during the synchronization process, it must not remain in
+`.frozen`; remove it from the list so the refreshed version no longer carries
+the frozen protection. Synchronization must never deactivate an
+already-active plugin as a side effect of a framework version change: a
+plugin stays active across the sync unless its entry in the relevant
+`plugins/<type>/catalog.md` explicitly excludes the target framework
+version via the `Compatibility` field — a bare `*`, or an absent field, is
+never grounds for deactivation. Only when that field names a version or
+range that excludes the target version may the synchronization process
+deactivate the plugin, and it must then report which plugin was deactivated
+and why. Synchronization must also never treat a deployed project's
+`plugins/<type>/catalog.md` or any installed plugin directory under
+`plugins/<type>/<name>/` as framework template content to overwrite
+wholesale: once a project has registered or activated any plugin, that
+catalog and those directories are project-owned state, so synchronization
+may only merge into `catalog.md` — adding rows for newly available plugins
+not yet present, and refreshing the pinned `Release`/`Tag`/`Compatibility`
+columns of a row that already exists — and must never delete an existing
+row, blank the file, or delete or replace an installed plugin's directory
+contents. A missing row or directory is something the user resolves
+afterward via `/catalyzer activate` or `/catalyzer download`, never
+something `/sync-framework` performs or silently corrects on its own. After
+the refresh completes, perform a four-eyes
+verification pass: one sub-agent verifies the newly deployed framework against
+`INSTANTIATION-GUIDE.md` and the framework rules, and a second independent
+sub-agent repeats the verification from a separate pass. The sync is not
+complete until both sub-agents approve the deployment; any disagreement or
+failed validation becomes a blocking issue.
+
+When the user enters `/check-rules`, inspect the deployed framework for
+missing rule targets, conflicting domains, missing indexes, and broken links,
+then report the result.
+
+When the user enters `/commands list [--filter ...]`, list every slash
+command available in this deployment — name, one-line purpose — sourced
+from this document's §4 (the canonical list; never re-enumerate a
+subset). Apply `--filter` the same way `/list` does. If this session is
+working on catalyst's own repository (`framework/` present
+at the root) rather than a deployed project, also list
+catalyst-development-only commands that exist there but aren't part of
+this deployed set — `/dogfood` (see that repo's own `.claude/commands/`)
+is the current example.
+
+When the user enters `/show-backlog`, inspect the current artifact indexes
+(open bugs by severity, in-progress/proposed requirements, work items with no
+linked `REQ-`/`BUG-` doc, rules with no open work targeting them, feature
+ideas with no requirement yet, and every `development/roadmaps/<name>.md`
+not marked `Retired`, rows grouped by roadmap name then Status),
+**overwrite `development/BACKLOG.md` in full** with the result (from
+`templates/backlog.template.md`'s structure, with a refreshed timestamp),
+**also refresh every active `development/roadmaps/<name>.md`** in place —
+for each `RM-NNNNNN` row, resolve every `FEAT-`/`REQ-` its `Linked` field
+names (if any — it's a list, not a single id) and set `Status` to
+`Not triaged` (nothing linked) / `Triaged` (only a `FEAT-` linked) /
+`In progress` (at least one linked `REQ-` isn't yet `done`) / `Done`
+(every linked `REQ-` is `done`) accordingly, leaving `Title`/`Notes`/`Source`
+untouched — and also report the same summary to the user in this turn. No
+file write is optional — a stale `BACKLOG.md`, or any roadmap file that
+doesn't match the last `/show-backlog` run, is itself a bug in the
+deployment.
+
+When the user enters `/journal [--since <date>] [--artifact <id>]
+[--actor <name>] [--rule <id>]`, read `development/journal.jsonl` (one
+JSON object per line) and apply whichever filters were given — `--since`
+on `timestamp`, `--artifact` on `artifact`, `--actor` on `actor`,
+`--rule` on membership in `targets`. Report the matching entries in
+timestamp order: what changed, who, which command, which rule(s), and
+each entry's `intent`. If the journal doesn't exist or is empty, say so
+rather than inventing history. This command never appends to the journal
+itself.
+
+When the user enters `/journal-restore <timestamp>`, read
+`development/journal.jsonl` and, for every file path that appears in any
+entry with `timestamp <= <timestamp>`, take that path's `after` hash from
+its latest such entry (skip the path entirely if that latest `after` is
+`null` — the file didn't exist at that point). Materialize each into a
+new side directory (e.g. `.criterion/.journal-restore/<timestamp>/`)
+via `git cat-file -p <hash>` — **never write into the live working
+tree**. Report the side directory's path and which files it contains. If
+a referenced hash isn't retrievable from the git object store (was never
+written with `-w`, or the repository was pruned), report that file as
+unrecoverable rather than silently omitting it.
+
+When the user enters `/help` without any additional entry, run `/commands
+list` for the command listing rather than re-describing it, then list
+every artifact type and its purpose in a compact reference format. When
+the user enters `/help <command>`,
+return the detailed help documentation for that command only, including its
+syntax, behavior, and prerequisites. If the command is unknown, respond that
+it is unsupported and suggest the available commands.
+
+## 5. Domain field
+
+Every item's `Domain` field is the `DOMAIN` code of the rule(s) it targets,
+from `{{RULES_DIR}}/domains/` — not free text. (Feature entries under
+`features/` are not development artifacts under this document and carry no
+`Domain` field — see `Rules-of-Rules.md` §9.)
+
+## 6. Development-artifact IDs
+
+Per `Rules-of-Rules.md` §5: `(BUG|REQ|HK|TEST)-(NNNNNN)-(userid)`, global per
+type, sequential, zero-padded 6 digits, never reused, plus the signer's
+`userid` as a trailing suffix from the moment they're signed
+(`Rules-of-Rules.md` §20, INV-26). Meta-tags use a file-name pattern of
+`tag-<key>-<artefact-id>` rather than a sequential numeric ID. This is a
+hard requirement for all new artifacts and work items: every item name
+must be more than the bare ID and must follow the format
+**`<artifact-id>-<short-summary>`**. The corresponding markdown filename must
+also follow the same descriptive pattern as
+**`<artifact-id>-<short-summary>.md`**, not simply `<artifact-id>.md`.
+Example: `BUG-000001-Ab3xR9pQ-login-form-validation` or
+`BUG-000001-Ab3xR9pQ-login-form-validation.md`, and
+`REQ-000002-Ab3xR9pQ-password-reset-flow` or
+`REQ-000002-Ab3xR9pQ-password-reset-flow.md`. The same rule must be applied
+retroactively during framework deployment or synchronization to existing
+deployed items whose names or filenames are still only the bare ID.
+
+## 7. Closing an item
+
+Before closing a bug or requirement, ensure the corresponding entry exists in
+its individual file and is reflected in the relevant index file.
+
+- **Bug**: not closeable as "fixed" without its test-plan item landing,
+  **and** every `STEP-NNNNNN` in its `Steps` field is `done` or
+  `abandoned` (`Rules-of-Rules.md` §21).
+- **Requirement**: not closeable as "done" until the acceptance criteria and
+  rule targets are reflected in the implementation and tests, **and** every
+  `STEP-NNNNNN` in its `Steps` field is `done` or `abandoned`
+  (`Rules-of-Rules.md` §21).
+- **Step**: not closeable as "done" without its own Verification section
+  filled in; `abandoned` requires a reason there instead.
+- **House-keeping**: closeable once its stated verification passes.
+- **Test**: not closeable as "passing" without its own Actual outcome
+  section reflecting a real run; `failing`/`blocked` require the same
+  section explaining why.
+
+## 8. Retired rules and development work
+
+Retiring a *rule* is `Rules-of-Rules.md` §4's process — status marker to
+🗑, reason plus date appended, ID never reused. Closing a *dev-artifact*
+(`BUG-`/`REQ-`/`HK-`) as `wontfix`/`rejected`/`abandoned` is independent
+of that: closing an artifact never retires the rule(s) it targeted, and
+retiring a rule never auto-closes the artifacts that cite it. Each is
+closed on its own, citing the other's ID and the reason, so the history
+stays traceable in both directions rather than one silently orphaning the
+other.
+
+## 9. Journaling
+
+`development/journal.jsonl` is an append-only, transaction-log-grade
+record — see `Rules-of-Rules.md` §12 for the full entry schema (exact
+before/after `git hash-object -w` content pointers per file, one or more
+`intent` statements, the `targets` rule IDs) and the point-in-time
+restore mechanism (`/journal-restore`, materializes a reconstructed tree
+into a side directory — never overwrites the live tree).
+
+**Every command in §4 that creates, modifies, closes, or retires a
+rule-linked artifact, rule, domain, or work item, or changes a `Status`
+field, appends exactly one journal entry as its last step** — after
+everything that command's own section above already specifies, not
+instead of any of it. Concretely: resolve each touched file's `before`
+hash before editing it, make the edit(s), compute and write each file's
+`after` hash, then append one entry covering every file the command
+touched. Entries are immutable — never edited, deleted, or reordered
+afterward, the same "never delete, retire in place" principle as a
+retired rule (`Rules-of-Rules.md` §4) applies here in its strictest
+form: nothing about a written entry ever changes, period.
+
+Two read-only commands operate on the journal without writing to it
+themselves: `/journal [--since <date>] [--artifact <id>] [--actor <name>]
+[--rule <id>]` reconstructs/filters the history for review, and
+`/journal-restore <timestamp>` materializes the tree as it stood at that
+point into a side directory for inspection.
+
+This is core framework infrastructure, distinct from the `catalyst-git`
+plugin's continuous rule-compliance auditing of a *deployed* project
+(`INVARIANTS.md` INV-13) — the journal applies to catalyst's own
+self-deployment too, and answers "what changed, why, and can I get back
+to how it was," not "did anything just break a rule."

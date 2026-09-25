@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGINS_DIR = ROOT / "plugins"
+PLUGINS_DIR = ROOT / "framework" / "plugins"
 
 UUID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I

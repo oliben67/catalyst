@@ -406,14 +406,14 @@ def check_definitions_exist(root: Path) -> list[str]:
     definitions = root / "definitions"
     if not definitions.is_dir():
         return ["INV-23: definitions/ is missing — seed it from "
-                "development-framework/definitions/"]
+                "framework/definitions/"]
 
     errors: list[str] = []
     for entity_type in ENTITY_TYPES:
         if not (definitions / f"{entity_type}.md").is_file():
             errors.append(
                 f"INV-23: definitions/{entity_type}.md is missing — seed it "
-                f"from development-framework/definitions/{entity_type}/"
+                f"from framework/definitions/{entity_type}/"
             )
     return errors
 

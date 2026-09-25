@@ -2,7 +2,7 @@
 
 **Status:** draft, for review — not committed, not part of the framework's
 own governed structure yet.
-**Scope:** the `catalyst` framework itself (`development-framework/`). Does
+**Scope:** the `catalyst` framework itself (`framework/`). Does
 not touch `catalyst-ui` directly, though §6 covers what this would mean for
 it as the framework's reference product.
 
@@ -51,7 +51,7 @@ touched, by hand, every time:
 - `INSTANTIATION-GUIDE.md`, `INSTANTIATION-CHECKLIST.md`,
   `ARTIFACT-LAYOUT.md` — each got its own tree/checklist edit.
 - Three separate top-level READMEs (`README.md`,
-  `development-framework/README.md`, `templates/README.md`) — each
+  `framework/README.md`, `templates/README.md`) — each
   separately re-describes the same new type in its own words.
 - A new `.claude/commands/create-<type>.md`.
 
@@ -96,7 +96,7 @@ framework's own prose:
   prompts) are baked directly into core framework prose rather than being
   isolated into a standalone module.
 - Adding a type currently means **editing the framework's own source**
-  (`development-framework/*.template.md`) and cutting a framework
+  (`framework/*.template.md`) and cutting a framework
   version + migration. There is no way for a deployed project's own
   architect/admin to add a type without either forking the framework or
   asking an agent to hand-edit framework internals on their behalf — which
@@ -147,7 +147,7 @@ The framework ships `software-development` as the **default module/profile**,
 authored via ETDs and modular prompts like everything else — dogfooding the new mechanism to
 define the old one, rather than keeping two parallel systems.
 An architect/admin creates a new type or adapts a process by writing ETD files or attaching a prompt module in their own deployment. No framework version bump, no migration, no asking an
-agent to hand-edit `development-framework/`. That *is* "design-time
+agent to hand-edit `framework/`. That *is* "design-time
 choice, their own way."
 
 ### 3c. What a generic engine derives from one ETD and Prompt Module, instead of being hand-written per type
@@ -171,7 +171,7 @@ first, regardless of the bigger decision:
 
 1. **One canonical entity registry, everything else references it.**
    Collapse the 6 hand-maintained "here's the list of types" copies
-   (top-level `README.md`, `development-framework/README.md`,
+   (top-level `README.md`, `framework/README.md`,
    `templates/README.md`, `INSTANTIATION-GUIDE.md`,
    `INSTANTIATION-CHECKLIST.md`, `ARTIFACT-LAYOUT.md`) into one source
    — under the new model, that's literally "the set of ETD files in the
