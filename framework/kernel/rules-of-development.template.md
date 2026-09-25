@@ -291,12 +291,12 @@ the seven currently exist anywhere.
   `--type <template-type>` argument to identify which template family to
   inspect.
 - `/freeze <item-id|item-path|type|template-name>` — protect the resolved
-  item from `/sync-kernel` by recording its file path in a root-level
+  item from `/sync-framework` by recording its file path in a root-level
   `.frozen` file. The command accepts one of four argument forms: an item
   ID, an item path, a type, or a template name.
 - `/migrate-definition <entity-type> <version>` — the only way to move a
   deployed `definitions/<entity-type>.md` forward once it exists
-  (`INVARIANTS.md` INV-23: ordinary `/sync-kernel` never touches one
+  (`INVARIANTS.md` INV-23: ordinary `/sync-framework` never touches one
   that already exists). Refuses if `<entity-type>` isn't a real entity
   type, or if `<version>` doesn't exist for it in this framework's own
   `definitions/<entity-type>/` folder.
@@ -309,7 +309,7 @@ the seven currently exist anywhere.
   that ships with the current catalyst release, and their kernel-version
   compatibility. Each catalog entry has a `Compatibility` field: a bare `*`
   means the plugin is compatible with every kernel version — the default
-  for a registered plugin, and never grounds for `/sync-kernel` to
+  for a registered plugin, and never grounds for `/sync-framework` to
   deactivate it. A future convention allows specific version constraints in
   that field instead, expressed with the same range syntax used in a
   dependency lock file, to mark a plugin as excluded from named framework
@@ -429,9 +429,8 @@ the seven currently exist anywhere.
 - `/run-analysis` — open and execute the analysis playbook from
   `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
   returning the resulting analysis summary.
-- `/sync-kernel` or `/sync-framework [latest|<version>]` — synchronize the
-  deployed kernel with the requested kernel version (`/sync-framework` is the
-  pre-0.35.0 name, kept as an alias). If the argument is `latest`, use the
+- `/sync-framework [latest|<version>]` — synchronize the deployed framework
+  with the requested kernel version. If the argument is `latest`, use the
   newest kernel version available from the framework source. If no argument
   is provided, synchronize against the currently installed local version.
 - `/check-rules` — verify that rules, domains, and artifact links remain
@@ -635,7 +634,7 @@ confirm `<entity-type>` names a real entity type (this framework's source
 has a `definitions/<entity-type>/` folder for it — see `definitions/
 README.md`'s "Entity types covered" list); if not, refuse and name the
 valid types. Obtain this framework's current source content the same way
-`/sync-kernel` does (`SYNCHRONIZE.md`'s "Version rule" — the `release`
+`/sync-framework` does (`SYNCHRONIZE.md`'s "Version rule" — the `release`
 branch of the catalyst repository), and check whether `definitions/
 <entity-type>/DEFINITION-<ENTITY-TYPE>-v<version>.md` exists there. If it
 does not, refuse and report the highest version number that does exist for
@@ -871,9 +870,9 @@ from `ANALYSIS-PLAYBOOK.md` in the project root, following its steps and
 returning the resulting analysis summary. If the playbook is missing, report
 that it is unavailable and do not invent missing content.
 
-When the user enters `/sync-kernel` or `/sync-framework [latest|<version>]
-[--force <scope>]`, inspect the requested kernel version, compare it with the
-deployed kernel, and synchronize any missing or outdated files and version
+When the user enters `/sync-framework [latest|<version>] [--force <scope>]`,
+inspect the requested kernel version, compare it with the deployed
+framework, and synchronize any missing or outdated files and version
 information. If the first argument is `latest`, resolve the newest available
 kernel version from the framework source. If no version argument is
 provided, synchronize against the currently installed local version. Before
@@ -901,7 +900,7 @@ columns of a row that already exists — and must never delete an existing
 row, blank the file, or delete or replace an installed plugin's directory
 contents. A missing row or directory is something the user resolves
 afterward via `/catalyzer activate` or `/catalyzer download`, never
-something `/sync-kernel` performs or silently corrects on its own. After
+something `/sync-framework` performs or silently corrects on its own. After
 the refresh completes, perform a four-eyes
 verification pass: one sub-agent verifies the newly deployed framework against
 `INSTANTIATION-GUIDE.md` and the framework rules, and a second independent

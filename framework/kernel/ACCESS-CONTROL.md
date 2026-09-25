@@ -1,7 +1,7 @@
 # Access Control: Roles, Rights, and Automatic Write Authorization
 
 A reference document, deployed verbatim to `.criterion/ACCESS-CONTROL.md`
-on first instantiation and refreshed on `/sync-kernel` whenever this
+on first instantiation and refreshed on `/sync-framework` whenever this
 kernel version changes it (`INSTANTIATION-GUIDE.md` §1 step 8,
 `SYNCHRONIZE.md` item 5) — same treatment as `CODE-OF-CONDUCT.md`/
 `Rules-of-Rules.md`. It explains mechanics that already live in
@@ -45,7 +45,7 @@ of role or identity:
 | Developer | everything | `/create-bug`, `/create-req` (implementation-driven), implement `REQ-`/`BUG-`, `/status` on tasks/stories | `propose` |
 | QA / Tester | everything | `/create-bug`, verify a rule's test coverage, `/status` on test-plan items | `propose` |
 | Stakeholder | everything | propose `FEAT-` ideas, propose roadmap items | `none` |
-| Release Manager | everything | `/sync-kernel`, `/catalyzer`, cutting releases | `full` |
+| Release Manager | everything | `/sync-framework`, `/catalyzer`, cutting releases | `full` |
 | Admin | everything | `/user-add`, `/user-remove`, `/user-modify`, `/user-assign-role`, `/user-list`, `/role-add`, `/role-modify`, `/freeze`, `/criterion push` (unrestricted), `/reconcile` | `full` |
 
 The "Write" column is each role's *typical* scope (`IAM/roles/roles.json`'s

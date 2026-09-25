@@ -31,7 +31,7 @@ to definitions instead of instance templates.
   type — independent of this repository's own root `version.txt` (the
   kernel version).
 - **A deployed definition is frozen at whatever version it was deployed
-  with.** `/sync-kernel` only ever *creates* a missing
+  with.** `/sync-framework` only ever *creates* a missing
   `.criterion/definitions/<type>.md` (for an entity type introduced after
   the project's last sync) — it never overwrites one that's already
   present, no matter how far the framework's own copy has moved on. The

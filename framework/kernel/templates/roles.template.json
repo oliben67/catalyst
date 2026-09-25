@@ -32,7 +32,7 @@
     },
     {
       "name": "Release Manager",
-      "actions": ["/sync-kernel", "/catalyzer", "cutting releases"],
+      "actions": ["/sync-framework", "/catalyzer", "cutting releases"],
       "reconciliation": "full"
     },
     {

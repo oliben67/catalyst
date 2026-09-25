@@ -286,7 +286,7 @@ creates concrete rules for that particular project.
    string and fails with "no Taskfile found" (confirmed by hand — the
    identical `sh:` script works fine as an ordinary task var, only the
    `includes:` use breaks). Update this literal by hand (or via
-   `/sync-kernel`) if `agent-source` ever changes — the same
+   `/sync-framework`) if `agent-source` ever changes — the same
    "set once, rarely revisited" tradeoff the pointer's own field already
    has:
    ```yaml
@@ -390,7 +390,7 @@ creates concrete rules for that particular project.
    `.criterion/definitions/README.md` so the freeze/versioning convention
    travels with the deployment. **This step never runs again after first
    deploy for a type that already has a deployed definition** — see
-   `SYNCHRONIZE.md`'s definitions carve-out; only `/sync-kernel` adding a
+   `SYNCHRONIZE.md`'s definitions carve-out; only `/sync-framework` adding a
    brand-new type, or an explicit `/migrate-definition`, ever touches a
    `.criterion/definitions/<type>.md` file after this.
 8. Create a root-level `README.md` in the deployed framework directory that
@@ -409,7 +409,7 @@ creates concrete rules for that particular project.
    to `.criterion/ACCESS-CONTROL.md` verbatim (no project-specific
    customization, unlike this README) — a root-level governing reference,
    same treatment as `CODE-OF-CONDUCT.md`/`Rules-of-Rules.md`: created on
-   first deploy, refreshed on `/sync-kernel` whenever this framework
+   first deploy, refreshed on `/sync-framework` whenever this framework
    version actually changes it, linked from the root README so it's
    discoverable.
 9. Create a starter requirements document in `requirements/` based on the

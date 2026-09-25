@@ -263,7 +263,7 @@ faster and is the first thing a summarizer mangles.
 - **INV-23 — Frozen entity definitions.** Every real entity type has a
   short, versioned prose definition (`definitions/README.md`) explaining
   what it is and what it's for, deployed to `.criterion/definitions/
-  <type>.md`. Once deployed, that file is frozen forever: `/sync-kernel`
+  <type>.md`. Once deployed, that file is frozen forever: `/sync-framework`
   only ever creates a missing one (a type introduced since the project's
   last sync), never overwrites an existing one, no matter how far the
   framework's own copy has moved on. The only sanctioned way to move a

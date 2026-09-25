@@ -4,7 +4,7 @@
 # (agent-owned space per INV-6 — never inside the developed project's own
 # tree, the same way rules/, requirements/, etc. live there), once per
 # project (including this framework's own self-deployment), and refresh
-# it from here on `/sync-kernel`. See `INSTANTIATION-GUIDE.md` §1 step
+# it from here on `/sync-framework`. See `INSTANTIATION-GUIDE.md` §1 step
 # 5, `INSTANTIATION-CHECKLIST.md`'s Discoverability section, and
 # `SYNCHRONIZE.md`'s synchronization checklist — this template exists
 # because those require it, the same way `templates/slash-command.
@@ -131,7 +131,7 @@ tasks:
       - '{{.AGENT_CMD}} "/list {{.CLI_ARGS}}"'
 
   freeze:
-    desc: "Protect an item from /sync-kernel: <item-id|item-path|type|template-name>"
+    desc: "Protect an item from /sync-framework: <item-id|item-path|type|template-name>"
     cmds:
       - '{{.AGENT_CMD}} "/freeze {{.CLI_ARGS}}"'
 
@@ -180,13 +180,8 @@ tasks:
     cmds:
       - '{{.AGENT_CMD}} "/run-analysis {{.CLI_ARGS}}"'
 
-  sync-kernel:
-    desc: "Synchronize the deployed kernel: [latest|<version>]"
-    cmds:
-      - '{{.AGENT_CMD}} "/sync-kernel {{.CLI_ARGS}}"'
-
   sync-framework:
-    desc: "Alias of sync-kernel"
+    desc: "Synchronize the deployed framework: [latest|<version>]"
     cmds:
       - '{{.AGENT_CMD}} "/sync-framework {{.CLI_ARGS}}"'
 
