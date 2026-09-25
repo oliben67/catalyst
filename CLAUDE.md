@@ -24,7 +24,7 @@ Capabilities you have (use them per `BOOTSTRAP.md §1`):
     Code version actually supports them first), with a body that points
     back to the deployed `CODE-OF-CONDUCT.md` §4 as the canonical spec
     rather than duplicating its behavior inline, so the command stays
-    correct across a `/sync-kernel` without needing its own edit.
+    correct across a `/sync-framework` without needing its own edit.
   - This is part of the instantiation procedure itself
     (`INSTANTIATION-GUIDE.md` §1 step 5, `INSTANTIATION-CHECKLIST.md`'s
     Discoverability section) — not an optional add-on once everything else

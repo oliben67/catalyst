@@ -134,7 +134,7 @@ every artifact file actually rewritten.
    reverified, since that audit already served as the vetting step.
 4. Report the result.
 
-Not a replacement for `/sync-kernel` (that syncs the framework
+Not a replacement for `/sync-framework` (that syncs the framework
 *template* into a deployment; this syncs one deployment's *own state*
 across contributors), and not a substitute for the journal — a
 `criterion` merge is itself journaled like any other change once it
