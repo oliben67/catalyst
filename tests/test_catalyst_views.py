@@ -119,3 +119,23 @@ def test_the_cli_prints_text_and_json(tmp_path, capsys):
     assert main(["--project", str(project), "journal", "show"]) == 0
     assert "(no journal entries)" in capsys.readouterr().out
     assert main(["--project", str(project), "list", "widgets"]) == 1
+
+
+def test_graph_carries_rules_links_and_the_entity_types(tmp_path, monkeypatch, capsys):
+    dep, corpus = _dep(tmp_path)
+    g = views.graph(dep, corpus)
+    assert {r["id"]: r["domain"] for r in g["rules"]} == {RULE: "AUTH"}
+    assert g["domains"] == sorted(corpus.domains)
+    item = next(a for a in g["artifacts"] if a["id"] == ITEM)
+    assert item["links"]["Subs"] == [SUB] and item["links"]["Targets"] == [RULE]
+    assert item["file"] == "items/ITEM-000001-first-item.md"
+    sub = next(a for a in g["artifacts"] if a["id"] == SUB)
+    assert sub["links"]["Item"] == [ITEM]
+    assert {"ITEM", "SUB"} <= set(g["types"])
+    assert {f["name"] for f in g["types"]["ITEM"]["fields"]} >= {"Status", "Targets", "Subs"}
+    assert g["types"]["ITEM"]["closed_states"] == list(dep.etds["ITEM"].workflow.closed_states)
+    monkeypatch.chdir(tmp_path / "app")
+    assert main(["graph", "--json"]) == 0
+    assert json.loads(capsys.readouterr().out) == json.loads(json.dumps(g, default=str))
+    assert main(["graph"]) == 0
+    assert "1 rule(s)" in capsys.readouterr().out

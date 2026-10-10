@@ -37,9 +37,14 @@ JSON over HTTP, `/v1`: `GET head`, `GET changes?since=<batch>`,
 The read side (R3.9 S3) answers what the CLI's read commands
 answer, with their own code over the server's current files:
 `GET list?type=&filter=`, `GET view/<id>`, `GET backlog`,
-`GET journal?since=&artifact=&actor=&rule=` (header `X-Catalyst-Batch`: the
-batch the answer is for), and `GET events`, a server-sent event stream of
-batch numbers.
+`GET journal?since=&artifact=&actor=&rule=`, `GET graph` (header
+`X-Catalyst-Batch`: the batch the answer is for), and `GET events`, a
+server-sent event stream of batch numbers.
+
+Local mode (`catalyst serve --local`, `LocalReader`): the same read
+endpoints over one project's own criterion, read-only, on loopback, with a
+token made for the run; `GET check` returns `catalyst check --json`. A
+client reads every criterion the same way, served or not.
 """
 
 from __future__ import annotations
@@ -166,7 +171,44 @@ def entry_shas(entry: dict) -> list[tuple[str, str]]:
 
 
 # --- the server -------------------------------------------------------------
-class Server:
+class Reads:
+    """The read side, over whatever `loaded()` gives: the CLI's own views."""
+
+    def loaded(self) -> tuple:  # (batch, deployment, corpus)
+        raise NotImplementedError
+
+    def check(self) -> dict:
+        raise ServeError(501, "check runs where the criterion's git history is: `catalyst serve --local`, or the CLI")
+
+    def read(self, what: str, query: dict[str, list[str]], item: str = "") -> tuple[int, object]:
+        """(batch, what `catalyst <what> --json` prints) for list, view,
+        backlog and journal."""
+        from catalyst import views
+        from catalyst.journal import JournalError
+
+        seq, dep, corpus = self.loaded()
+        one = lambda key: (query.get(key) or [None])[0]  # noqa: E731
+        try:
+            if what == "list":
+                data = views.list_items(
+                    dep, corpus, one("type") or "all", views.parse_filters(query.get("filter")), one("template_type")
+                )
+            elif what == "view":
+                data = views.view(dep, corpus, item)
+            elif what == "graph":
+                data = views.graph(dep, corpus)
+            elif what == "backlog":
+                data = views.backlog(dep, corpus)
+            else:
+                data = views.journal_entries(dep, one("since"), one("artifact"), one("actor"), one("rule"))
+        except views.ViewError as e:
+            raise ServeError(404, str(e)) from None
+        except JournalError as e:
+            raise ServeError(400, str(e)) from None
+        return seq, data
+
+
+class Server(Reads):
     def __init__(self, db: Path):
         self.db = Path(db)
         self.db.parent.mkdir(parents=True, exist_ok=True)
@@ -407,31 +449,6 @@ class Server:
             self._loaded = (seq, dep, load_corpus(dep))
             return self._loaded
 
-    def read(self, what: str, query: dict[str, list[str]], item: str = "") -> tuple[int, object]:
-        """(batch, what `catalyst <what> --json` prints) for list, view,
-        backlog and journal."""
-        from catalyst import views
-        from catalyst.journal import JournalError
-
-        seq, dep, corpus = self.loaded()
-        one = lambda key: (query.get(key) or [None])[0]  # noqa: E731
-        try:
-            if what == "list":
-                data = views.list_items(
-                    dep, corpus, one("type") or "all", views.parse_filters(query.get("filter")), one("template_type")
-                )
-            elif what == "view":
-                data = views.view(dep, corpus, item)
-            elif what == "backlog":
-                data = views.backlog(dep, corpus)
-            else:
-                data = views.journal_entries(dep, one("since"), one("artifact"), one("actor"), one("rule"))
-        except views.ViewError as e:
-            raise ServeError(404, str(e)) from None
-        except JournalError as e:
-            raise ServeError(400, str(e)) from None
-        return seq, data
-
     def batch(self) -> int:
         with self._conn() as c:
             return c.execute("SELECT COALESCE(MAX(seq), 0) FROM batches").fetchone()[0]
@@ -442,6 +459,98 @@ class Server:
                 c.execute("SELECT path, sha, seq FROM files ORDER BY path").fetchall(),
                 c.execute("SELECT id, path FROM ids ORDER BY id").fetchall(),
             )
+
+
+class LocalReader(Reads):
+    """`catalyst serve --local`: one project's own criterion, read-only, for
+    a client on this machine. Its batch is a change counter: it moves when a
+    criterion file changes (polled every second), and `events` sends it."""
+
+    read_only = True
+
+    def __init__(self, project: Path, token: str, poll: float = 1.0):
+        self.project = Path(project)
+        self._token = _hash(token)
+        self._stamp_lock, self._loading = threading.Lock(), threading.Lock()
+        self._stamp: tuple | None = None
+        self._batch = 0
+        self._loaded: tuple | None = None
+        self._checked: tuple | None = None
+        self.changed = threading.Condition()
+        self.root = self._load()[0].root
+        self.refresh()
+        if poll:
+            threading.Thread(target=self._poll, args=(poll,), daemon=True).start()
+
+    def _load(self) -> tuple:
+        from catalyst.corpus import load_corpus
+        from catalyst.deployment import load
+
+        dep = load(self.project)
+        return dep, load_corpus(dep)
+
+    def _poll(self, every: float) -> None:
+        import time
+
+        while True:
+            time.sleep(every)
+            self.refresh()
+
+    def user_for(self, token: str) -> str | None:
+        return "local" if secrets.compare_digest(_hash(token), self._token) else None
+
+    def _fingerprint(self) -> tuple:
+        out = []
+        for base, dirs, files in os.walk(self.root):
+            dirs[:] = sorted(d for d in dirs if d not in (".git", ".venv", "__pycache__"))
+            for name in sorted(files):
+                path = Path(base) / name
+                try:
+                    st = path.stat()
+                except OSError:
+                    continue
+                out.append((path.relative_to(self.root).as_posix(), st.st_size, st.st_mtime_ns))
+        return tuple(out)
+
+    def refresh(self) -> int:
+        """The batch, moved on when a criterion file changed since last seen."""
+        stamp = self._fingerprint()
+        with self._stamp_lock:
+            moved = stamp != self._stamp
+            if moved:
+                self._stamp, self._batch = stamp, self._batch + 1
+            batch = self._batch
+        if moved:
+            with self.changed:
+                self.changed.notify_all()
+        return batch
+
+    def batch(self) -> int:
+        return self.refresh()
+
+    def head(self) -> dict:
+        return {"seq": self.batch(), "files": len(self._stamp or ())}
+
+    def loaded(self) -> tuple:
+        batch = self.refresh()
+        with self._loading:
+            if not self._loaded or self._loaded[0] != batch:
+                self._loaded = (batch, *self._load())
+            return self._loaded
+
+    def check(self) -> dict:
+        """What `catalyst check --json` prints, once per change."""
+        from catalyst.check import run
+
+        batch, dep, _ = self.loaded()
+        with self._loading:
+            if not self._checked or self._checked[0] != batch:
+                report = run(dep)
+                self._checked = (
+                    batch,
+                    {"ok": not report.failing(False), "errors": report.errors, "warnings": report.warnings},
+                )
+            return self._checked[1]
 
 
 def _hash(token: str) -> str:
@@ -538,6 +647,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 raise ServeError(401, "a valid token is required (`catalyst share login`)")
             url = urllib.parse.urlparse(self.path)
             path = url.path.removeprefix(API)
+            if getattr(self.app, "read_only", False) and (
+                path in ("/changes", "/have", "/push") or path.startswith("/blobs/")
+            ):
+                raise ServeError(405, "this is a local, read-only view of one criterion")
             if method == "GET" and path == "/head":
                 return self._send(200, self.app.head())
             if method == "GET" and path == "/changes":
@@ -548,7 +661,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self._send(200, raw=data) if data is not None else self._send(404, {"error": "no such blob"})
             if method == "GET" and path == "/events":
                 return self._events()
-            if method == "GET" and (path in ("/list", "/backlog", "/journal") or path.startswith("/view/")):
+            if method == "GET" and path == "/check":
+                return self._send(200, self.app.check(), batch=self.app.batch())
+            if method == "GET" and (path in ("/list", "/backlog", "/journal", "/graph") or path.startswith("/view/")):
                 what, _, item = path.strip("/").partition("/")
                 seq, data = self.app.read(what, urllib.parse.parse_qs(url.query), urllib.parse.unquote(item))
                 return self._send(200, data, batch=seq)
@@ -580,6 +695,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
 def make_server(db: Path, host: str = "127.0.0.1", port: int = 8765) -> http.server.ThreadingHTTPServer:
     handler = type("BoundHandler", (Handler,), {"app": Server(db)})
     return http.server.ThreadingHTTPServer((host, port), handler)
+
+
+def make_local(project: Path, port: int = 0, poll: float = 1.0) -> tuple[http.server.ThreadingHTTPServer, str]:
+    """A read-only server over one project's criterion, on loopback only, and
+    its token (fresh per run, never stored)."""
+    token = "cst_" + secrets.token_urlsafe(32)
+    handler = type("LocalHandler", (Handler,), {"app": LocalReader(project, token, poll)})
+    return http.server.ThreadingHTTPServer(("127.0.0.1", port), handler), token
 
 
 def default_db() -> Path:

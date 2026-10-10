@@ -14,6 +14,14 @@ messages.
   CLI's own code over the server's current files, with the batch they are
   for in `X-Catalyst-Batch`; `GET /v1/events` streams each new batch
   (server-sent events). A client no longer needs a parser of its own.
+- `catalyst graph [--json]`: every rule, domain and artifact with its links,
+  and each entity type's definition, in one answer; `GET /v1/graph` serves
+  it.
+- `catalyst serve --local`: a project's own criterion, read-only, on
+  127.0.0.1 with a token made for the run (printed as one JSON line), with
+  the read endpoints, `events` (a change counter) and `GET /v1/check`
+  (`catalyst check --json`). A client reads every criterion the same way,
+  served or not.
 
 ## 0.53.0 — 2026-10-10
 

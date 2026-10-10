@@ -576,7 +576,7 @@ back-references, regenerates the indexes and writes one journal entry
 - `catalyst link <ID> <field> <ID>...`: cite IDs in a reference field and,
   when the field declares a back-reference, cite this artifact back.
 
-### Read-only views: `list`, `view`, `backlog`, `journal show`
+### Read-only views: `list`, `view`, `backlog`, `journal show`, `graph`
 
 Computed from the working copy and the entity type definitions; none of them
 writes. Each takes `--json`.
@@ -593,6 +593,10 @@ writes. Each takes `--json`.
   rules no open item targets.
 - `catalyst journal show [--since <date>] [--artifact <id>] [--actor <name>]
   [--rule <id>]`: journal entries in time order, filtered.
+- `catalyst graph`: the whole chain in one answer — `rules` (with their
+  domain), `domains`, `artifacts` (each `list` row plus `links`, the IDs each
+  reference field cites) and `types`, each entity type's fields, states and
+  grounding, so a client needs neither a parser nor the module's type list.
 
 ### `catalyst unrecorded [<range>] [--json]`
 
@@ -872,11 +876,13 @@ The read side answers what the read commands answer, with the CLI's own
 code over the server's current files, so a client needs no parser of its
 own: `GET list?type=<type>&filter=<field=value>` (`catalyst list --json`),
 `GET view/<id>` (`catalyst view`), `GET backlog`, and
-`GET journal?since=&artifact=&actor=&rule=` (`catalyst journal show`). Each
+`GET journal?since=&artifact=&actor=&rule=` (`catalyst journal show`) and
+`GET graph` (`catalyst graph`). Each
 answer carries the batch it is for in the `X-Catalyst-Batch` header; an
 unknown type or ID is a 404 with the CLI's message. `GET events` is a
 server-sent event stream: the current batch on connect, then each new batch
-number as it lands. The first
+number as it lands. `GET check` answers 501 on a server: its files have no
+git history, so the journal checks run where the criterion is. The first
 push to an empty server is an import: it brings the history as it is, so
 only its signers are not checked.
 
@@ -885,6 +891,16 @@ only its signers are not checked.
 - `serve token list`, `serve token revoke <n>`.
 
 Tokens are managed on the server's host, by whoever runs the server.
+
+`catalyst serve --local [--project <dir>] [--port <n>]` serves a project's
+own criterion read-only, for a client on this machine that reads every
+criterion the same way, served or not. It listens on 127.0.0.1 only, on a
+port the system picks unless `--port` names one, and prints one JSON line,
+`{"url", "token", "pid"}`; the token is made for the run and never stored.
+The read endpoints and `events` answer as on a server, `GET check` returns
+`catalyst check --json`, and `push`, `have`, `changes` and `blobs` answer
+405. Its batch is a change counter: it moves when a criterion file changes
+(checked every second), and `events` sends it.
 
 ### `catalyst criterion <subcommand>`
 

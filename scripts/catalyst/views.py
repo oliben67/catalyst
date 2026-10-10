@@ -1,5 +1,7 @@
 """Read-only views of a deployment (roadmap R2 W1): `list`, `journal show`,
-`view` and `backlog`.
+`view`, `backlog` and `graph` (every rule, domain and artifact with its
+links, and the entity types that give them meaning: what a client draws the
+chain from, with no parser or type list of its own).
 
 What `/list`, `/user-list`, `/journal` and a module's backlog summary asked
 an agent to work out by reading files is computed here, from the working copy
@@ -230,6 +232,67 @@ def backlog(dep: Deployment, corpus: Corpus) -> dict:
                 targeted |= set(ref_values(art.get(etd.grounding_field) or ""))
     idle = sorted(rid for rid, defs in corpus.rules.items() if not defs[0].retired and rid not in targeted)
     return {"open": open_by_type, "missing_links": missing, "rules_without_open_work": idle}
+
+
+# --- graph ----------------------------------------------------------------
+def _rule_domain(rule_id: str) -> str | None:
+    parts = rule_id.split("-")
+    return parts[1] if len(parts) > 2 else None
+
+
+def graph(dep: Deployment, corpus: Corpus) -> dict:
+    """The whole chain in one answer: rules (with their domain), domains,
+    artifacts (each `list` row plus `links`, the IDs each reference field
+    cites) and `types`, each entity type's definition."""
+    artifacts = []
+    for prefix in sorted(corpus.by_prefix):
+        refs = _ref_fields(dep, prefix)
+        for art in corpus.by_prefix[prefix]:
+            row = _artifact_row(dep, art)
+            row["links"] = {name: ref_values(art.get(name) or "") for name in refs if art.get(name) is not None}
+            artifacts.append(row)
+    types = {
+        prefix: {
+            "name": etd.name,
+            "plural_name": etd.plural_name,
+            "folder": etd.folder,
+            "location": etd.location,
+            "grounding": etd.grounding,
+            "grounding_field": etd.grounding_field,
+            "fields": [
+                {"name": f.name, "kind": f.kind, "required": f.required, "target_type": f.target_type}
+                for f in etd.fields
+            ],
+            "states": list(etd.workflow.states),
+            "initial": etd.workflow.initial,
+            "closed_states": list(etd.workflow.closed_states),
+        }
+        for prefix, etd in sorted(dep.etds.items())
+    }
+    rules = [
+        {
+            "id": rid,
+            "file": _rel(dep, defs[0].file),
+            "line": defs[0].line,
+            "retired": defs[0].retired,
+            "domain": _rule_domain(rid),
+        }
+        for rid, defs in sorted(corpus.rules.items())
+    ]
+    return {"rules": rules, "domains": sorted(corpus.domains), "artifacts": artifacts, "types": types}
+
+
+def render_graph(g: dict) -> str:
+    open_count = sum(
+        1
+        for a in g["artifacts"]
+        if (a.get("Status") or "") not in g["types"].get(a["type"], {}).get("closed_states", [])
+    )
+    links = sum(len(v) for a in g["artifacts"] for v in a["links"].values())
+    return (
+        f"{len(g['rules'])} rule(s) in {len(g['domains'])} domain(s); {len(g['artifacts'])} artifact(s), "
+        f"{open_count} open, {links} link(s); {len(g['types'])} entity type(s) (`--json` for the graph)\n"
+    )
 
 
 # --- text -----------------------------------------------------------------
