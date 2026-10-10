@@ -6,6 +6,15 @@ that `/sync-framework` applies to an existing deployment. Versions before
 0.37.0 are described by that migrations index and by the tagged commit
 messages.
 
+## Unreleased
+
+- `catalyst serve` answers the read commands (roadmap R3.9, S3): `GET
+  /v1/list`, `/v1/view/<id>`, `/v1/backlog` and `/v1/journal` return what
+  `catalyst list|view|backlog|journal show --json` return, computed by the
+  CLI's own code over the server's current files, with the batch they are
+  for in `X-Catalyst-Batch`; `GET /v1/events` streams each new batch
+  (server-sent events). A client no longer needs a parser of its own.
+
 ## 0.53.0 — 2026-10-10
 
 `catalyst serve`, a server several people share a criterion through, and a fix;

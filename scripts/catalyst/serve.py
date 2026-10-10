@@ -34,6 +34,12 @@ stops with nothing written.
 
 JSON over HTTP, `/v1`: `GET head`, `GET changes?since=<batch>`,
 `GET blobs/<sha>`, `POST have` (which blobs the server lacks), `POST push`.
+The read side (R3.9 S3) answers what the CLI's read commands
+answer, with their own code over the server's current files:
+`GET list?type=&filter=`, `GET view/<id>`, `GET backlog`,
+`GET journal?since=&artifact=&actor=&rule=` (header `X-Catalyst-Batch`: the
+batch the answer is for), and `GET events`, a server-sent event stream of
+batch numbers.
 """
 
 from __future__ import annotations
@@ -165,6 +171,9 @@ class Server:
         self.db = Path(db)
         self.db.parent.mkdir(parents=True, exist_ok=True)
         self._write = threading.Lock()
+        self._loading = threading.Lock()
+        self._loaded: tuple | None = None  # (batch, deployment, corpus) the reads answer from
+        self.changed = threading.Condition()  # notified when a batch lands (the events stream)
         with self._conn() as c:
             c.executescript(SCHEMA)
 
@@ -239,7 +248,9 @@ class Server:
                 c.execute("ROLLBACK")
                 raise
             c.execute("COMMIT")
-            return out
+        with self.changed:
+            self.changed.notify_all()
+        return out
 
     def _apply(self, c, userid: str, base: int, changes: list[dict], blobs: dict[str, bytes], message: str) -> dict:
         for sha, data in blobs.items():
@@ -347,6 +358,84 @@ class Server:
                 _project(c, seq, p, after, bytes(row[0]) if row else None)
             c.execute("COMMIT")
 
+    # the read side: the CLI's own views over the current files
+    def tree(self) -> Path:
+        """The current files, as a directory beside the database: a
+        projection of the `files` table, rebuilt whenever the batch moves,
+        never the truth."""
+        return self.db.with_name(self.db.stem + ".tree")
+
+    def loaded(self) -> tuple:
+        """(batch, deployment, corpus) for the latest batch, loaded once per
+        batch."""
+        from catalyst.corpus import load_corpus
+        from catalyst.deployment import DeploymentNotFound, load_working_copy
+
+        with self._loading:
+            with self._conn() as c:
+                c.execute("BEGIN")
+                seq = c.execute("SELECT COALESCE(MAX(seq), 0) FROM batches").fetchone()[0]
+                if self._loaded and self._loaded[0] == seq:
+                    c.execute("COMMIT")
+                    return self._loaded
+                files = dict(c.execute("SELECT path, sha FROM files").fetchall())
+                manifest = self.tree().with_suffix(".json")
+                try:
+                    have = json.loads(manifest.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    have = {}
+                root = self.tree()
+                for path in set(have) - set(files):
+                    (root / path).unlink(missing_ok=True)
+                for path, sha in files.items():
+                    if have.get(path) != sha or not (root / path).is_file():
+                        data = (
+                            b""
+                            if sha in EMPTY
+                            else c.execute("SELECT bytes FROM blobs WHERE sha = ?", (sha,)).fetchone()[0]
+                        )
+                        (root / path).parent.mkdir(parents=True, exist_ok=True)
+                        (root / path).write_bytes(bytes(data))
+                c.execute("COMMIT")
+            manifest.write_text(json.dumps(files, sort_keys=True), encoding="utf-8")
+            try:
+                dep = load_working_copy(root)
+            except DeploymentNotFound:
+                raise ServeError(
+                    404, "the server holds no criterion yet (`catalyst share create --driver serve`)"
+                ) from None
+            self._loaded = (seq, dep, load_corpus(dep))
+            return self._loaded
+
+    def read(self, what: str, query: dict[str, list[str]], item: str = "") -> tuple[int, object]:
+        """(batch, what `catalyst <what> --json` prints) for list, view,
+        backlog and journal."""
+        from catalyst import views
+        from catalyst.journal import JournalError
+
+        seq, dep, corpus = self.loaded()
+        one = lambda key: (query.get(key) or [None])[0]  # noqa: E731
+        try:
+            if what == "list":
+                data = views.list_items(
+                    dep, corpus, one("type") or "all", views.parse_filters(query.get("filter")), one("template_type")
+                )
+            elif what == "view":
+                data = views.view(dep, corpus, item)
+            elif what == "backlog":
+                data = views.backlog(dep, corpus)
+            else:
+                data = views.journal_entries(dep, one("since"), one("artifact"), one("actor"), one("rule"))
+        except views.ViewError as e:
+            raise ServeError(404, str(e)) from None
+        except JournalError as e:
+            raise ServeError(400, str(e)) from None
+        return seq, data
+
+    def batch(self) -> int:
+        with self._conn() as c:
+            return c.execute("SELECT COALESCE(MAX(seq), 0) FROM batches").fetchone()[0]
+
     def derived(self) -> tuple[list, list]:
         with self._conn() as c:
             return (
@@ -404,13 +493,42 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):  # quiet: a server for a few people, not a web log
         pass
 
-    def _send(self, status: int, payload: dict | None = None, raw: bytes | None = None) -> None:
-        body = raw if raw is not None else json.dumps(payload or {}).encode("utf-8")
+    def _send(self, status: int, payload: object = None, raw: bytes | None = None, batch: int | None = None) -> None:
+        if raw is None:
+            payload = {} if payload is None else payload
+            raw = json.dumps(payload, ensure_ascii=False, default=str).encode("utf-8")
+            kind = "application/json"
+        else:
+            kind = "application/octet-stream"
         self.send_response(status)
-        self.send_header("Content-Type", "application/octet-stream" if raw is not None else "application/json")
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Type", kind)
+        self.send_header("Content-Length", str(len(raw)))
+        if batch is not None:
+            self.send_header("X-Catalyst-Batch", str(batch))
         self.end_headers()
-        self.wfile.write(body)
+        self.wfile.write(raw)
+
+    def _events(self) -> None:
+        """Server-sent events: the current batch on connect, then each new
+        one as it lands; a comment every 15 s keeps proxies from closing."""
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        last = None
+        try:
+            while True:
+                seq = self.app.batch()
+                if seq != last:
+                    self.wfile.write(f"event: batch\ndata: {seq}\n\n".encode())
+                    last = seq
+                else:
+                    self.wfile.write(b": still here\n\n")
+                self.wfile.flush()
+                with self.app.changed:
+                    self.app.changed.wait(timeout=15)
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            return  # the client left
 
     def _route(self, method: str) -> None:
         try:
@@ -428,6 +546,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if method == "GET" and path.startswith("/blobs/"):
                 data = self.app.blob(path[len("/blobs/") :])
                 return self._send(200, raw=data) if data is not None else self._send(404, {"error": "no such blob"})
+            if method == "GET" and path == "/events":
+                return self._events()
+            if method == "GET" and (path in ("/list", "/backlog", "/journal") or path.startswith("/view/")):
+                what, _, item = path.strip("/").partition("/")
+                seq, data = self.app.read(what, urllib.parse.parse_qs(url.query), urllib.parse.unquote(item))
+                return self._send(200, data, batch=seq)
             if method == "POST" and path in ("/have", "/push"):
                 length = int(self.headers.get("Content-Length") or 0)
                 if length > MAX_BODY:

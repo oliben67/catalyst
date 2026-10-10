@@ -866,7 +866,17 @@ every version of the criterion's files (SQLite, `--db`, default
 `$CATALYST_HOME/serve/serve.db`), listens on `127.0.0.1:8765` unless told
 otherwise, and leaves TLS to a reverse proxy in front of it. JSON over HTTP
 under `/v1`: `GET head`, `GET changes?since=<batch>`, `GET blobs/<sha>`,
-`POST have`, `POST push`; every request carries a bearer token. The first
+`POST have`, `POST push`; every request carries a bearer token.
+
+The read side answers what the read commands answer, with the CLI's own
+code over the server's current files, so a client needs no parser of its
+own: `GET list?type=<type>&filter=<field=value>` (`catalyst list --json`),
+`GET view/<id>` (`catalyst view`), `GET backlog`, and
+`GET journal?since=&artifact=&actor=&rule=` (`catalyst journal show`). Each
+answer carries the batch it is for in the `X-Catalyst-Batch` header; an
+unknown type or ID is a 404 with the CLI's message. `GET events` is a
+server-sent event stream: the current batch on connect, then each new batch
+number as it lands. The first
 push to an empty server is an import: it brings the history as it is, so
 only its signers are not checked.
 

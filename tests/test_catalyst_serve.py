@@ -298,3 +298,69 @@ def test_an_empty_file_needs_no_blob(seeded):
     app, _ = seeded
     assert app.missing([serve.blob_sha(b"")]) == []
     assert _push_change(app, USERID, "ada", "empty.md", None, "")["seq"] == 2
+
+
+# --- the read side (S3) ------------------------------------------------------------
+def _cli_json(capsys, *argv) -> object:
+    capsys.readouterr()
+    assert main([*argv, "--json"]) == 0
+    return json.loads(capsys.readouterr().out)
+
+
+def _get(server, path: str):
+    client = serve.Client(server[1], _app(server).issue(USERID)[1])
+    return client.call("GET", path)
+
+
+def test_the_read_side_answers_what_the_cli_answers(machines, server, capsys):
+    shared.add_item(machines("bob"), "bob", "From machine B")
+    assert main(["share", "push", "-m", "B's item", "--as", "bob", "--yes"]) == 0
+    machines("ada")
+    assert main(["share", "pull"]) == 0  # Ada's files are now the server's
+    item = f"ITEM-000001-{USERID}"
+    assert _get(server, "/list?type=ITEM") == _cli_json(capsys, "list", "ITEM")
+    assert _get(server, "/list?type=ITEM&filter=Status%3DOpen") == _cli_json(
+        capsys, "list", "ITEM", "--filter", "Status=Open"
+    )
+    assert _get(server, f"/view/{item}") == _cli_json(capsys, "view", item)
+    assert _get(server, "/backlog") == _cli_json(capsys, "backlog")
+    assert _get(server, "/journal?actor=bob") == _cli_json(capsys, "journal", "show", "--actor", "bob")
+    with pytest.raises(serve.ServeError) as err:
+        _get(server, "/view/ITEM-999999-nobody00")
+    assert err.value.status == 404 and "no artifact or rule" in str(err.value)
+    with pytest.raises(serve.ServeError) as err:
+        serve.Client(server[1], "nope").call("GET", "/backlog")
+    assert err.value.status == 401
+
+
+def test_a_read_says_which_batch_it_answers_for_and_follows_new_ones(machines, server):
+    import urllib.request
+
+    token = _app(server).issue(USERID)[1]
+
+    def batch_of(path: str) -> str:
+        req = urllib.request.Request(server[1] + serve.API + path, headers={"Authorization": f"Bearer {token}"})  # noqa: S310 (the test's localhost server)
+        with urllib.request.urlopen(req, timeout=10) as res:  # noqa: S310 (the test's localhost server)
+            return res.headers["X-Catalyst-Batch"]
+
+    assert batch_of("/backlog") == "1"
+    shared.add_item(machines("bob"), "bob", "Second")
+    assert main(["share", "push", "-m", "more", "--as", "bob", "--yes"]) == 0
+    assert batch_of("/backlog") == "2"
+    ids = {row["id"] for row in _get(server, "/list?type=ITEM")}
+    assert any(i.startswith("ITEM-000002") for i in ids)
+
+
+def test_the_events_stream_sends_each_new_batch(machines, server):
+    import urllib.request
+
+    token = _app(server).issue(USERID)[1]
+    req = urllib.request.Request(server[1] + serve.API + "/events", headers={"Authorization": f"Bearer {token}"})  # noqa: S310 (the test's localhost server)
+    with urllib.request.urlopen(req, timeout=20) as res:  # noqa: S310 (the test's localhost server)
+        assert res.headers["Content-Type"] == "text/event-stream"
+        lines = iter(res)
+        assert next(lines) == b"event: batch\n" and next(lines) == b"data: 1\n"
+        shared.add_item(machines("bob"), "bob", "Live")
+        assert main(["share", "push", "-m", "live", "--as", "bob", "--yes"]) == 0
+        seen = [next(lines) for _ in range(4)]
+        assert b"data: 2\n" in seen, seen
