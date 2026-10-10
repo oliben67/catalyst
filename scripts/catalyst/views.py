@@ -243,7 +243,7 @@ def _rule_domain(rule_id: str) -> str | None:
 
 
 BACKTICKED = re.compile(r"(?<=`)([^`\s]+)(?=`)")  # every segment between two backticks, so a token wrapped
-# across lines (`REQ-000010-\nAb12Cd34`) never throws the pairing out of step
+# across lines (`PREFIX-000010-\nAb12Cd34`) never throws the pairing off
 SHORT_FORM = re.compile(r"^[A-Z][A-Z0-9]*-\d{6}$")
 
 
