@@ -6,7 +6,11 @@ that `/sync-framework` applies to an existing deployment. Versions before
 0.37.0 are described by that migrations index and by the tagged commit
 messages.
 
-## Unreleased
+## 0.53.0 — 2026-10-10
+
+`catalyst serve`, a server several people share a criterion through, and a fix;
+no layout change (no migration). A sync brings the handbook's and
+`ACCESS-CONTROL.md`'s served-criterion wording to a deployment.
 
 - `catalyst serve`: a server several people share a criterion through,
   with a `serve` share driver (`catalyst.toml`: `share = "serve"`,
