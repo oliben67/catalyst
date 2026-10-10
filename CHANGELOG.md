@@ -6,7 +6,11 @@ that `/sync-framework` applies to an existing deployment. Versions before
 0.37.0 are described by that migrations index and by the tagged commit
 messages.
 
-## Unreleased
+## 0.54.0 — 2026-10-10
+
+The server's read side, `catalyst graph` and a local read-only server, so a
+client reads every criterion through one API; no layout change (no
+migration).
 
 - `catalyst serve` answers the read commands (roadmap R3.9, S3): `GET
   /v1/list`, `/v1/view/<id>`, `/v1/backlog` and `/v1/journal` return what
