@@ -810,12 +810,13 @@ exit `1` and a reason on stderr when a precondition does not hold.
 later without a complete reconciliation, or `Closed` with an undecided
 finding or a missing artifact, is an error.
 
-### `catalyst share info|status|pull|push`
+### `catalyst share info|status|pull|push|create|join|login`
 
 The criterion's sharing, whichever driver holds the shared copy (roadmap
-R3.2). `catalyst.toml` may name the driver (`share = "git"`); without it a
-criterion with a git remote, or a project file naming its repository, uses
-`git`, any other `local`.
+R3.2). `catalyst.toml` may name the driver (`share = "git"`, or
+`share = "serve"` with `share_url`); without it a criterion with a git
+remote, or a project file naming its repository, uses `git`, any other
+`local`.
 
 - `info [--json]`: the driver, where the shared copy is, the shared branch,
   and what the driver can do.
@@ -832,13 +833,48 @@ criterion with a git remote, or a project file naming its repository, uses
   criterion for the first time (git: `criterion create <url>`); `--protect`
   also makes pull requests and the `catalyst` check required on the shared
   branch (GitHub, `criterion protect --yes`). Needs `--yes` (INV-4).
+  `create <url> --driver serve --as <user> --yes` shares it through a
+  `catalyst serve` server instead: `catalyst.toml` gets `share = "serve"`
+  and `share_url` (journaled, staged, not committed), then every file is
+  pushed.
 - `join [<url>]`: bring a shared criterion to this machine, from a project
-  whose `catalyst.toml` names it (git: `criterion join`).
+  whose `catalyst.toml` names it (git: `criterion join`; serve: an empty
+  criterion filled by a pull). `catalyst open` does the same.
+- `login <url> [--token <t>]`: keep this user's token for a server in
+  `$CATALYST_HOME/credentials` (read from stdin without `--token`).
 
-Drivers: `local` (not shared: `pull` and `push` say how to share it) and
-`git` (below). The working form behind every driver is the criterion's
-store — read, list, append, lock (`scripts/catalyst/store.py`); a server
-driver implements the same verbs.
+Drivers: `local` (not shared: `pull` and `push` say how to share it), `git`
+(below) and `serve` (`catalyst serve`, below). The working form behind every
+driver is the criterion's store — read, list, append, lock
+(`scripts/catalyst/store.py`).
+
+With `serve`, `push` sends every file that differs from the server's
+version this criterion last saw, and the content of every version the new
+journal entries name. The server applies the push all or nothing, and
+refuses it — nothing applied — when a file moved on the server since, when
+a change to a file it already has is not journaled, when a new entry is
+signed by anyone but the token's user, when an artifact ID is already
+another file's, or when a `RECON-` case changes beyond the signer's
+`reconciliation` level. `pull` writes what changed on the server, appends
+other people's shards, and stops with nothing written when a file it would
+overwrite changed here too: a human settles it (a `RECON-` case).
+
+### `catalyst serve [--db <file>] [--host <addr>] [--port <n>]`
+
+A server several people share criteria through (roadmap R3.9). It keeps
+every version of the criterion's files (SQLite, `--db`, default
+`$CATALYST_HOME/serve/serve.db`), listens on `127.0.0.1:8765` unless told
+otherwise, and leaves TLS to a reverse proxy in front of it. JSON over HTTP
+under `/v1`: `GET head`, `GET changes?since=<batch>`, `GET blobs/<sha>`,
+`POST have`, `POST push`; every request carries a bearer token. The first
+push to an empty server is an import: it brings the history as it is, so
+only its signers are not checked.
+
+- `serve token issue <userid>`: a token for a registered user, printed once
+  (the server keeps only its hash); they keep it with `share login`.
+- `serve token list`, `serve token revoke <n>`.
+
+Tokens are managed on the server's host, by whoever runs the server.
 
 ### `catalyst criterion <subcommand>`
 

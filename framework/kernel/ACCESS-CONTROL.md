@@ -107,6 +107,11 @@ In a shared deployment (`rr-META-013`):
   force-pushes and deletion of the branch. Without it, anyone with write
   access can push to the shared branch directly, and every gate in this
   document is agent courtesy only.
+- **A served criterion verifies identity.** Shared through `catalyst serve`
+  (`share = "serve"`), every request carries the user's token, and the
+  server refuses a journal entry signed by anyone else and a `RECON-`
+  decision beyond the signer's `reconciliation` level. Who holds a token is
+  the server host's control (`catalyst serve token`).
 - **The AI never applies a merge.** A conflict stops `/share push`; a
   resolution the agent proposes waits as a `RECON-` case, and resolving it
   stays role-gated (§1, `catalyst reconcile`).

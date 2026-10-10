@@ -5,12 +5,11 @@ without the rest of catalyst knowing:
 - `Store`, the working form: `read`, `list`, `append` (append-only files,
   such as the journal's shards) and `lock`. Driver `home`: the criterion's
   own directory (`$CATALYST_HOME/projects/<name>/criterion`, or a legacy
-  working copy). A server driver (`catalyst serve`, roadmap R3.9) implements
-  the same four verbs.
+  working copy).
 - `Share`, publishing the working form to others: `info`, `status`, `head`,
   `preview`, `pull` and `push` (never without the user's assent, INV-4:
-  the CLI shows `preview` and publishes on `--yes`). Drivers: `local` (not shared) and `git` (a criterion
-  repository: today's `catalyst criterion` code). `catalyst.toml` may name
+  the CLI shows `preview` and publishes on `--yes`). Drivers: `local` (not shared), `git` (a criterion
+  repository: today's `catalyst criterion` code) and `serve` (a `catalyst serve` server, `serve.py`). `catalyst.toml` may name
   the driver (`share = "git"`); without it, a criterion with a git remote, or
   a project file naming its repository, is `git`, any other `local`.
 """
@@ -28,6 +27,7 @@ from catalyst.deployment import Deployment
 
 if TYPE_CHECKING:
     from catalyst.criterion import Preview
+    from catalyst.serve import ServePreview
 
 SHARE_KEY = "share"
 
@@ -106,7 +106,7 @@ class Share(Protocol):
     def info(self) -> dict: ...
     def status(self, fetch: bool = False) -> ShareStatus: ...
     def head(self) -> str | None: ...
-    def preview(self, fetch: bool = True) -> Preview: ...  # what push would publish
+    def preview(self, fetch: bool = True) -> Preview | ServePreview: ...  # what push would publish
     def pull(self) -> str: ...
     def push(self, signer: dict, message: str, open_pr: bool = True) -> dict: ...
 
@@ -218,8 +218,14 @@ def share_driver(dep: Deployment) -> str:
 
 def share_for(dep: Deployment) -> Share:
     name = share_driver(dep)
+    if name == "serve":
+        from catalyst.serve import ServeShare
+
+        return ServeShare(dep)
     if name not in DRIVERS:
-        raise ShareError(f"unknown share driver '{name}' in catalyst.toml (known: {', '.join(sorted(DRIVERS))})")
+        raise ShareError(
+            f"unknown share driver '{name}' in catalyst.toml (known: {', '.join(sorted([*DRIVERS, 'serve']))})"
+        )
     return DRIVERS[name](dep)
 
 
@@ -242,8 +248,13 @@ def create(dep: Deployment, url: str, branch: str = "criterion", protect: bool =
 def join(project: Path, url: str | None = None, runtime: bool = True) -> str:
     """Bring a shared criterion to this machine (`catalyst.toml` names it,
     or `url`); returns the commit it is at."""
+    import project_file
     from catalyst import criterion as cr
 
+    if project_file.read_dir(project).get(SHARE_KEY) == "serve":
+        from catalyst import serve
+
+        return serve.join(project, runtime=runtime)
     try:
         return cr.join(project, url, runtime=runtime)
     except cr.NeedsURL:
