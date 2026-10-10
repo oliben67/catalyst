@@ -131,10 +131,12 @@ A criterion is shared through `catalyst share` (git today; `catalyst.toml`
 names the driver). Publishing — `share push`, `share create` — shows what
 would leave and waits for the user's yes (L3). Work lands through a pull
 request on the shared branch, whose CI runs `catalyst check`, including
-that a merge lost nothing. A conflict stops the push with nothing pushed:
+that a merge lost nothing; through a server (`catalyst serve`), the server
+checks each push itself. A conflict stops the push with nothing pushed:
 never apply a merge yourself; propose a resolution as a `RECON-` case
-(§16) for a human to decide (L4). Identity is declared, not verified:
-branch protection and review are the real controls (`ACCESS-CONTROL.md`).
+(§16) for a human to decide (L4). On git, identity is declared, not
+verified: branch protection and review are the real controls; a server
+verifies it by token (`ACCESS-CONTROL.md`).
 
 ## 14. `rr-META-014` Session start, agents and the criterion's place
 

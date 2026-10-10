@@ -85,6 +85,14 @@ def test_unchanged_file_is_refused(project):
     assert j.append(dep, req([".criterion/items/ITEM-000001-first-item.md"], allow_unchanged=True))
 
 
+def test_a_path_that_never_existed_is_named_missing_not_unchanged(project):
+    dep = load(project)
+    for allow in (False, True):
+        with pytest.raises(j.JournalError, match="does not exist") as err:
+            j.append(dep, req(["items/ITEM-000001-first-item.md"], allow_unchanged=allow))
+    assert ".criterion/items/" in str(err.value)
+
+
 def test_action_and_intent_are_required(project):
     dep = load(project)
     with pytest.raises(j.JournalError, match="action"):

@@ -91,7 +91,22 @@ def open_project(project: Path, act: bool = True, fetch: bool = False, agent: st
             o.todo.append(f"`catalyst open --agent {agent}` (records this user's agent)")
     o.agent = agent if agent and act else project_file.agent_of(data)
 
-    if kind == "missing":
+    if kind == "missing" and data.get("share") == "serve":
+        url = data.get("share_url")
+        if not act:
+            o.todo.append(f"`catalyst open` (pulls the shared criterion from the server {url})")
+            return o
+        from catalyst import serve
+        from catalyst.store import ShareError
+
+        try:
+            serve.join(project, runtime=False)
+        except (ShareError, serve.ServeError) as exc:
+            o.todo.append(f"the criterion could not be pulled from {url}: {exc}")
+            return o
+        criterion, o.kind, o.criterion = home, "home", str(home)
+        o.done.append(f"joined: pulled the criterion from the server {url} into {home}")
+    elif kind == "missing":
         url = data.get("catalyst_repo_url")
         if not url:
             o.todo.append(
