@@ -10,6 +10,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from catalyst import version_string
 from catalyst.analysis import AnalysisError
@@ -236,6 +237,7 @@ def cmd_view(args) -> int:
     from catalyst.corpus import load_corpus
 
     dep = open_deployment(args)
+    data: Any  # each view's own shape, printed by its own renderer
     try:
         if args.view == "journal":
             data = v.journal_entries(dep, args.since, args.artifact, args.actor, args.rule)
@@ -247,6 +249,8 @@ def cmd_view(args) -> int:
                 text = v.render_list
             elif args.view == "view":
                 data, text = v.view(dep, corpus, args.id), v.render_view
+            elif args.view == "graph":
+                data, text = v.graph(dep, corpus), v.render_graph
             else:
                 data, text = v.backlog(dep, corpus), v.render_backlog
     except (v.ViewError, JournalError) as exc:
@@ -1213,7 +1217,21 @@ def cmd_serve(args) -> int:
             raise SystemExit(f"catalyst: no active token {args.who}")
         print(f"token {args.who} revoked")
         return 0
-    server = serve.make_server(db, args.host, args.port)
+    if args.local:
+        if args.host != "127.0.0.1":
+            raise SystemExit("catalyst: serve --local listens on 127.0.0.1 only")
+        project = Path(os.path.abspath(args.project)) if args.project else Path.cwd()
+        server, token = serve.make_local(project, args.port or 0)
+        url = f"http://127.0.0.1:{server.server_address[1]}"
+        print(json.dumps({"url": url, "token": token, "pid": os.getpid()}), flush=True)  # the client reads this line
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            server.server_close()
+        return 0
+    server = serve.make_server(db, args.host, args.port or 8765)
     print(f"catalyst serve: {db} on http://{args.host}:{server.server_address[1]} (Ctrl-C stops it)", flush=True)
     try:
         server.serve_forever()
@@ -1594,6 +1612,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_view, view="backlog")
 
+    p = sub.add_parser("graph", help="read-only: every rule, domain and artifact with its links, and the entity types")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_view, view="graph")
+
     p = sub.add_parser("new", help="create an artifact from its type's latest template, signed, indexed, journaled")
     p.add_argument("type", help="an entity type (prefix, name or folder)")
     p.add_argument("--title", required=True)
@@ -1907,7 +1929,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("serve", help="run a server that shares criteria between people (and manage its tokens)")
     p.add_argument("--db", help="the server's database (default: $CATALYST_HOME/serve/serve.db)")
     p.add_argument("--host", default="127.0.0.1", help="the address to listen on (default: 127.0.0.1)")
-    p.add_argument("--port", type=int, default=8765, help="the port (default: 8765)")
+    p.add_argument("--port", type=int, default=None, help="the port (default: 8765; --local: one the system picks)")
+    p.add_argument(
+        "--local",
+        action="store_true",
+        help="serve this project's own criterion read-only, on 127.0.0.1, for a client on this machine",
+    )
+    p.add_argument("--project", help="--local: the project (default: the current directory)")
     vs = p.add_subparsers(dest="serve_command")
     q = vs.add_parser("token", help="issue, list or revoke the tokens users sign with")
     q.add_argument("action", choices=("issue", "list", "revoke"))

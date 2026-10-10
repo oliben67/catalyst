@@ -9,6 +9,7 @@ import json
 import re
 import shutil
 import threading
+from pathlib import Path
 
 import pytest
 
@@ -298,3 +299,146 @@ def test_an_empty_file_needs_no_blob(seeded):
     app, _ = seeded
     assert app.missing([serve.blob_sha(b"")]) == []
     assert _push_change(app, USERID, "ada", "empty.md", None, "")["seq"] == 2
+
+
+# --- the read side (S3) ------------------------------------------------------------
+def _cli_json(capsys, *argv) -> object:
+    capsys.readouterr()
+    assert main([*argv, "--json"]) == 0
+    return json.loads(capsys.readouterr().out)
+
+
+def _get(server, path: str):
+    client = serve.Client(server[1], _app(server).issue(USERID)[1])
+    return client.call("GET", path)
+
+
+def test_the_read_side_answers_what_the_cli_answers(machines, server, capsys):
+    shared.add_item(machines("bob"), "bob", "From machine B")
+    assert main(["share", "push", "-m", "B's item", "--as", "bob", "--yes"]) == 0
+    machines("ada")
+    assert main(["share", "pull"]) == 0  # Ada's files are now the server's
+    item = f"ITEM-000001-{USERID}"
+    assert _get(server, "/list?type=ITEM") == _cli_json(capsys, "list", "ITEM")
+    assert _get(server, "/list?type=ITEM&filter=Status%3DOpen") == _cli_json(
+        capsys, "list", "ITEM", "--filter", "Status=Open"
+    )
+    assert _get(server, f"/view/{item}") == _cli_json(capsys, "view", item)
+    assert _get(server, "/backlog") == _cli_json(capsys, "backlog")
+    assert _get(server, "/journal?actor=bob") == _cli_json(capsys, "journal", "show", "--actor", "bob")
+    assert _get(server, "/graph") == _cli_json(capsys, "graph")
+    with pytest.raises(serve.ServeError) as err:
+        _get(server, "/check")
+    assert err.value.status == 501 and "--local" in str(err.value)
+    with pytest.raises(serve.ServeError) as err:
+        _get(server, "/view/ITEM-999999-nobody00")
+    assert err.value.status == 404 and "no artifact or rule" in str(err.value)
+    with pytest.raises(serve.ServeError) as err:
+        serve.Client(server[1], "nope").call("GET", "/backlog")
+    assert err.value.status == 401
+
+
+def test_a_read_says_which_batch_it_answers_for_and_follows_new_ones(machines, server):
+    import urllib.request
+
+    token = _app(server).issue(USERID)[1]
+
+    def batch_of(path: str) -> str:
+        req = urllib.request.Request(server[1] + serve.API + path, headers={"Authorization": f"Bearer {token}"})  # noqa: S310 (the test's localhost server)
+        with urllib.request.urlopen(req, timeout=10) as res:  # noqa: S310 (the test's localhost server)
+            return res.headers["X-Catalyst-Batch"]
+
+    assert batch_of("/backlog") == "1"
+    shared.add_item(machines("bob"), "bob", "Second")
+    assert main(["share", "push", "-m", "more", "--as", "bob", "--yes"]) == 0
+    assert batch_of("/backlog") == "2"
+    ids = {row["id"] for row in _get(server, "/list?type=ITEM")}
+    assert any(i.startswith("ITEM-000002") for i in ids)
+
+
+def test_the_events_stream_sends_each_new_batch(machines, server):
+    import urllib.request
+
+    token = _app(server).issue(USERID)[1]
+    req = urllib.request.Request(server[1] + serve.API + "/events", headers={"Authorization": f"Bearer {token}"})  # noqa: S310 (the test's localhost server)
+    with urllib.request.urlopen(req, timeout=20) as res:  # noqa: S310 (the test's localhost server)
+        assert res.headers["Content-Type"] == "text/event-stream"
+        lines = iter(res)
+        assert next(lines) == b"event: batch\n" and next(lines) == b"data: 1\n"
+        shared.add_item(machines("bob"), "bob", "Live")
+        assert main(["share", "push", "-m", "live", "--as", "bob", "--yes"]) == 0
+        seen = [next(lines) for _ in range(4)]
+        assert b"data: 2\n" in seen, seen
+
+
+# --- local mode: one project's own criterion, read-only --------------------------------
+@pytest.fixture
+def local(tmp_path, monkeypatch):
+    project = make_project(tmp_path, git=True)
+    monkeypatch.chdir(project)
+    httpd, token = serve.make_local(project, 0, poll=0.1)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    yield project, httpd, serve.Client(f"http://127.0.0.1:{httpd.server_address[1]}", token)
+    httpd.shutdown()
+    httpd.server_close()
+
+
+def test_local_mode_answers_like_the_cli_and_refuses_writes(local, capsys):
+    _, httpd, client = local
+    assert httpd.server_address[0] == "127.0.0.1"
+    item = f"ITEM-000001-{USERID}"
+    assert client.call("GET", "/list?type=ITEM") == _cli_json(capsys, "list", "ITEM")
+    assert client.call("GET", f"/view/{item}") == _cli_json(capsys, "view", item)
+    assert client.call("GET", "/graph") == _cli_json(capsys, "graph")
+    capsys.readouterr()
+    main(["check", "--json"])
+    assert client.call("GET", "/check") == json.loads(capsys.readouterr().out)
+    for method, path in (("POST", "/push"), ("POST", "/have"), ("GET", "/changes"), ("GET", "/blobs/x")):
+        with pytest.raises(serve.ServeError) as err:
+            client.call(method, path, {} if method == "POST" else None)
+        assert err.value.status == 405
+    with pytest.raises(serve.ServeError) as err:
+        serve.Client(client.url, "cst_wrong").call("GET", "/graph")
+    assert err.value.status == 401
+
+
+def test_local_mode_follows_the_criterion_and_says_so(local):
+    import time
+    import urllib.request
+
+    project, _, client = local
+    first = client.call("GET", "/head")["seq"]
+    req = urllib.request.Request(  # noqa: S310 (the test's localhost server)
+        client.url + serve.API + "/events", headers={"Authorization": f"Bearer {client.token}"}
+    )
+    with urllib.request.urlopen(req, timeout=20) as res:  # noqa: S310 (the test's localhost server)
+        lines = iter(res)
+        assert next(lines) == b"event: batch\n" and next(lines) == f"data: {first}\n".encode()
+        item = project / ".criterion" / "items" / "ITEM-000001-first-item.md"
+        time.sleep(0.05)
+        item.write_text(item.read_text(encoding="utf-8").replace("First item", "Renamed item"), encoding="utf-8")
+        seen = [next(lines) for _ in range(4)]
+        assert f"data: {first + 1}\n".encode() in seen, seen
+    titles = {row["id"]: row["title"] for row in client.call("GET", "/list?type=ITEM")}
+    assert titles[f"ITEM-000001-{USERID}"] == "Renamed item"
+
+
+def test_serve_local_prints_where_and_how_to_reach_it(tmp_path, monkeypatch):
+    import subprocess
+    import sys
+
+    project = make_project(tmp_path, git=True)
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "catalyst", "serve", "--local", "--project", str(project)],
+        stdout=subprocess.PIPE,
+        text=True,
+        env={**__import__("os").environ, "PYTHONPATH": str(Path(serve.__file__).resolve().parents[1])},
+    )
+    try:
+        assert proc.stdout is not None
+        hello = json.loads(proc.stdout.readline())
+        assert hello["url"].startswith("http://127.0.0.1:") and hello["token"].startswith("cst_")
+        assert serve.Client(hello["url"], hello["token"]).call("GET", "/head")["seq"] == 1
+    finally:
+        proc.terminate()
+        proc.wait(timeout=10)
