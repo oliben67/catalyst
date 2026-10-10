@@ -125,7 +125,8 @@ def test_graph_carries_rules_links_and_the_entity_types(tmp_path, monkeypatch, c
     dep, corpus = _dep(tmp_path)
     g = views.graph(dep, corpus)
     assert {r["id"]: r["domain"] for r in g["rules"]} == {RULE: "AUTH"}
-    assert g["domains"] == sorted(corpus.domains)
+    assert [(r["title"], r["status"]) for r in g["rules"]] == [("Login flow", "✅")]
+    assert g["domains"] == [{"code": "AUTH", "file": None, "title": ""}]  # its document is not written
     item = next(a for a in g["artifacts"] if a["id"] == ITEM)
     assert item["links"]["Subs"] == [SUB] and item["links"]["Targets"] == [RULE]
     assert item["file"] == "items/ITEM-000001-first-item.md"
@@ -179,10 +180,38 @@ def test_graph_carries_table_rows_and_what_each_item_mentions(tmp_path):
     g = views.graph(dep, load_corpus(dep))
     rows = [a for a in g["artifacts"] if a.get("row")]
     assert rows == [
-        {"id": row, "type": "ROW", "file": "rows/rows.md", "line": 5, "row": True, "links": {}, "mentions": [ITEM]}
+        {
+            "id": row,
+            "type": "ROW",
+            "file": "rows/rows.md",
+            "line": 5,
+            "row": True,
+            "fields": {"ID": f"`{row}`", "Title": "First", "Linked": "`ITEM-000001`"},
+            "links": {},
+            "mentions": [ITEM],
+        }
     ]
     first = next(a for a in g["artifacts"] if a["id"] == ITEM)
     # its whole text, field table included; its own ID and unknown tokens left out
     assert set(first["mentions"]) == {RULE, "AUTH", SUB, row}
     assert next(r for r in g["rules"] if r["id"] == RULE)["mentions"] == [ITEM]
     assert "0 rule" not in views.render_graph(g) and ", 2 open," in views.render_graph(g)
+
+
+def test_graph_reads_a_one_file_rule_and_a_domain_document(tmp_path):
+    from test_catalyst_rule_shapes import _per_file_rules
+
+    project = make_project(tmp_path, git=True)
+    rule, old = _per_file_rules(project)
+    write(project / ".criterion" / "rules" / "domains" / "cor-CORE.INGEST-ingest.md", "# `CORE.INGEST` — Ingest\n")
+    dep = load(project)
+    g = views.graph(dep, load_corpus(dep))
+    rules = {r["id"]: r for r in g["rules"]}
+    assert (rules[rule]["title"], rules[rule]["status"]) == ("Logs", "✅ implemented")  # its rules.md entry
+    assert rules[rule]["domain"] == "CORE.INGEST" and rules[old]["status"].startswith("🗑 retired")
+    domain = next(d for d in g["domains"] if d["code"] == "CORE.INGEST")
+    assert domain == {
+        "code": "CORE.INGEST",
+        "file": "rules/domains/cor-CORE.INGEST-ingest.md",
+        "title": "`CORE.INGEST` — Ingest",
+    }

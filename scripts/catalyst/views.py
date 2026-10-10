@@ -21,7 +21,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from catalyst import journal
-from catalyst.corpus import TABLE_ID_RE, Artifact, Corpus, Rule, norm_field, ref_values
+from catalyst.corpus import DOMAIN_ROW_RE, H1_RE, TABLE_ID_RE, Artifact, Corpus, Rule, norm_field, ref_values
 from catalyst.deployment import Deployment
 
 REF_KINDS = ("ref", "ref-list")
@@ -297,8 +297,13 @@ def _rule_text(rule: Rule) -> str:
     return "\n".join(lines[start:end])
 
 
-def _rows(dep: Deployment, corpus: Corpus) -> list[tuple[str, str, Path, int, str]]:
-    """(id, type, file, line, row text) for each item kept as a table row."""
+def _cells(line: str) -> list[str]:
+    return [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+
+
+def _rows(dep: Deployment, corpus: Corpus) -> list[tuple[str, str, Path, int, str, dict[str, str]]]:
+    """(id, type, file, line, row text, cells by header) for each item kept
+    as a table row; the cells are raw, as an artifact's fields are."""
     out = []
     for prefix, ids in sorted(corpus.row_items.items()):
         etd = dep.etds.get(prefix)
@@ -307,18 +312,77 @@ def _rows(dep: Deployment, corpus: Corpus) -> list[tuple[str, str, Path, int, st
             continue
         seen: set[str] = set()
         for f in sorted(folder.glob("*.md")):
-            for n, line in enumerate(f.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+            lines = f.read_text(encoding="utf-8", errors="ignore").splitlines()
+            header: list[str] = []
+            for n, line in enumerate(lines, 1):
+                if n < len(lines) and line.startswith("|") and re.match(r"^\|[\s:|-]+\|$", lines[n].strip()):
+                    header = _cells(line)  # the row above a |---| separator
                 m = TABLE_ID_RE.match(line)
                 if m and m.group(1) in ids and m.group(1) not in seen:
                     seen.add(m.group(1))
-                    out.append((m.group(1), prefix, f, n, line))
+                    fields = {h: c for h, c in zip(header, _cells(line), strict=False) if h}
+                    out.append((m.group(1), prefix, f, n, line, fields))
+    return out
+
+
+STATUS_MARKS = ("✅", "❌", "🗑", "⚠️")
+
+
+def _rule_title(rule: Rule, text: str, index: list[str]) -> str:
+    """A rule's heading after its ID; a one-file rule (which opens with its
+    metadata, not a title): its `rules.md` bullet after the dash
+    (`` - `<ID>-<slug>` — Title ``), else its file's slug."""
+    if rule.file.name.startswith(rule.id):
+        entry = re.compile(rf"^\s*[-*]\s+`{re.escape(rule.id)}(?:-[a-z0-9-]+)?`\s+—\s+(.+)$")
+        for line in index:
+            if m := entry.match(line):
+                return m.group(1).strip()
+        return rule.file.stem[len(rule.id) :].strip("-").replace("-", " ")
+    first = text.splitlines()[0] if text else ""
+    heading = re.sub(r"^\d+\.\s+", "", first.lstrip("#").strip())
+    return heading.replace(f"`{rule.id}`", "").replace(rule.id, "").strip(" —-")
+
+
+def _rule_status(text: str) -> str:
+    """The first line of a rule's text carrying a status mark, without its
+    `Status` label."""
+    for line in text.splitlines()[1:]:
+        if any(mark in line for mark in STATUS_MARKS):
+            return re.sub(r"^[-*\s]*(\*\*Status\*\*:?|\*\*Status:\*\*)\s*:?\s*", "", line.strip()).strip()
+    return ""
+
+
+def _domain_docs(dep: Deployment, corpus: Corpus) -> list[dict]:
+    """Each registered domain: its code, the file its registry row links to
+    (criterion-relative, None when absent) and that file's first heading."""
+    registry = dep.root / "rules" / "domains" / "domains.md"
+    links: dict[str, str] = {}
+    if registry.is_file():
+        for line in registry.read_text(encoding="utf-8").splitlines():
+            m = DOMAIN_ROW_RE.match(line)
+            link = re.search(r"\]\(([^)]+)\)", line)
+            if m and link:
+                links.setdefault(m.group(1), link.group(1))
+    out = []
+    for code in sorted(corpus.domains):
+        path = (registry.parent / links[code]) if code in links else None
+        title = ""
+        if path is not None and path.is_file():
+            for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+                if h1 := H1_RE.match(line):
+                    title = h1.group(1).strip()
+                    break
+        else:
+            path = None
+        out.append({"code": code, "file": _rel(dep, path) if path else None, "title": title})
     return out
 
 
 def graph(dep: Deployment, corpus: Corpus) -> dict:
     """The whole chain in one answer: rules (with their domain), domains,
     artifacts (each `list` row plus `links`, the IDs each reference field
-    cites; an item kept as a table row has `row: true`) and `types`, each
+    cites; an item kept as a table row has `row: true` and its cells by
+    header in `fields`), `types`, each
     entity type's definition. Every rule and artifact also carries
     `mentions`: the IDs its own text cites in backticks, apart from its
     field links."""
@@ -336,7 +400,7 @@ def graph(dep: Deployment, corpus: Corpus) -> dict:
                 text = ""
             row["mentions"] = _mentions(text, resolve, art.id)
             artifacts.append(row)
-    for item, prefix, f, n, line in rows:
+    for item, prefix, f, n, line, cells in rows:
         artifacts.append(
             {
                 "id": item,
@@ -344,6 +408,7 @@ def graph(dep: Deployment, corpus: Corpus) -> dict:
                 "file": _rel(dep, f),
                 "line": n,
                 "row": True,
+                "fields": cells,
                 "links": {},
                 "mentions": _mentions(line, resolve, item),
             }
@@ -366,18 +431,24 @@ def graph(dep: Deployment, corpus: Corpus) -> dict:
         }
         for prefix, etd in sorted(dep.etds.items())
     }
-    rules = [
-        {
-            "id": rid,
-            "file": _rel(dep, defs[0].file),
-            "line": defs[0].line,
-            "retired": defs[0].retired,
-            "domain": _rule_domain(rid),
-            "mentions": _mentions(_rule_text(defs[0]), resolve, rid),
-        }
-        for rid, defs in sorted(corpus.rules.items())
-    ]
-    return {"rules": rules, "domains": sorted(corpus.domains), "artifacts": artifacts, "types": types}
+    rules = []
+    rules_index = dep.root / "rules" / "rules.md"
+    index = rules_index.read_text(encoding="utf-8").splitlines() if rules_index.is_file() else []
+    for rid, defs in sorted(corpus.rules.items()):
+        text = _rule_text(defs[0])
+        rules.append(
+            {
+                "id": rid,
+                "title": _rule_title(defs[0], text, index),
+                "status": _rule_status(text),
+                "file": _rel(dep, defs[0].file),
+                "line": defs[0].line,
+                "retired": defs[0].retired,
+                "domain": _rule_domain(rid),
+                "mentions": _mentions(text, resolve, rid),
+            }
+        )
+    return {"rules": rules, "domains": _domain_docs(dep, corpus), "artifacts": artifacts, "types": types}
 
 
 def render_graph(g: dict) -> str:
