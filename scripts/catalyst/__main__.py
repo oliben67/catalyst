@@ -1111,11 +1111,28 @@ def cmd_share(args) -> int:
             raise DeploymentNotFound(f"no catalyst.toml (or legacy *.catalyst pointer) at or above {start}")
         print(f"joined: the criterion is at {store.join(project, args.url)} (catalyst where)")
         return 0
+    if args.share_command == "login":
+        from catalyst import serve
+
+        token = args.token or sys.stdin.readline().strip()
+        if not token:
+            raise SystemExit("catalyst: no token given (--token, or one line on stdin)")
+        print(f"token for {args.url} saved in {serve.save_token(args.url, token)}")
+        return 0
     dep = open_deployment(args)
     if args.share_command == "create":
-        if not _assented(args, f"publish this criterion to {args.url} (shared branch {args.branch})"):
+        where = args.url if args.driver == "serve" else f"{args.url} (shared branch {args.branch})"
+        if not _assented(args, f"publish this criterion to {where}"):
             return NEEDS_ASSENT
-        for note in store.create(dep, args.url, args.branch, protect=args.protect):
+        if args.driver == "serve":
+            from catalyst import serve
+            from catalyst.corpus import load_corpus
+            from catalyst.ids import resolve_signer
+
+            notes = serve.create(dep, args.url, resolve_signer(dep, load_corpus(dep), args.as_user))
+        else:
+            notes = store.create(dep, args.url, args.branch, protect=args.protect)
+        for note in notes:
             print(f"- {note}")
         return 0
     share = store.share_for(dep)
@@ -1160,10 +1177,50 @@ def cmd_share(args) -> int:
         print(json.dumps(res, indent=2))
     elif not res["commits"]:
         print("nothing to publish: the criterion matches its shared copy")
+    elif res.get("seq") is not None:
+        print(f"published {res['commits']} file(s) as batch {res['seq']} ({share.driver})")
     else:
         print(f"published {res['commits']} commit(s) on {res['branch']} ({share.driver})")
         if res.get("pull_request"):
             print(f"pull request: {res['pull_request']}")
+    return 0
+
+
+def cmd_serve(args) -> int:
+    """`catalyst serve` (roadmap R3.9): run the server, or manage its tokens
+    on the server's host."""
+    from catalyst import serve
+
+    db = Path(args.db) if args.db else serve.default_db()
+    if args.serve_command == "token":
+        app = serve.Server(db)
+        if args.action == "list":
+            for t in app.tokens():
+                print(
+                    f"{t['id']:>4}  {t['userid']}  issued {t['created']}"
+                    + (f"  revoked {t['revoked']}" if t["revoked"] else "")
+                )
+            return 0
+        if not args.who:
+            raise SystemExit(
+                f"catalyst: serve token {args.action} needs {'a userid' if args.action == 'issue' else 'a token number'}"
+            )
+        if args.action == "issue":
+            number, token = app.issue(args.who)
+            print(f"token {number} for {args.who} (shown once; give it to them for `catalyst share login`):\n{token}")
+            return 0
+        if not args.who.isdigit() or not app.revoke(int(args.who)):
+            raise SystemExit(f"catalyst: no active token {args.who}")
+        print(f"token {args.who} revoked")
+        return 0
+    server = serve.make_server(db, args.host, args.port)
+    print(f"catalyst serve: {db} on http://{args.host}:{server.server_address[1]} (Ctrl-C stops it)", flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
     return 0
 
 
@@ -1831,8 +1888,10 @@ def build_parser() -> argparse.ArgumentParser:
     q.add_argument("--yes", action="store_true", help="the user agreed to publish what the preview shows (INV-4)")
     q.add_argument("--json", action="store_true")
     q.set_defaults(func=cmd_share)
-    q = ss.add_parser("create", help="publish a local-only criterion for the first time (git)")
-    q.add_argument("url", help="the criterion repository: empty, or already holding this history")
+    q = ss.add_parser("create", help="publish a local-only criterion for the first time (git, or a server)")
+    q.add_argument("url", help="the criterion repository (empty, or holding this history), or a server's URL")
+    q.add_argument("--driver", choices=("git", "serve"), default="git", help="git (default) or a catalyst serve server")
+    q.add_argument("--as", dest="as_user", help="serve: the signer of the journal entry (name or git_username)")
     q.add_argument("--branch", default="criterion", help="the shared branch (default: criterion)")
     q.add_argument("--protect", action="store_true", help="also require pull requests and the check (GitHub)")
     q.add_argument("--yes", action="store_true", help="the user agreed to publish (INV-4)")
@@ -1840,6 +1899,20 @@ def build_parser() -> argparse.ArgumentParser:
     q = ss.add_parser("join", help="bring a shared criterion to this machine (a project with catalyst.toml)")
     q.add_argument("url", nargs="?", default=None, help="the criterion repository, when catalyst.toml names none")
     q.set_defaults(func=cmd_share)
+    q = ss.add_parser("login", help="keep this user's token for a catalyst serve server (in catalyst's home)")
+    q.add_argument("url", help="the server's URL, as catalyst.toml's share_url names it")
+    q.add_argument("--token", help="the token (default: read one line on stdin)")
+    q.set_defaults(func=cmd_share)
+
+    p = sub.add_parser("serve", help="run a server that shares criteria between people (and manage its tokens)")
+    p.add_argument("--db", help="the server's database (default: $CATALYST_HOME/serve/serve.db)")
+    p.add_argument("--host", default="127.0.0.1", help="the address to listen on (default: 127.0.0.1)")
+    p.add_argument("--port", type=int, default=8765, help="the port (default: 8765)")
+    vs = p.add_subparsers(dest="serve_command")
+    q = vs.add_parser("token", help="issue, list or revoke the tokens users sign with")
+    q.add_argument("action", choices=("issue", "list", "revoke"))
+    q.add_argument("who", nargs="?", help="issue: the user's userid; revoke: the token's number")
+    p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("criterion", help="shared deployments on git: submodule, pull requests")
     cs = p.add_subparsers(dest="criterion_command", required=True)

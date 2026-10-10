@@ -86,7 +86,8 @@ the first, in name order, that parses as a JSON object is read.
 | `module` | string | The active module's id. Its ETDs are loaded from the criterion's `modules/<module>/` (then a sibling checkout `catalyst-<module>`). | A module that cannot be found leaves the checks kernel-only (the check's scope line says so). |
 | `governance` | string | Optional. `suspended`: the owner suspended enforcement — `catalyst hook stop` reports it and never blocks; `catalyst check` still reports everything. | — |
 | `agent` | string | The project's default agent, e.g. `claude-code` (`unknown` if none was given). Each user's own choice wins: `catalyst open --agent <id>` records it in `$CATALYST_HOME/projects/<name>/agent`, never here. `catalyst task` dispatches to the user's agent. | — |
-| `share` | string | Optional: the criterion's sharing driver, `git` or `local` (`catalyst share`). Absent: `git` when the criterion has a remote or `catalyst_repo_url` is set, else `local`. | An unknown driver is refused by `catalyst share`. |
+| `share` | string | Optional: the criterion's sharing driver, `git`, `serve` or `local` (`catalyst share`). Absent: `git` when the criterion has a remote or `catalyst_repo_url` is set, else `local`. | An unknown driver is refused by `catalyst share`. |
+| `share_url` | string | With `share = "serve"`: the server's URL (`catalyst serve`). Each user's token for it is in `$CATALYST_HOME/credentials` (`catalyst share login`), never here. | `catalyst share` refuses `serve` without it. |
 | `repoed` | boolean | `true` once the deployment is shared (INV-18). | — |
 | `catalyst_repo` | string or null | Informational name of the criterion repository. | — |
 | `catalyst_repo_url` | string or null | The criterion repository's URL, when shared. | — |
@@ -105,7 +106,9 @@ written.
 The project's criterion: `$CATALYST_HOME/projects/<name>/criterion`
 (`$HOME/.catalyst` by default), named by `catalyst.toml`'s `project_name`
 and found with `catalyst where` — never inside the project (INV-6, law L5).
-It is its own git repository; shared, it has a remote (`catalyst share`).
+It is its own git repository; shared, it has a remote (`catalyst share`),
+or, through a server (`share = "serve"`), a record of the server's state it
+last saw (`serve.json` in its git directory).
 Its `.venv` holds its runtime and is git-ignored. Paths in this section are
 relative to it. In the journal and in documents, `.criterion/<path>` names a
 file of the criterion — a namespace, not a directory in the project. A

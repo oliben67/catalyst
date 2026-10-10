@@ -8,6 +8,16 @@ messages.
 
 ## Unreleased
 
+- `catalyst serve`: a server several people share a criterion through,
+  with a `serve` share driver (`catalyst.toml`: `share = "serve"`,
+  `share_url`). Each person's criterion stays in catalyst's home and works
+  offline. A push applies all or nothing and is refused when a file moved on
+  the server since, when a change is not journaled, when an entry is signed
+  by anyone but the token's user, when an artifact ID is taken, or when a
+  reconciliation decision exceeds the signer's role. New: `catalyst share
+  login`, `share create --driver serve`, `serve token issue|list|revoke`;
+  `catalyst open` joins a served criterion. Standard library only.
+
 - `catalyst journal append --file <path>` refuses a path that does not
   exist and was never journaled or committed, and names it so. It used to
   call it "unchanged". When the criterion has that file, the error suggests
