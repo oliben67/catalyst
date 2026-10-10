@@ -6,6 +6,13 @@ that `/sync-framework` applies to an existing deployment. Versions before
 0.37.0 are described by that migrations index and by the tagged commit
 messages.
 
+## Unreleased
+
+- `catalyst journal append --file <path>` refuses a path that does not
+  exist and was never journaled or committed, and names it so. It used to
+  call it "unchanged". When the criterion has that file, the error suggests
+  the `.criterion/<path>` spelling.
+
 ## 0.52.1 — 2026-10-10
 
 A fix; no layout change, no migration.

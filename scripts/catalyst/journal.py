@@ -501,6 +501,12 @@ def _append(dep: Deployment, req: AppendRequest) -> dict:
         after = git(repo, "hash-object", "-w", "--", rel) if (repo / rel).is_file() else None
         if after:
             _EXISTS[(str(repo), after)] = True  # written now: never trust a stale "absent"
+        if before is None and after is None:
+            hint = f"; did you mean {WC}{raw}?" if (dep.root / raw).is_file() else ""
+            raise JournalError(
+                f"{raw} does not exist and was never journaled or committed (a criterion file is named "
+                f"absolute or as {WC}<path>, a project file relative to the project){hint}"
+            )
         if before == after and not req.allow_unchanged:
             raise JournalError(
                 f"{path} is unchanged since its last journaled state (pass --allow-unchanged if that is intended)"
