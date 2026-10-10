@@ -119,3 +119,99 @@ def test_the_cli_prints_text_and_json(tmp_path, capsys):
     assert main(["--project", str(project), "journal", "show"]) == 0
     assert "(no journal entries)" in capsys.readouterr().out
     assert main(["--project", str(project), "list", "widgets"]) == 1
+
+
+def test_graph_carries_rules_links_and_the_entity_types(tmp_path, monkeypatch, capsys):
+    dep, corpus = _dep(tmp_path)
+    g = views.graph(dep, corpus)
+    assert {r["id"]: r["domain"] for r in g["rules"]} == {RULE: "AUTH"}
+    assert [(r["title"], r["status"]) for r in g["rules"]] == [("Login flow", "✅")]
+    assert g["domains"] == [{"code": "AUTH", "file": None, "title": ""}]  # its document is not written
+    item = next(a for a in g["artifacts"] if a["id"] == ITEM)
+    assert item["links"]["Subs"] == [SUB] and item["links"]["Targets"] == [RULE]
+    assert item["file"] == "items/ITEM-000001-first-item.md"
+    sub = next(a for a in g["artifacts"] if a["id"] == SUB)
+    assert sub["links"]["Item"] == [ITEM]
+    assert {"ITEM", "SUB"} <= set(g["types"])
+    assert {f["name"] for f in g["types"]["ITEM"]["fields"]} >= {"Status", "Targets", "Subs"}
+    assert g["types"]["ITEM"]["closed_states"] == list(dep.etds["ITEM"].workflow.closed_states)
+    monkeypatch.chdir(tmp_path / "app")
+    assert main(["graph", "--json"]) == 0
+    assert json.loads(capsys.readouterr().out) == json.loads(json.dumps(g, default=str))
+    assert main(["graph"]) == 0
+    assert "1 rule(s)" in capsys.readouterr().out
+
+
+ROW_SCHEMA = """id_prefix: ROW
+name: Row
+plural_name: Rows
+folder: rows
+grounding: none
+naming: free-form
+fields:
+  - name: ID
+    kind: text
+"""
+
+
+def test_graph_carries_table_rows_and_what_each_item_mentions(tmp_path):
+    project = make_project(tmp_path)
+    root = project / ".criterion"
+    mod = root / "modules" / "example-process"
+    write(mod / "schemas" / "row.yaml", ROW_SCHEMA)
+    module = (mod / "module.yaml").read_text(encoding="utf-8")
+    write(mod / "module.yaml", module + "  - id: ROW\n    schema: schemas/row.yaml\n")
+    row = f"ROW-000001-{USERID}"
+    write(
+        root / "rows" / "rows.md",
+        f"# Rows\n\n| ID | Title | Linked |\n|---|---|---|\n| `{row}` | First | `ITEM-000001` |\n",
+    )
+    item = root / "items" / "ITEM-000001-first-item.md"
+    write(
+        item,
+        item.read_text(encoding="utf-8")
+        + f"\nSee `{SUB}`, `{ITEM}` itself, `NOPE-000001` and `ITEM-000001-\n{USERID}`/`{row}`.\n",
+    )
+    rules = root / "rules" / "business" / "br-business-rules.md"
+    write(
+        rules, rules.read_text(encoding="utf-8").replace("**Status:** ✅\n", f"**Status:** ✅\n\nServed by `{ITEM}`.\n")
+    )
+    dep = load(project)
+    g = views.graph(dep, load_corpus(dep))
+    rows = [a for a in g["artifacts"] if a.get("row")]
+    assert rows == [
+        {
+            "id": row,
+            "type": "ROW",
+            "file": "rows/rows.md",
+            "line": 5,
+            "row": True,
+            "fields": {"ID": f"`{row}`", "Title": "First", "Linked": "`ITEM-000001`"},
+            "links": {},
+            "mentions": [ITEM],
+        }
+    ]
+    first = next(a for a in g["artifacts"] if a["id"] == ITEM)
+    # its whole text, field table included; its own ID and unknown tokens left out
+    assert set(first["mentions"]) == {RULE, "AUTH", SUB, row}
+    assert next(r for r in g["rules"] if r["id"] == RULE)["mentions"] == [ITEM]
+    assert "0 rule" not in views.render_graph(g) and ", 2 open," in views.render_graph(g)
+
+
+def test_graph_reads_a_one_file_rule_and_a_domain_document(tmp_path):
+    from test_catalyst_rule_shapes import _per_file_rules
+
+    project = make_project(tmp_path, git=True)
+    rule, old = _per_file_rules(project)
+    write(project / ".criterion" / "rules" / "domains" / "cor-CORE.INGEST-ingest.md", "# `CORE.INGEST` — Ingest\n")
+    dep = load(project)
+    g = views.graph(dep, load_corpus(dep))
+    rules = {r["id"]: r for r in g["rules"]}
+    assert (rules[rule]["title"], rules[rule]["status"]) == ("Logs", "✅ implemented")  # its rules.md entry
+    assert rules[rule]["domain"] == "CORE.INGEST" and rules[old]["status"].startswith("🗑 retired")
+    domain = next(d for d in g["domains"] if d["code"] == "CORE.INGEST")
+    assert domain == {
+        "code": "CORE.INGEST",
+        "file": "rules/domains/cor-CORE.INGEST-ingest.md",
+        "title": "`CORE.INGEST` — Ingest",
+    }
