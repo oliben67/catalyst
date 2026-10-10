@@ -16,7 +16,9 @@ messages.
   (server-sent events). A client no longer needs a parser of its own.
 - `catalyst graph [--json]`: every rule, domain and artifact with its links,
   and each entity type's definition, in one answer; `GET /v1/graph` serves
-  it.
+  it. Items kept as table rows (`row: true`) are included, and every rule
+  and artifact carries `mentions`, the IDs its text cites apart from its
+  field links.
 - `catalyst serve --local`: a project's own criterion, read-only, on
   127.0.0.1 with a token made for the run (printed as one JSON line), with
   the read endpoints, `events` (a change counter) and `GET /v1/check`

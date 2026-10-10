@@ -16,10 +16,12 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import re
+from collections.abc import Callable
 from pathlib import Path
 
 from catalyst import journal
-from catalyst.corpus import Artifact, Corpus, norm_field, ref_values
+from catalyst.corpus import TABLE_ID_RE, Artifact, Corpus, Rule, norm_field, ref_values
 from catalyst.deployment import Deployment
 
 REF_KINDS = ("ref", "ref-list")
@@ -240,17 +242,112 @@ def _rule_domain(rule_id: str) -> str | None:
     return parts[1] if len(parts) > 2 else None
 
 
+BACKTICKED = re.compile(r"(?<=`)([^`\s]+)(?=`)")  # every segment between two backticks, so a token wrapped
+# across lines (`REQ-000010-\nAb12Cd34`) never throws the pairing out of step
+SHORT_FORM = re.compile(r"^[A-Z][A-Z0-9]*-\d{6}$")
+
+
+def _resolver(corpus: Corpus, ids: set[str]) -> Callable[[str], str | None]:
+    """A cited token's node: the ID itself, a rule's `<ID>-<slug>`, or a
+    short form (`PREFIX-NNNNNN`) naming exactly one ID."""
+    shorts: dict[str, str | None] = {}
+    for i in ids:
+        m = re.match(r"^([A-Z][A-Z0-9]*-\d{6})-", i)
+        if m:
+            shorts[m.group(1)] = None if m.group(1) in shorts else i
+
+    def resolve(token: str) -> str | None:
+        if token in ids:
+            return token
+        if (rule := corpus.rule_id(token)) is not None:
+            return rule
+        return shorts.get(token) if SHORT_FORM.match(token) else None
+
+    return resolve
+
+
+def _mentions(text: str, resolve: Callable[[str], str | None], itself: str) -> list[str]:
+    """The IDs `text` cites in backticks, resolved, itself left out, in the
+    order first met."""
+    out: dict[str, None] = {}
+    for token in BACKTICKED.findall(text):
+        found = resolve(token)
+        if found and found != itself:
+            out[found] = None
+    return list(out)
+
+
+def _rule_text(rule: Rule) -> str:
+    """A rule's own text: its file, for a one-file rule; else its heading to
+    the next heading of the same or a higher level."""
+    try:
+        lines = rule.file.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return ""
+    if rule.file.name.startswith(rule.id):
+        return "\n".join(lines)
+    start = max(rule.line - 1, 0)
+    level = len(lines[start]) - len(lines[start].lstrip("#")) if start < len(lines) else 0
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        depth = len(lines[i]) - len(lines[i].lstrip("#"))
+        if 0 < depth <= level and lines[i][depth : depth + 1] == " ":
+            end = i
+            break
+    return "\n".join(lines[start:end])
+
+
+def _rows(dep: Deployment, corpus: Corpus) -> list[tuple[str, str, Path, int, str]]:
+    """(id, type, file, line, row text) for each item kept as a table row."""
+    out = []
+    for prefix, ids in sorted(corpus.row_items.items()):
+        etd = dep.etds.get(prefix)
+        folder = dep.folder(etd) if etd else None
+        if folder is None:
+            continue
+        seen: set[str] = set()
+        for f in sorted(folder.glob("*.md")):
+            for n, line in enumerate(f.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                m = TABLE_ID_RE.match(line)
+                if m and m.group(1) in ids and m.group(1) not in seen:
+                    seen.add(m.group(1))
+                    out.append((m.group(1), prefix, f, n, line))
+    return out
+
+
 def graph(dep: Deployment, corpus: Corpus) -> dict:
     """The whole chain in one answer: rules (with their domain), domains,
     artifacts (each `list` row plus `links`, the IDs each reference field
-    cites) and `types`, each entity type's definition."""
+    cites; an item kept as a table row has `row: true`) and `types`, each
+    entity type's definition. Every rule and artifact also carries
+    `mentions`: the IDs its own text cites in backticks, apart from its
+    field links."""
+    rows = _rows(dep, corpus)
+    resolve = _resolver(corpus, corpus.all_ids() | set(corpus.domains))
     artifacts = []
     for prefix in sorted(corpus.by_prefix):
         refs = _ref_fields(dep, prefix)
         for art in corpus.by_prefix[prefix]:
             row = _artifact_row(dep, art)
             row["links"] = {name: ref_values(art.get(name) or "") for name in refs if art.get(name) is not None}
+            try:
+                text = art.file.read_text(encoding="utf-8")
+            except OSError:
+                text = ""
+            row["mentions"] = _mentions(text, resolve, art.id)
             artifacts.append(row)
+    for item, prefix, f, n, line in rows:
+        artifacts.append(
+            {
+                "id": item,
+                "type": prefix,
+                "file": _rel(dep, f),
+                "line": n,
+                "row": True,
+                "links": {},
+                "mentions": _mentions(line, resolve, item),
+            }
+        )
     types = {
         prefix: {
             "name": etd.name,
@@ -276,6 +373,7 @@ def graph(dep: Deployment, corpus: Corpus) -> dict:
             "line": defs[0].line,
             "retired": defs[0].retired,
             "domain": _rule_domain(rid),
+            "mentions": _mentions(_rule_text(defs[0]), resolve, rid),
         }
         for rid, defs in sorted(corpus.rules.items())
     ]
@@ -286,7 +384,7 @@ def render_graph(g: dict) -> str:
     open_count = sum(
         1
         for a in g["artifacts"]
-        if (a.get("Status") or "") not in g["types"].get(a["type"], {}).get("closed_states", [])
+        if not a.get("row") and (a.get("Status") or "") not in g["types"].get(a["type"], {}).get("closed_states", [])
     )
     links = sum(len(v) for a in g["artifacts"] for v in a["links"].values())
     return (

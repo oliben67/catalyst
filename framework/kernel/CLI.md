@@ -595,8 +595,12 @@ writes. Each takes `--json`.
   [--rule <id>]`: journal entries in time order, filtered.
 - `catalyst graph`: the whole chain in one answer — `rules` (with their
   domain), `domains`, `artifacts` (each `list` row plus `links`, the IDs each
-  reference field cites) and `types`, each entity type's fields, states and
-  grounding, so a client needs neither a parser nor the module's type list.
+  reference field cites; an item kept as a table row has `row: true` and the
+  file and line of its row) and `types`, each entity type's fields, states
+  and grounding, so a client needs neither a parser nor the module's type
+  list. Every rule and artifact also has `mentions`: the IDs its own text
+  cites in backticks (a rule: its section, or its file), resolved like field
+  links, itself left out.
 
 ### `catalyst unrecorded [<range>] [--json]`
 
